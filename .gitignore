@@ -1,0 +1,17 @@
+instance/
+*.sqlite3
+test-tmp/
+test-lineups.sqlite3
+smoke.sqlite3
+.pytest_cache/
+__pycache__/
+*.pyc
+server.out.log
+server.err.log
+*.sqlite3-wal
+*.sqlite3-shm
+.venv/
+venv/
+.idea/
+.vscode/
+Thumbs.db

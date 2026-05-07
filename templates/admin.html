@@ -1,0 +1,22 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>金铲铲阵容库后台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <main class="page-shell admin-shell">
+      <header class="hero">
+        <p class="eyebrow">Admin</p>
+        <h1>后台管理</h1>
+        <p class="hero-description">管理用户、阵容、举报、热度分和审计日志。</p>
+      </header>
+      <section class="panel">
+        <div id="adminApp">后台数据加载中...</div>
+      </section>
+    </main>
+    <script src="{{ url_for('static', filename='admin.js', v='20260502-2') }}" defer></script>
+  </body>
+</html>

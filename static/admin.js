@@ -1,0 +1,242 @@
+(async function () {
+  const root = document.querySelector('#adminApp');
+  if (!root) return;
+
+  const state = { csrfToken: '', stats: {}, reports: [], lineups: [], users: [], logs: [], lineupQuery: '', userQuery: '' };
+  const statusText = { pending: '待处理', resolved: '已处理', dismissed: '已驳回', normal: '正常', hidden: '已隐藏', deleted: '已删除', active: '正常', disabled: '已禁用' };
+
+  function el(tag, className = '', text = '') {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  }
+
+  function button(label, handler, className = 'small-button') {
+    const node = el('button', className, label);
+    node.type = 'button';
+    node.addEventListener('click', async (event) => {
+      try {
+        await handler(event, node);
+      } catch (error) {
+        alert(error.message || '操作失败，请刷新后重试');
+      }
+    });
+    return node;
+  }
+
+  async function api(path, options = {}) {
+    const response = await fetch(path, {
+      ...options,
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': state.csrfToken, ...(options.headers || {}) },
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || '操作失败');
+    }
+    if (response.status === 204) return null;
+    return response.json();
+  }
+
+  async function loadData() {
+    const me = await fetch('/api/me').then((response) => response.json());
+    state.csrfToken = me.csrf_token;
+    const lineupParam = state.lineupQuery ? `?q=${encodeURIComponent(state.lineupQuery)}` : '';
+    const userParam = state.userQuery ? `?q=${encodeURIComponent(state.userQuery)}` : '';
+    [state.stats, state.reports, state.lineups, state.users, state.logs] = await Promise.all([
+      api('/api/admin/stats'),
+      api('/api/admin/reports'),
+      api(`/api/admin/lineups${lineupParam}`),
+      api(`/api/admin/users${userParam}`),
+      api('/api/admin/audit-logs'),
+    ]);
+    render();
+  }
+
+  function render() {
+    root.replaceChildren();
+    root.append(renderSummary(), renderModules());
+  }
+
+  function renderModules() {
+    const grid = el('div', 'admin-modules-grid');
+    grid.append(renderReports(), renderLineups(), renderUsers(), renderLogs());
+    return grid;
+  }
+
+  function renderSummary() {
+    const hiddenLineups = state.lineups.filter((lineup) => lineup.status === 'hidden').length;
+    const cards = el('div', 'admin-stat-grid');
+    [
+      ['总用户', state.stats.total_users || 0, '不含管理员账号'],
+      ['今日注册', state.stats.today_users || 0, '新用户增长'],
+      ['今日登录', state.stats.today_logins || 0, '去重登录用户'],
+      ['待处理举报', state.reports.length, '处理后自动移出'],
+      ['已隐藏阵容', hiddenLineups, '当前搜索范围内'],
+    ].forEach(([label, value, caption]) => {
+      const card = el('article', 'admin-stat-card');
+      card.append(el('span', 'stat-label', label), el('strong', '', String(value)), el('small', '', caption));
+      cards.append(card);
+    });
+    return cards;
+  }
+
+  function createModule(title, subtitle, controls = null) {
+    const section = el('section', 'admin-module');
+    const header = el('div', 'admin-module-header');
+    header.append(sectionTitle(title, subtitle));
+    if (controls) header.append(controls);
+    const body = el('div', 'admin-module-body');
+    section.append(header, body);
+    return { section, body };
+  }
+
+  function renderReports() {
+    const { section, body } = createModule('用户举报', '只展示待处理举报；处理后自动从这里移除');
+    const list = el('div', 'admin-list');
+    if (!state.reports.length) list.append(empty('暂无待处理举报'));
+    state.reports.forEach((report) => list.append(reportCard(report)));
+    body.append(list);
+    return section;
+  }
+
+  function reportCard(report) {
+    const card = el('article', 'admin-card is-alert');
+    const head = el('div', 'admin-card-head');
+    head.append(el('h3', '', `#${report.id} ${report.lineup_name || '阵容已删除'}`), pill(statusText[report.status] || report.status));
+    const meta = el('p', 'admin-meta', `举报人：${report.reporter_nickname || '-'} · 作者：${report.owner_nickname || '-'} · 提交：${report.created_at}`);
+    const reason = el('p', 'admin-reason', report.reason);
+    const code = el('pre', 'admin-code', report.lineup_code || '无阵容码');
+    const actions = el('div', 'card-actions');
+    actions.append(
+      button('处理并隐藏阵容', () => handleReport(report.id, 'resolved', true)),
+      button('仅标记已处理', () => handleReport(report.id, 'resolved', false)),
+      button('驳回举报', () => handleReport(report.id, 'dismissed', false), 'small-button danger-button'),
+    );
+    card.append(head, meta, reason, code, actions);
+    return card;
+  }
+
+  async function handleReport(id, status, hideLineup) {
+    const actionText = hideLineup ? '处理举报并隐藏阵容' : (status === 'dismissed' ? '驳回举报' : '标记举报为已处理');
+    if (!confirm(`确定要${actionText}吗？`)) return;
+    await api(`/api/admin/reports/${id}/resolve`, { method: 'POST', body: JSON.stringify({ status, hide_lineup: hideLineup }) });
+    await loadData();
+  }
+
+  function renderLineups() {
+    const controls = searchBox('搜索阵容/阵容码/作者', state.lineupQuery, async (value) => {
+      state.lineupQuery = value;
+      await loadData();
+    });
+    const { section, body } = createModule('阵容管理', '按阵容名、阵容码、作者用户名或昵称查找', controls);
+    const list = el('div', 'admin-list compact');
+    if (!state.lineups.length) list.append(empty('没有找到阵容'));
+    state.lineups.slice(0, 50).forEach((lineup) => {
+      const card = el('article', 'admin-row-card');
+      const info = el('div');
+      info.append(el('strong', '', lineup.name), el('p', 'admin-meta', `作者：${lineup.owner_nickname || '-'} · ${statusText[lineup.status] || lineup.status} · 赞 ${lineup.like_count} · 复制 ${lineup.copy_count} · 分 ${lineup.score}`));
+      const actions = el('div', 'card-actions');
+      actions.append(
+        button(lineup.status === 'hidden' ? '恢复' : '隐藏', () => updateLineupStatus(lineup, lineup.status === 'hidden' ? 'normal' : 'hidden')),
+        button('调整分数', () => adjustScore(lineup)),
+      );
+      card.append(info, actions);
+      list.append(card);
+    });
+    body.append(list);
+    return section;
+  }
+
+  function searchBox(placeholder, value, onSearch) {
+    const wrap = el('form', 'admin-search');
+    const input = el('input');
+    input.type = 'search';
+    input.placeholder = placeholder;
+    input.value = value;
+    const submit = button('查找', () => {}, 'small-button');
+    submit.type = 'submit';
+    wrap.append(input, submit);
+    wrap.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      try {
+        await onSearch(input.value.trim());
+      } catch (error) {
+        alert(error.message || '查找失败，请刷新后重试');
+      }
+    });
+    return wrap;
+  }
+
+  async function updateLineupStatus(lineup, status) {
+    await api(`/api/admin/lineups/${lineup.id}`, { method: 'PUT', body: JSON.stringify({ status }) });
+    await loadData();
+  }
+
+  async function adjustScore(lineup) {
+    const likeValue = prompt('设置管理员点赞修正数', lineup.admin_like_adjustment || 0);
+    if (likeValue === null) return;
+    const copyValue = prompt('设置管理员复制修正数', lineup.admin_copy_adjustment || 0);
+    if (copyValue === null) return;
+    await api(`/api/admin/lineups/${lineup.id}/adjust-score`, { method: 'POST', body: JSON.stringify({ admin_like_adjustment: Number(likeValue), admin_copy_adjustment: Number(copyValue) }) });
+    await loadData();
+  }
+
+  function renderUsers() {
+    const controls = searchBox('搜索用户名/邮箱/昵称', state.userQuery, async (value) => {
+      state.userQuery = value;
+      await loadData();
+    });
+    const { section, body } = createModule('用户管理', '按用户名、邮箱或昵称查找', controls);
+    const list = el('div', 'admin-list compact');
+    if (!state.users.length) list.append(empty('没有找到用户'));
+    state.users.slice(0, 50).forEach((user) => {
+      const card = el('article', 'admin-row-card');
+      const info = el('div');
+      info.append(el('strong', '', `${user.nickname}（${user.username}）`), el('p', 'admin-meta', `${user.email} · ${user.role} · ${statusText[user.status] || user.status} · 注册 ${user.created_at}`));
+      const actions = el('div', 'card-actions');
+      if (user.status !== 'disabled') actions.append(button('禁用', () => disableUser(user.id), 'small-button danger-button'));
+      card.append(info, actions);
+      list.append(card);
+    });
+    body.append(list);
+    return section;
+  }
+
+  async function disableUser(id) {
+    if (!confirm('确定禁用这个用户吗？')) return;
+    await api(`/api/admin/users/${id}`, { method: 'DELETE' });
+    await loadData();
+  }
+
+  function renderLogs() {
+    const { section, body } = createModule('审计日志', '最近 30 条后台关键操作');
+    const list = el('div', 'admin-log-list');
+    if (!state.logs.length) list.append(empty('暂无审计日志'));
+    state.logs.slice(0, 30).forEach((log) => {
+      const item = el('div', 'admin-log-item');
+      item.append(el('strong', '', log.action), el('span', '', `${log.target_type} #${log.target_id || '-'} · ${log.created_at}`));
+      list.append(item);
+    });
+    body.append(list);
+    return section;
+  }
+
+  function sectionTitle(title, subtitle) {
+    const wrap = el('div', 'admin-section-title');
+    wrap.append(el('h2', '', title), el('p', '', subtitle));
+    return wrap;
+  }
+
+  function pill(text) {
+    return el('span', 'admin-pill', text);
+  }
+
+  function empty(text) {
+    return el('div', 'empty-state', text);
+  }
+
+  loadData().catch((error) => {
+    root.textContent = error.message || '后台加载失败';
+  });
+})();

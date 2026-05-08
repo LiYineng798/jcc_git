@@ -23,3 +23,23 @@ def test_lineup_editor_pages_exist(client):
     assert edit_response.status_code == 200
     assert 'id="editorForm"' in create_response.get_data(as_text=True)
     assert 'id="editorForm"' in edit_response.get_data(as_text=True)
+
+
+def test_pages_include_favicon_and_favicon_route_exists(client):
+    for path in ['/', '/auth', '/lineup/new', '/lineup/1/edit']:
+        response = client.get(path)
+        assert response.status_code == 200
+        html = response.get_data(as_text=True)
+        assert 'rel="icon"' in html
+        assert 'href="/static/favicon.png"' in html
+
+    login_response = client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'})
+    assert login_response.status_code == 200
+    admin_response = client.get('/admin')
+    assert admin_response.status_code == 200
+    admin_html = admin_response.get_data(as_text=True)
+    assert 'rel="icon"' in admin_html
+    assert 'href="/static/favicon.png"' in admin_html
+
+    favicon_response = client.get('/favicon.ico')
+    assert favicon_response.status_code == 200

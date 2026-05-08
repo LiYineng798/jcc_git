@@ -27,3 +27,7 @@ python run_server.py
 - 建议使用 Nginx + Gunicorn/uWSGI，并启用 HTTPS。
 - `JCC_SECRET_KEY` 和管理员密码必须使用环境变量配置。
 - SQLite 数据库位于 `instance/lineups.sqlite3`，请定期备份。
+
+## 开发流程
+
+- 日常开发、同步、推送、上线流程见 `开发协作部署流程.md`

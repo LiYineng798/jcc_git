@@ -1,6 +1,6 @@
 ﻿import os
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, send_from_directory
 
 from config import apply_config
 from db import close_db, init_db, table_names
@@ -30,6 +30,14 @@ def create_app(test_config=None):
     @app.get('/auth')
     def auth_page():
         return render_template('auth.html')
+
+    @app.get('/favicon.ico')
+    def favicon():
+        return send_from_directory(
+            os.path.join(app.root_path, 'static'),
+            'favicon.png',
+            mimetype='image/png',
+        )
 
     @app.get('/lineup/new')
     def lineup_create_page():

@@ -43,3 +43,4 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
 
     favicon_response = client.get('/favicon.ico')
     assert favicon_response.status_code == 200
+    assert favicon_response.mimetype == 'image/vnd.microsoft.icon'

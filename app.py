@@ -35,8 +35,8 @@ def create_app(test_config=None):
     def favicon():
         return send_from_directory(
             os.path.join(app.root_path, 'static'),
-            'favicon.png',
-            mimetype='image/png',
+            'favicon.ico',
+            mimetype='image/vnd.microsoft.icon',
         )
 
     @app.get('/lineup/new')

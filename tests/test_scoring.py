@@ -39,7 +39,7 @@ def test_public_api_hides_score_but_admin_api_returns_score(client):
 
 def test_percentage_levels_assign_ss_s_a_b(client):
     register_user(client)
-    ids = [create_lineup(client, name=f'L{i}', code='C').get_json()['id'] for i in range(10)]
+    ids = [create_lineup(client, name=f'L{i}', code=f'#C{i}').get_json()['id'] for i in range(10)]
     client.post('/api/logout')
     client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'})
     headers = auth_headers(client)

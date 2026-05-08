@@ -1,8 +1,9 @@
 (async function () {
   const root = document.querySelector('#adminApp');
+  const dialogRoot = document.querySelector('#adminDialogRoot');
   if (!root) return;
 
-  const state = { csrfToken: '', stats: {}, reports: [], lineups: [], users: [], logs: [], lineupQuery: '', userQuery: '' };
+  const state = { csrfToken: '', stats: {}, reports: [], lineups: [], users: [], logs: [], lineupQuery: '', userQuery: '', passwordUser: null, passwordError: '', notice: '' };
   const statusText = { pending: '待处理', resolved: '已处理', dismissed: '已驳回', normal: '正常', hidden: '已隐藏', deleted: '已删除', active: '正常', disabled: '已禁用' };
 
   function el(tag, className = '', text = '') {
@@ -55,7 +56,9 @@
 
   function render() {
     root.replaceChildren();
+    if (state.notice) root.append(el('div', 'message admin-inline-message', state.notice));
     root.append(renderSummary(), renderModules());
+    renderPasswordDialog();
   }
 
   function renderModules() {
@@ -195,12 +198,114 @@
       const info = el('div');
       info.append(el('strong', '', `${user.nickname}（${user.username}）`), el('p', 'admin-meta', `${user.email} · ${user.role} · ${statusText[user.status] || user.status} · 注册 ${user.created_at}`));
       const actions = el('div', 'card-actions');
+      actions.append(button('修改密码', () => openPasswordDialog(user)));
       if (user.status !== 'disabled') actions.append(button('禁用', () => disableUser(user.id), 'small-button danger-button'));
       card.append(info, actions);
       list.append(card);
     });
     body.append(list);
     return section;
+  }
+
+  function openPasswordDialog(user) {
+    state.passwordUser = user;
+    state.passwordError = '';
+    renderPasswordDialog();
+  }
+
+  function closePasswordDialog() {
+    state.passwordUser = null;
+    state.passwordError = '';
+    renderPasswordDialog();
+  }
+
+  function renderPasswordDialog() {
+    if (!dialogRoot) return;
+    dialogRoot.replaceChildren();
+    if (!state.passwordUser) return;
+
+    const overlay = el('div', 'modal-backdrop');
+    const card = el('section', 'modal-card admin-password-dialog');
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-labelledby', 'passwordDialogTitle');
+
+    const header = el('div', 'modal-header');
+    const titleWrap = el('div');
+    const title = el('h2', '', '修改用户密码');
+    title.id = 'passwordDialogTitle';
+    titleWrap.append(
+      title,
+      el('p', 'admin-meta', `正在修改 ${state.passwordUser.nickname}（${state.passwordUser.username}）的登录密码`),
+    );
+    const closeButton = button('取消', () => closePasswordDialog());
+    header.append(titleWrap, closeButton);
+
+    const form = el('form', 'modal-form');
+    form.innerHTML = `
+      <label class="field">
+        <span>新密码</span>
+        <input id="passwordInput" name="password" type="password" placeholder="大于 5 位，且包含字母和数字" autocomplete="new-password" />
+      </label>
+      <label class="field">
+        <span>确认密码</span>
+        <input id="confirmPasswordInput" name="confirmPassword" type="password" placeholder="再次输入新密码" autocomplete="new-password" />
+      </label>
+      <div class="message" id="passwordDialogMessage">${state.passwordError || ''}</div>
+      <div class="editor-actions">
+        <button class="primary-button" type="submit">保存新密码</button>
+        <button class="ghost-button" type="button" id="cancelPasswordButton">取消</button>
+      </div>
+    `;
+    form.addEventListener('submit', submitPasswordReset);
+    form.querySelector('#cancelPasswordButton').addEventListener('click', closePasswordDialog);
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closePasswordDialog();
+    });
+
+    card.append(header, form);
+    overlay.append(card);
+    dialogRoot.append(overlay);
+  }
+
+  async function submitPasswordReset(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const password = form.querySelector('#passwordInput').value;
+    const confirmPassword = form.querySelector('#confirmPasswordInput').value;
+    if (!isValidPassword(password)) {
+      state.passwordError = '密码需大于5位且包含字母和数字';
+      renderPasswordDialog();
+      return;
+    }
+    if (password !== confirmPassword) {
+      state.passwordError = '两次输入的密码不一致';
+      renderPasswordDialog();
+      return;
+    }
+    await api(`/api/admin/users/${state.passwordUser.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ password }),
+    });
+    const passwordUser = state.passwordUser;
+    closePasswordDialog();
+    setNotice(`已更新 ${passwordUser.nickname} 的密码`);
+    await loadData();
+  }
+
+  function isValidPassword(password) {
+    const value = String(password || '');
+    return value.length > 5 && /[A-Za-z]/.test(value) && /\d/.test(value);
+  }
+
+  function setNotice(text) {
+    state.notice = text;
+    render();
+    clearTimeout(setNotice.timer);
+    setNotice.timer = setTimeout(() => {
+      state.notice = '';
+      render();
+    }, 2600);
   }
 
   async function disableUser(id) {

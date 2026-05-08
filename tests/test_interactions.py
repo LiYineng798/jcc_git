@@ -4,7 +4,7 @@ from test_lineup_permissions import auth_headers, create_lineup
 
 def test_user_can_like_five_lineups_per_day_and_cannot_unlike(client):
     register_user(client)
-    ids = [create_lineup(client, name=f'阵容{i}', code='C').get_json()['id'] for i in range(6)]
+    ids = [create_lineup(client, name=f'阵容{i}', code=f'#C{i}').get_json()['id'] for i in range(6)]
     headers = auth_headers(client)
     for lineup_id in ids[:5]:
         assert client.post(f'/api/lineups/{lineup_id}/like', headers=headers).status_code == 201

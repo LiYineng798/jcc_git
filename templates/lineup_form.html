@@ -38,6 +38,7 @@
           <label class="field">
             <span>阵容码</span>
             <textarea id="codeInput" name="code" rows="12" placeholder="粘贴完整阵容码，支持长文本和换行"></textarea>
+            <span class="field-hint">支持从分享文案中自动提取，保存时只保留以 `#` 开头的有效阵容码。</span>
           </label>
           <div class="editor-actions">
             <button class="primary-button" id="submitButton" type="submit">{% if page_mode == 'edit' %}保存修改{% else %}保存阵容{% endif %}</button>

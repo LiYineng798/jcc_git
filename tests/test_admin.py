@@ -33,6 +33,25 @@ def test_admin_can_create_update_disable_delete_users_with_validation(client):
     assert client.delete(f'/api/admin/users/{user_id}', headers=headers).status_code == 204
 
 
+def test_admin_can_reset_user_password_and_new_password_takes_effect(client):
+    register_user(client, username='alice', email='alice@example.com', password='abc123')
+    client.post('/api/logout')
+
+    headers = login_admin(client)
+    users = client.get('/api/admin/users?q=alice', headers=headers).get_json()
+    user_id = users[0]['id']
+    response = client.put(
+        f'/api/admin/users/{user_id}',
+        json={'password': 'newabc123'},
+        headers=headers,
+    )
+    assert response.status_code == 200
+
+    client.post('/api/logout')
+    assert client.post('/api/login', json={'account': 'alice', 'password': 'abc123'}).status_code == 400
+    assert client.post('/api/login', json={'account': 'alice', 'password': 'newabc123'}).status_code == 200
+
+
 def test_admin_can_edit_hide_delete_any_lineup(client):
     register_user(client)
     lineup = create_lineup(client).get_json()
@@ -73,7 +92,7 @@ def test_admin_actions_write_audit_logs(client):
 
 def test_admin_can_view_report_details_and_resolve_with_hidden_lineup(client):
     register_user(client, username='owner', email='owner@example.com', nickname='作者')
-    lineup = create_lineup(client, name='违规阵容', code='BAD-CODE').get_json()
+    lineup = create_lineup(client, name='违规阵容', code='#BADCODE').get_json()
     client.post('/api/logout')
 
     register_user(client, username='reporter', email='reporter@example.com', nickname='举报人')
@@ -92,7 +111,7 @@ def test_admin_can_view_report_details_and_resolve_with_hidden_lineup(client):
     assert reports[0]['reason'] == '阵容码无效'
     assert reports[0]['reporter_nickname'] == '举报人'
     assert reports[0]['lineup_name'] == '违规阵容'
-    assert reports[0]['lineup_code'] == 'BAD-CODE'
+    assert reports[0]['lineup_code'] == '#BADCODE'
     assert reports[0]['owner_nickname'] == '作者'
 
     resolved = client.post(
@@ -134,8 +153,8 @@ def test_admin_can_dismiss_report_without_hiding_lineup(client):
 
 def test_admin_lineup_search_matches_name_code_and_owner(client):
     register_user(client, username='owner', email='owner@example.com', nickname='阵容作者')
-    create_lineup(client, name='法师九五', code='MAGE-CODE')
-    create_lineup(client, name='斗士阵容', code='FIGHTER-CODE')
+    create_lineup(client, name='法师九五', code='#MAGECODE')
+    create_lineup(client, name='斗士阵容', code='#FIGHTERCODE')
     client.post('/api/logout')
 
     headers = login_admin(client)

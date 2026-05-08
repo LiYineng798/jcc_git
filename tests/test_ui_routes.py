@@ -5,6 +5,7 @@ def test_index_uses_top_right_auth_link(client):
     assert 'id="registerForm"' not in html
     assert 'id="lineupForm"' not in html
     assert 'id="createLineupLink"' in html
+    assert 'id="toast"' in html
 
 
 def test_auth_page_contains_login_and_register_forms(client):
@@ -40,6 +41,7 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
     admin_html = admin_response.get_data(as_text=True)
     assert 'rel="icon"' in admin_html
     assert 'href="/static/favicon.png"' in admin_html
+    assert 'id="adminDialogRoot"' in admin_html
 
     favicon_response = client.get('/favicon.ico')
     assert favicon_response.status_code == 200

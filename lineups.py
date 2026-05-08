@@ -1,5 +1,7 @@
 ﻿from datetime import datetime
 
+import re
+
 from flask import Blueprint, jsonify, request
 
 from audit import write_audit
@@ -8,6 +10,8 @@ from db import get_db, now_text
 from scoring import score_map
 
 lineups_bp = Blueprint('lineups', __name__)
+LINEUP_CODE_MESSAGE = '阵容码无法解析，请改成以 # 开头的阵容码后再提交'
+LINEUP_CODE_PATTERN = re.compile(r'[＃#]([A-Za-z0-9]+)')
 
 
 def _bucket_start():
@@ -18,12 +22,22 @@ def _bucket_start():
 
 def _validate_lineup(data):
     name = str(data.get('name', '')).strip()
-    code = str(data.get('code', '')).strip()
+    raw_code = str(data.get('code', '')).strip()
     if not name or len(name) > 80:
         return None, '请输入阵容名称'
-    if not code or len(code) > 20000:
+    if not raw_code or len(raw_code) > 20000:
         return None, '请输入阵容码'
+    code = _extract_lineup_code(raw_code)
+    if not code:
+        return None, LINEUP_CODE_MESSAGE
     return {'name': name, 'code': code}, None
+
+
+def _extract_lineup_code(raw_code):
+    matches = LINEUP_CODE_PATTERN.findall(str(raw_code or ''))
+    if not matches:
+        return None
+    return f'#{max(matches, key=len)}'
 
 
 def _lineup_row(lineup_id):

@@ -74,9 +74,15 @@ async function loadLineup() {
 async function saveLineup(event) {
   event.preventDefault();
   if (!state.user) return;
+  const normalizedCode = extractLineupCode(elements.codeInput.value);
+  if (!normalizedCode) {
+    showMessage('阵容码无法解析，请改成以 # 开头的阵容码后再提交');
+    return;
+  }
+  elements.codeInput.value = normalizedCode;
   const body = {
     name: elements.nameInput.value.trim(),
-    code: elements.codeInput.value.trim(),
+    code: normalizedCode,
   };
   const isEdit = mode === 'edit' && elements.lineupId.value;
   if (elements.lineupVersion.value) body.version = Number(elements.lineupVersion.value);
@@ -93,6 +99,12 @@ async function saveLineup(event) {
 
 function showMessage(text) {
   elements.message.textContent = text;
+}
+
+function extractLineupCode(rawCode) {
+  const matches = Array.from(String(rawCode || '').matchAll(/[＃#]([A-Za-z0-9]+)/g)).map((item) => item[1]);
+  if (!matches.length) return '';
+  return `#${matches.sort((left, right) => right.length - left.length)[0]}`;
 }
 
 function setTheme(theme) {

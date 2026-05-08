@@ -40,7 +40,7 @@ def test_legacy_single_user_lineups_schema_is_migrated():
         assert client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'}).status_code == 200
         response = client.post(
             '/api/lineups',
-            json={'name': '新阵容', 'code': 'NEW-CODE'},
+            json={'name': '新阵容', 'code': '#NEWCODE'},
             headers=auth_headers(client),
         )
 

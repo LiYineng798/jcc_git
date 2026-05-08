@@ -9,7 +9,7 @@ def auth_headers(client):
     return {'X-CSRF-Token': csrf(client)}
 
 
-def create_lineup(client, name='阵容A', code='CODE'):
+def create_lineup(client, name='阵容A', code='#CODE123'):
     return client.post('/api/lineups', json={'name': name, 'code': code}, headers=auth_headers(client))
 
 
@@ -33,12 +33,38 @@ def test_logged_in_user_can_create_lineup_with_owner_id(client):
     assert data['can_edit'] is True
 
 
+def test_create_lineup_extracts_hash_prefixed_code_from_messy_input(client):
+    register_user(client)
+    response = create_lineup(client, code='青青#【阵容码】#斗虫伊泽-金铲铲葡葡萄#MTEwMTIzABC987')
+    assert response.status_code == 201
+    assert response.get_json()['code'] == '#MTEwMTIzABC987'
+
+
+def test_create_lineup_rejects_unparseable_code(client):
+    register_user(client)
+    response = create_lineup(client, code='这不是合法阵容码')
+    assert response.status_code == 400
+    assert '阵容码无法解析' in response.get_json()['error']
+
+
+def test_update_lineup_normalizes_code_before_save(client):
+    register_user(client)
+    lineup = create_lineup(client, code='#ABC123').get_json()
+    response = client.put(
+        f"/api/lineups/{lineup['id']}",
+        json={'name': lineup['name'], 'code': '分享文本#阵容#XYZ987', 'version': lineup['version']},
+        headers=auth_headers(client),
+    )
+    assert response.status_code == 200
+    assert response.get_json()['code'] == '#XYZ987'
+
+
 def test_user_cannot_edit_or_delete_other_users_lineup(client):
     register_user(client, username='a', email='a@example.com')
     lineup = create_lineup(client).get_json()
     client.post('/api/logout')
     register_user(client, username='b', email='b@example.com')
-    assert client.put(f"/api/lineups/{lineup['id']}", json={'name': '改', 'code': 'NEW'}, headers=auth_headers(client)).status_code == 403
+    assert client.put(f"/api/lineups/{lineup['id']}", json={'name': '改', 'code': '#NEW123'}, headers=auth_headers(client)).status_code == 403
     assert client.delete(f"/api/lineups/{lineup['id']}", headers=auth_headers(client)).status_code == 403
 
 
@@ -48,7 +74,7 @@ def test_admin_can_edit_delete_hide_any_lineup(client):
     client.post('/api/logout')
     assert client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'}).status_code == 200
     headers = auth_headers(client)
-    assert client.put(f"/api/lineups/{lineup['id']}", json={'name': '管理员改', 'code': 'ADMIN'}, headers=headers).status_code == 200
+    assert client.put(f"/api/lineups/{lineup['id']}", json={'name': '管理员改', 'code': '#ADMIN123'}, headers=headers).status_code == 200
     assert client.post(f"/api/lineups/{lineup['id']}/hide", headers=headers).status_code == 200
 
 
@@ -64,7 +90,7 @@ def test_hidden_lineups_are_not_visible_to_public(client):
 
 def test_lineups_endpoint_supports_item_fetch_for_editor(client):
     register_user(client, username='a', email='a@example.com', nickname='作者')
-    lineup = create_lineup(client, name='可编辑阵容', code='EDIT-CODE').get_json()
+    lineup = create_lineup(client, name='可编辑阵容', code='#EDITCODE').get_json()
     data = client.get(f"/api/lineups/{lineup['id']}").get_json()
     assert data['id'] == lineup['id']
     assert data['name'] == '可编辑阵容'
@@ -74,7 +100,7 @@ def test_lineups_endpoint_supports_item_fetch_for_editor(client):
 def test_lineups_endpoint_supports_pagination(client):
     register_user(client, username='a', email='a@example.com')
     for index in range(15):
-        create_lineup(client, name=f'阵容{index:02d}', code=f'CODE-{index:02d}')
+        create_lineup(client, name=f'阵容{index:02d}', code=f'#CODE{index:02d}')
     page_one = client.get('/api/lineups?page=1&page_size=10').get_json()
     page_two = client.get('/api/lineups?page=2&page_size=10').get_json()
     assert page_one['total'] == 15
@@ -89,8 +115,8 @@ def test_lineups_endpoint_supports_pagination(client):
 def test_lineups_pagination_applies_after_search_filter(client):
     register_user(client, username='a', email='a@example.com')
     for index in range(12):
-        create_lineup(client, name=f'法师阵容{index:02d}', code=f'MAGE-{index:02d}')
-    create_lineup(client, name='斗士阵容', code='FIGHT')
+        create_lineup(client, name=f'法师阵容{index:02d}', code=f'#MAGE{index:02d}')
+    create_lineup(client, name='斗士阵容', code='#FIGHT123')
     page = client.get('/api/lineups?q=法师&page=1&page_size=10').get_json()
     assert page['total'] == 12
     assert page['total_pages'] == 2
@@ -103,7 +129,7 @@ def test_paginated_logged_in_list_avoids_n_plus_one_queries(client, monkeypatch)
     register_user(client, username='a', email='a@example.com')
     lineup_ids = []
     for index in range(15):
-        lineup_ids.append(create_lineup(client, name=f'阵容{index:02d}', code=f'CODE-{index:02d}').get_json()['id'])
+        lineup_ids.append(create_lineup(client, name=f'阵容{index:02d}', code=f'#CODE{index:02d}').get_json()['id'])
 
     headers = auth_headers(client)
     for lineup_id in lineup_ids[:3]:

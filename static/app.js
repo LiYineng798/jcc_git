@@ -29,6 +29,7 @@ const elements = {
   themeToggle: $('#themeToggle'),
   themeIcon: $('#themeIcon'),
   themeText: $('#themeText'),
+  toast: $('#toast'),
 };
 
 setTheme(localStorage.getItem('theme') || 'light');
@@ -209,13 +210,36 @@ function openEditor(lineupId) {
 }
 
 async function copyLineup(lineup) {
-  try {
-    await navigator.clipboard.writeText(lineup.code);
-  } catch (_) {
+  const copied = await writeClipboard(lineup.code);
+  if (!copied) {
+    showMessage('复制失败，请长按阵容码手动复制');
+    return;
   }
   await api(`/api/lineups/${lineup.id}/copy`, { method: 'POST' });
-  showMessage('已复制到剪贴板');
+  showToast('复制成功！祝你把把吃鸡！');
   loadLineups();
+}
+
+async function writeClipboard(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (_) {
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', 'readonly');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  textarea.style.pointerEvents = 'none';
+  document.body.append(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+  const copied = document.execCommand('copy');
+  textarea.remove();
+  return copied;
 }
 
 async function likeLineup(lineup) {
@@ -265,6 +289,19 @@ function showMessage(text) {
   showMessage.timer = setTimeout(() => {
     elements.message.textContent = '';
   }, 2600);
+}
+
+function showToast(text) {
+  if (!elements.toast) {
+    showMessage(text);
+    return;
+  }
+  elements.toast.textContent = text;
+  elements.toast.classList.add('is-visible');
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => {
+    elements.toast.classList.remove('is-visible');
+  }, 2200);
 }
 
 function setTheme(theme) {

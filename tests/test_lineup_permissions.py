@@ -96,3 +96,36 @@ def test_lineups_pagination_applies_after_search_filter(client):
     assert page['total_pages'] == 2
     assert len(page['items']) == 10
 
+
+def test_paginated_logged_in_list_avoids_n_plus_one_queries(client, monkeypatch):
+    import db
+
+    register_user(client, username='a', email='a@example.com')
+    lineup_ids = []
+    for index in range(15):
+        lineup_ids.append(create_lineup(client, name=f'阵容{index:02d}', code=f'CODE-{index:02d}').get_json()['id'])
+
+    headers = auth_headers(client)
+    for lineup_id in lineup_ids[:3]:
+        assert client.post(f'/api/lineups/{lineup_id}/like', headers=headers).status_code == 201
+        assert client.post(f'/api/lineups/{lineup_id}/favorite', headers=headers).status_code == 200
+
+    statements = []
+    original_connect = db.sqlite3.connect
+
+    def traced_connect(*args, **kwargs):
+        connection = original_connect(*args, **kwargs)
+        connection.set_trace_callback(statements.append)
+        return connection
+
+    monkeypatch.setattr(db.sqlite3, 'connect', traced_connect)
+
+    response = client.get('/api/lineups?page=1&page_size=10')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['total'] == 15
+    assert len(data['items']) == 10
+
+    select_statements = [sql for sql in statements if sql.lstrip().upper().startswith('SELECT')]
+    assert len(select_statements) <= 6
+

@@ -4,22 +4,34 @@ from math import ceil
 from db import get_db
 
 
-def _cutoff(now=None):
+def score_cutoff(now=None):
     now = now or datetime.now()
     return (now - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def compute_lineup_scores(db=None, now=None):
     db = db or get_db()
-    cutoff = _cutoff(now)
+    cutoff = score_cutoff(now)
     rows = db.execute(
         '''
         SELECT l.id AS lineup_id,
                COALESCE(l.admin_like_adjustment, 0) AS admin_like_adjustment,
                COALESCE(l.admin_copy_adjustment, 0) AS admin_copy_adjustment,
-               (SELECT COUNT(*) FROM likes lk WHERE lk.lineup_id = l.id AND lk.created_at >= ?) AS like_count,
-               (SELECT COUNT(*) FROM copy_events ce WHERE ce.lineup_id = l.id AND ce.counted = 1 AND ce.created_at >= ?) AS copy_count
+               COALESCE(like_totals.like_count, 0) AS like_count,
+               COALESCE(copy_totals.copy_count, 0) AS copy_count
         FROM lineups l
+        LEFT JOIN (
+            SELECT lineup_id, COUNT(*) AS like_count
+            FROM likes
+            WHERE created_at >= ?
+            GROUP BY lineup_id
+        ) AS like_totals ON like_totals.lineup_id = l.id
+        LEFT JOIN (
+            SELECT lineup_id, COUNT(*) AS copy_count
+            FROM copy_events
+            WHERE counted = 1 AND created_at >= ?
+            GROUP BY lineup_id
+        ) AS copy_totals ON copy_totals.lineup_id = l.id
         WHERE l.status != 'deleted'
         ''',
         (cutoff, cutoff),

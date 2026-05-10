@@ -9,3 +9,4 @@
     assert 'likes' in table_names
     assert 'copy_events' in table_names
     assert 'audit_logs' in table_names
+    assert 'visit_events' in table_names

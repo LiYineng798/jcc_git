@@ -88,6 +88,20 @@ CREATE TABLE IF NOT EXISTS login_events (
     created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS visit_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    visit_date TEXT NOT NULL,
+    visitor_key TEXT NOT NULL,
+    visitor_kind TEXT NOT NULL,
+    user_id INTEGER,
+    visitor_token TEXT,
+    ip_address TEXT,
+    page_key TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE(visit_date, page_key, visitor_key),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 CREATE TABLE IF NOT EXISTS audit_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     actor_user_id INTEGER,

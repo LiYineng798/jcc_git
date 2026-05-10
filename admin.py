@@ -1,11 +1,13 @@
 ﻿from flask import Blueprint, jsonify, render_template, request
 from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
 
 from audit import write_audit
 from auth import admin_required, validate_password
 from db import get_db, now_text
 from lineups import _lineup_row, _serialize
 from scoring import score_map
+from visits import daily_uv_count, last_7_days_uv, tracked_template_response
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -15,7 +17,7 @@ def admin_page():
     admin, error = admin_required()
     if error:
         return error
-    return render_template('admin.html')
+    return tracked_template_response('admin.html', 'admin')
 
 
 @admin_bp.get('/api/admin/users')
@@ -180,11 +182,20 @@ def admin_stats():
         return error
     db = get_db()
     today = now_text()[:10]
+    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     total = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin'").fetchone()['c']
     today_users = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin' AND created_at LIKE ?", (f'{today}%',)).fetchone()['c']
     today_logins = db.execute("SELECT COUNT(DISTINCT user_id) AS c FROM login_events WHERE success = 1 AND created_at LIKE ?", (f'{today}%',)).fetchone()['c']
     hourly = db.execute("SELECT substr(created_at, 12, 2) AS hour, COUNT(*) AS count FROM users WHERE created_at LIKE ? GROUP BY hour", (f'{today}%',)).fetchall()
-    return jsonify({'total_users': total, 'today_users': today_users, 'today_logins': today_logins, 'hourly_registrations': [dict(row) for row in hourly]})
+    return jsonify({
+        'total_users': total,
+        'today_users': today_users,
+        'today_logins': today_logins,
+        'today_uv': daily_uv_count(today),
+        'yesterday_uv': daily_uv_count(yesterday),
+        'last_7_days_uv': last_7_days_uv(),
+        'hourly_registrations': [dict(row) for row in hourly],
+    })
 
 
 @admin_bp.get('/api/admin/audit-logs')

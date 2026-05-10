@@ -4,6 +4,7 @@ from flask import Flask, jsonify, render_template, send_from_directory
 
 from config import apply_config
 from db import close_db, init_db, table_names
+from visits import tracked_template_response
 
 
 def create_app(test_config=None):
@@ -25,11 +26,11 @@ def create_app(test_config=None):
 
     @app.get('/')
     def index():
-        return render_template('index.html')
+        return tracked_template_response('index.html', 'home')
 
     @app.get('/auth')
     def auth_page():
-        return render_template('auth.html')
+        return tracked_template_response('auth.html', 'auth')
 
     @app.get('/favicon.ico')
     def favicon():
@@ -41,11 +42,11 @@ def create_app(test_config=None):
 
     @app.get('/lineup/new')
     def lineup_create_page():
-        return render_template('lineup_form.html', lineup_id='', page_mode='create')
+        return tracked_template_response('lineup_form.html', 'lineup_editor', lineup_id='', page_mode='create')
 
     @app.get('/lineup/<int:lineup_id>/edit')
     def lineup_edit_page(lineup_id):
-        return render_template('lineup_form.html', lineup_id=lineup_id, page_mode='edit')
+        return tracked_template_response('lineup_form.html', 'lineup_editor', lineup_id=lineup_id, page_mode='edit')
 
     @app.get('/api/health')
     def health():

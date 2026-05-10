@@ -81,6 +81,9 @@ def test_admin_stats_include_total_users_today_users_today_logins_hourly(client)
     assert data['today_users'] == 1
     assert 'today_logins' in data
     assert 'hourly_registrations' in data
+    assert 'today_uv' in data
+    assert 'yesterday_uv' in data
+    assert 'last_7_days_uv' in data
 
 
 def test_admin_actions_write_audit_logs(client):

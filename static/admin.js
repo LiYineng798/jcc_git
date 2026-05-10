@@ -1,10 +1,46 @@
 (async function () {
   const root = document.querySelector('#adminApp');
   const dialogRoot = document.querySelector('#adminDialogRoot');
+  const elements = {
+    themeToggle: document.querySelector('#themeToggle'),
+    themeIcon: document.querySelector('#themeIcon'),
+    themeText: document.querySelector('#themeText'),
+    adminIdentity: document.querySelector('#adminIdentity'),
+    heroTodayUv: document.querySelector('#heroTodayUv'),
+  };
   if (!root) return;
 
-  const state = { csrfToken: '', stats: {}, reports: [], lineups: [], users: [], logs: [], lineupQuery: '', userQuery: '', passwordUser: null, passwordError: '', notice: '' };
-  const statusText = { pending: '待处理', resolved: '已处理', dismissed: '已驳回', normal: '正常', hidden: '已隐藏', deleted: '已删除', active: '正常', disabled: '已禁用' };
+  const state = {
+    me: null,
+    csrfToken: '',
+    stats: { last_7_days_uv: [] },
+    reports: [],
+    lineups: [],
+    users: [],
+    logs: [],
+    lineupQuery: '',
+    userQuery: '',
+    passwordUser: null,
+    passwordError: '',
+    notice: '',
+  };
+  const statusText = {
+    pending: '待处理',
+    resolved: '已处理',
+    dismissed: '已驳回',
+    normal: '正常',
+    hidden: '已隐藏',
+    deleted: '已删除',
+    active: '正常',
+    disabled: '已禁用',
+  };
+
+  initTheme();
+  if (elements.themeToggle) {
+    elements.themeToggle.addEventListener('click', () => {
+      setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+    });
+  }
 
   function el(tag, className = '', text = '') {
     const node = document.createElement(tag);
@@ -41,6 +77,7 @@
 
   async function loadData() {
     const me = await fetch('/api/me').then((response) => response.json());
+    state.me = me.user;
     state.csrfToken = me.csrf_token;
     const lineupParam = state.lineupQuery ? `?q=${encodeURIComponent(state.lineupQuery)}` : '';
     const userParam = state.userQuery ? `?q=${encodeURIComponent(state.userQuery)}` : '';
@@ -55,15 +92,25 @@
   }
 
   function render() {
+    syncHeader();
     root.replaceChildren();
     if (state.notice) root.append(el('div', 'message admin-inline-message', state.notice));
     root.append(renderSummary(), renderModules());
     renderPasswordDialog();
   }
 
+  function syncHeader() {
+    if (elements.adminIdentity) {
+      elements.adminIdentity.textContent = state.me ? `${state.me.nickname} · 管理员` : '后台账号';
+    }
+    if (elements.heroTodayUv) {
+      elements.heroTodayUv.textContent = String(state.stats.today_uv || 0);
+    }
+  }
+
   function renderModules() {
     const grid = el('div', 'admin-modules-grid');
-    grid.append(renderReports(), renderLineups(), renderUsers(), renderLogs());
+    grid.append(renderTraffic(), renderReports(), renderLineups(), renderUsers(), renderLogs());
     return grid;
   }
 
@@ -71,6 +118,8 @@
     const hiddenLineups = state.lineups.filter((lineup) => lineup.status === 'hidden').length;
     const cards = el('div', 'admin-stat-grid');
     [
+      ['今日 UV', state.stats.today_uv || 0, '全站按天去重'],
+      ['昨日 UV', state.stats.yesterday_uv || 0, '对比前一自然日'],
       ['总用户', state.stats.total_users || 0, '不含管理员账号'],
       ['今日注册', state.stats.today_users || 0, '新用户增长'],
       ['今日登录', state.stats.today_logins || 0, '去重登录用户'],
@@ -82,6 +131,48 @@
       cards.append(card);
     });
     return cards;
+  }
+
+  function renderTraffic() {
+    const trend = state.stats.last_7_days_uv || [];
+    const totalUv = trend.reduce((sum, item) => sum + Number(item.uv || 0), 0);
+    const highestUv = Math.max(1, ...trend.map((item) => Number(item.uv || 0)));
+    const { section, body } = createModule('访问概览', '按自然日去重，覆盖游客与登录用户');
+    section.classList.add('admin-module-wide', 'admin-traffic-module');
+
+    const overview = el('div', 'traffic-overview');
+    overview.append(
+      trafficMetric('今日 UV', state.stats.today_uv || 0, buildDeltaText(state.stats.today_uv || 0, state.stats.yesterday_uv || 0)),
+      trafficMetric('昨日 UV', state.stats.yesterday_uv || 0, '上一自然日'),
+      trafficMetric('7 日累计 UV', totalUv, '最近 7 天总访问人数'),
+    );
+
+    const trendList = el('div', 'traffic-trend-list');
+    if (!trend.length) {
+      trendList.append(empty('暂无访问数据'));
+    } else {
+      trend.forEach((item) => {
+        const uv = Number(item.uv || 0);
+        const row = el('article', 'traffic-trend-row');
+        const head = el('div', 'traffic-trend-head');
+        head.append(el('strong', '', formatDay(item.date)), el('span', '', `${uv} UV`));
+        const track = el('div', 'traffic-trend-track');
+        const fill = el('span', 'traffic-trend-fill');
+        fill.style.width = uv ? `${Math.max((uv / highestUv) * 100, 8)}%` : '0%';
+        track.append(fill);
+        row.append(head, track);
+        trendList.append(row);
+      });
+    }
+
+    body.append(overview, trendList);
+    return section;
+  }
+
+  function trafficMetric(label, value, caption) {
+    const card = el('article', 'traffic-metric');
+    card.append(el('span', 'stat-label', label), el('strong', '', String(value)), el('small', '', caption));
+    return card;
   }
 
   function createModule(title, subtitle, controls = null) {
@@ -124,6 +215,7 @@
     const actionText = hideLineup ? '处理举报并隐藏阵容' : (status === 'dismissed' ? '驳回举报' : '标记举报为已处理');
     if (!confirm(`确定要${actionText}吗？`)) return;
     await api(`/api/admin/reports/${id}/resolve`, { method: 'POST', body: JSON.stringify({ status, hide_lineup: hideLineup }) });
+    setNotice(hideLineup ? '举报已处理，阵容已隐藏' : '举报状态已更新');
     await loadData();
   }
 
@@ -159,7 +251,11 @@
     input.value = value;
     const submit = button('查找', () => {}, 'small-button');
     submit.type = 'submit';
-    wrap.append(input, submit);
+    const reset = button('清空', async () => {
+      input.value = '';
+      await onSearch('');
+    }, 'small-button');
+    wrap.append(input, submit, reset);
     wrap.addEventListener('submit', async (event) => {
       event.preventDefault();
       try {
@@ -173,6 +269,7 @@
 
   async function updateLineupStatus(lineup, status) {
     await api(`/api/admin/lineups/${lineup.id}`, { method: 'PUT', body: JSON.stringify({ status }) });
+    setNotice(status === 'hidden' ? '阵容已隐藏' : '阵容已恢复');
     await loadData();
   }
 
@@ -182,6 +279,7 @@
     const copyValue = prompt('设置管理员复制修正数', lineup.admin_copy_adjustment || 0);
     if (copyValue === null) return;
     await api(`/api/admin/lineups/${lineup.id}/adjust-score`, { method: 'POST', body: JSON.stringify({ admin_like_adjustment: Number(likeValue), admin_copy_adjustment: Number(copyValue) }) });
+    setNotice('热度修正已保存');
     await loadData();
   }
 
@@ -311,6 +409,7 @@
   async function disableUser(id) {
     if (!confirm('确定禁用这个用户吗？')) return;
     await api(`/api/admin/users/${id}`, { method: 'DELETE' });
+    setNotice('用户已禁用');
     await loadData();
   }
 
@@ -339,6 +438,29 @@
 
   function empty(text) {
     return el('div', 'empty-state', text);
+  }
+
+  function buildDeltaText(today, yesterday) {
+    const delta = Number(today || 0) - Number(yesterday || 0);
+    if (delta === 0) return '与昨日持平';
+    return delta > 0 ? `较昨日 +${delta}` : `较昨日 ${delta}`;
+  }
+
+  function formatDay(value) {
+    const parts = String(value || '').split('-');
+    if (parts.length !== 3) return value || '-';
+    return `${parts[1]}-${parts[2]}`;
+  }
+
+  function initTheme() {
+    setTheme(localStorage.getItem('theme') || 'light');
+  }
+
+  function setTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('theme', theme);
+    if (elements.themeIcon) elements.themeIcon.textContent = theme === 'dark' ? '☼' : '☾';
+    if (elements.themeText) elements.themeText.textContent = theme === 'dark' ? '白天模式' : '夜间模式';
   }
 
   loadData().catch((error) => {

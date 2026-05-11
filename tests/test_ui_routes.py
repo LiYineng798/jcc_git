@@ -1,3 +1,6 @@
+from pathlib import Path
+
+
 def test_index_uses_top_right_auth_link(client):
     html = client.get('/').get_data(as_text=True)
     assert 'href="/auth"' in html
@@ -46,3 +49,11 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
     favicon_response = client.get('/favicon.ico')
     assert favicon_response.status_code == 200
     assert favicon_response.mimetype == 'image/vnd.microsoft.icon'
+
+
+def test_admin_mobile_styles_do_not_force_fixed_height_on_wide_traffic_module():
+    styles_path = Path(__file__).resolve().parents[1] / 'static' / 'styles.css'
+    with styles_path.open('r', encoding='utf-8') as file:
+        css = file.read()
+
+    assert '.admin-module:not(.admin-module-wide)' in css

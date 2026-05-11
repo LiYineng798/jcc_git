@@ -947,7 +947,7 @@ textarea:focus {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .admin-module {
+  .admin-module:not(.admin-module-wide) {
     height: 480px;
   }
 
@@ -968,7 +968,7 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
-  .admin-module {
+  .admin-module:not(.admin-module-wide) {
     height: 460px;
   }
 }

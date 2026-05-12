@@ -10,8 +10,3 @@ server.out.log
 server.err.log
 *.sqlite3-wal
 *.sqlite3-shm
-.venv/
-venv/
-.idea/
-.vscode/
-Thumbs.db

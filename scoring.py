@@ -84,3 +84,53 @@ def score_map(include_counts=True):
             'copy_count': item['copy_count'],
         }
     return data
+
+
+def rising_map(db=None, now=None):
+    db = db or get_db()
+    now = now or datetime.now()
+    recent_cutoff = (now - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    previous_cutoff = (now - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')
+    rows = db.execute(
+        '''
+        SELECT
+            l.id AS lineup_id,
+            COALESCE(recent_likes.c, 0) AS recent_likes,
+            COALESCE(recent_copies.c, 0) AS recent_copies,
+            COALESCE(previous_likes.c, 0) AS previous_likes,
+            COALESCE(previous_copies.c, 0) AS previous_copies
+        FROM lineups l
+        LEFT JOIN (
+            SELECT lineup_id, COUNT(*) AS c
+            FROM likes
+            WHERE created_at >= ?
+            GROUP BY lineup_id
+        ) recent_likes ON recent_likes.lineup_id = l.id
+        LEFT JOIN (
+            SELECT lineup_id, COUNT(*) AS c
+            FROM copy_events
+            WHERE counted = 1 AND created_at >= ?
+            GROUP BY lineup_id
+        ) recent_copies ON recent_copies.lineup_id = l.id
+        LEFT JOIN (
+            SELECT lineup_id, COUNT(*) AS c
+            FROM likes
+            WHERE created_at >= ? AND created_at < ?
+            GROUP BY lineup_id
+        ) previous_likes ON previous_likes.lineup_id = l.id
+        LEFT JOIN (
+            SELECT lineup_id, COUNT(*) AS c
+            FROM copy_events
+            WHERE counted = 1 AND created_at >= ? AND created_at < ?
+            GROUP BY lineup_id
+        ) previous_copies ON previous_copies.lineup_id = l.id
+        WHERE l.status = 'normal'
+        ''',
+        (recent_cutoff, recent_cutoff, previous_cutoff, recent_cutoff, previous_cutoff, recent_cutoff),
+    ).fetchall()
+    data = {}
+    for row in rows:
+        recent_score = row['recent_likes'] * 5 + row['recent_copies']
+        previous_score = row['previous_likes'] * 5 + row['previous_copies']
+        data[row['lineup_id']] = recent_score - previous_score
+    return data

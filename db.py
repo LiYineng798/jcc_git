@@ -80,6 +80,28 @@ CREATE TABLE IF NOT EXISTS reports (
     FOREIGN KEY(lineup_id) REFERENCES lineups(id)
 );
 
+CREATE TABLE IF NOT EXISTS recent_lineup_views (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    lineup_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE(user_id, lineup_id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(lineup_id) REFERENCES lineups(id)
+);
+
+CREATE TABLE IF NOT EXISTS recent_lineup_copies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    lineup_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE(user_id, lineup_id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(lineup_id) REFERENCES lineups(id)
+);
+
 CREATE TABLE IF NOT EXISTS login_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
@@ -121,6 +143,35 @@ CREATE TABLE IF NOT EXISTS rate_limits (
     attempts INTEGER NOT NULL DEFAULT 0,
     UNIQUE(scope, key, window_start)
 );
+
+CREATE TABLE IF NOT EXISTS growth_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_name TEXT NOT NULL,
+    user_id INTEGER,
+    visitor_token TEXT,
+    ip_address TEXT,
+    ref_lineup_id INTEGER,
+    page_key TEXT,
+    payload_json TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(ref_lineup_id) REFERENCES lineups(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_growth_events_name_created_at
+ON growth_events (event_name, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_growth_events_user_created_at
+ON growth_events (user_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_growth_events_visitor_created_at
+ON growth_events (visitor_token, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_likes_lineup_created_at
+ON likes (lineup_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_copy_events_lineup_created_at
+ON copy_events (lineup_id, created_at);
 '''
 
 
@@ -150,6 +201,7 @@ def init_db():
     db.executescript(SCHEMA)
     admin_id = bootstrap_admin(db)
     migrate_schema(db, admin_id)
+    ensure_indexes(db)
     db.commit()
 
 
@@ -190,6 +242,10 @@ def migrate_lineups_table(db, admin_id):
             db.execute(statement)
 
     db.execute('UPDATE lineups SET user_id = ? WHERE user_id IS NULL', (admin_id,))
+
+
+def ensure_indexes(db):
+    db.execute('CREATE INDEX IF NOT EXISTS idx_lineups_user_status_updated_at ON lineups (user_id, status, updated_at)')
 
 
 def table_columns(db, table_name):

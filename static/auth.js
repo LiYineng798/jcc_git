@@ -17,6 +17,7 @@ elements.logoutButton.addEventListener('click', logout);
 
 async function boot() {
   await loadMe();
+  trackGrowth('open_auth_page', { source: document.referrer ? 'redirect' : 'direct' });
   if (!state.user) await loadCaptcha();
 }
 
@@ -28,6 +29,20 @@ async function api(url, options = {}) {
   const data = response.status === 204 ? null : await response.json().catch(() => null);
   if (!response.ok) throw new Error(data?.error || '操作失败');
   return data;
+}
+
+async function trackGrowth(eventName, payload = {}) {
+  if (!state.csrfToken) return;
+  await fetch('/api/growth-events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': state.csrfToken },
+    body: JSON.stringify({
+      event_name: eventName,
+      page_key: 'auth',
+      ref_lineup_id: null,
+      payload,
+    }),
+  }).catch(() => {});
 }
 
 async function loadMe() {
@@ -60,8 +75,9 @@ async function login(event) {
     const data = await api('/api/login', { method: 'POST', body: JSON.stringify({ account: elements.loginAccount.value.trim(), password: elements.loginPassword.value }) });
     state.user = data.user;
     state.csrfToken = data.csrf_token;
+    await window.jccHistoryStore?.syncToAccount(state.csrfToken);
     showMessage('登录成功，正在返回阵容库...');
-    window.setTimeout(() => { window.location.href = '/'; }, 500);
+    window.setTimeout(() => { window.location.href = resolvePostLoginRedirect(); }, 500);
   } catch (error) {
     showMessage(error.message);
   }
@@ -73,8 +89,9 @@ async function register(event) {
     const data = await api('/api/register', { method: 'POST', body: JSON.stringify({ username: elements.registerUsername.value.trim(), email: elements.registerEmail.value.trim(), nickname: elements.registerNickname.value.trim(), password: elements.registerPassword.value, captcha_token: state.captchaToken, captcha_answer: elements.captchaAnswer.value.trim() }) });
     state.user = data.user;
     state.csrfToken = data.csrf_token;
+    await window.jccHistoryStore?.syncToAccount(state.csrfToken);
     showMessage('注册成功，正在返回阵容库...');
-    window.setTimeout(() => { window.location.href = '/'; }, 500);
+    window.setTimeout(() => { window.location.href = resolvePostLoginRedirect(); }, 500);
   } catch (error) {
     showMessage(error.message);
     loadCaptcha();
@@ -93,6 +110,30 @@ function showMessage(text) {
   elements.message.textContent = text;
   clearTimeout(showMessage.timer);
   showMessage.timer = setTimeout(() => { elements.message.textContent = ''; }, 2600);
+}
+
+function resolvePostLoginRedirect() {
+  const nextPath = sanitizeNextPath(new URLSearchParams(window.location.search).get('next'));
+  const intent = window.jccAuthIntent?.read();
+  if (intent?.type === 'open_create_lineup') return '/lineup/new';
+  if (nextPath) {
+    const url = new URL(nextPath, window.location.origin);
+    if (intent) url.searchParams.set('resume_intent', '1');
+    return `${url.pathname}${url.search}${url.hash}`;
+  }
+  if (!intent) return '/';
+  return '/?resume_intent=1';
+}
+
+function sanitizeNextPath(value) {
+  const nextValue = String(value || '').trim();
+  if (!nextValue) return '';
+  try {
+    const url = new URL(nextValue, window.location.origin);
+    return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : '';
+  } catch (_) {
+    return '';
+  }
 }
 
 function setTheme(theme) {

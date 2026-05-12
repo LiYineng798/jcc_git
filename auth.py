@@ -4,6 +4,7 @@ import secrets
 from flask import Blueprint, jsonify, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from analytics import record_growth_event
 from captcha import is_captcha_verified, lookup_answer_for_tests, verify_captcha_answer
 from db import get_db, now_text
 from rate_limit import hit_limit
@@ -98,6 +99,25 @@ def validate_register_payload(data):
     return {'username': username, 'email': email, 'nickname': nickname, 'password': password}, None
 
 
+def _remove_admin_analytics_traces(db, user_id, visitor_token):
+    today = now_text()[:10]
+    db.execute('DELETE FROM growth_events WHERE user_id = ?', (user_id,))
+    if visitor_token:
+        db.execute(
+            'DELETE FROM growth_events WHERE visitor_token = ? AND user_id IS NULL AND substr(created_at, 1, 10) = ?',
+            (visitor_token, today),
+        )
+        db.execute(
+            'DELETE FROM visit_events WHERE visitor_token = ? AND user_id IS NULL AND visit_date = ?',
+            (visitor_token, today),
+        )
+    db.execute(
+        'DELETE FROM visit_events WHERE user_id = ? AND visit_date = ?',
+        (user_id, today),
+    )
+    db.commit()
+
+
 @auth_bp.before_app_request
 def csrf_guard():
     return require_csrf()
@@ -110,6 +130,8 @@ def me():
 
 @auth_bp.post('/api/register')
 def register():
+    from visits import ensure_visitor_token, maybe_set_visitor_cookie
+
     data = request.get_json(silent=True) or {}
     ip = get_client_ip()
     if hit_limit('register', ip, 5, 60):
@@ -136,11 +158,23 @@ def register():
     session['user_id'] = cursor.lastrowid
     csrf_token()
     user = current_user()
-    return jsonify({'user': public_user_payload(user), 'csrf_token': session['csrf_token']}), 201
+    visitor_token, created = ensure_visitor_token()
+    record_growth_event(
+        'register_success',
+        user_id=user['id'],
+        visitor_token=visitor_token,
+        ip_address=ip,
+        page_key='auth',
+        payload={'method': 'register'},
+    )
+    response = jsonify({'user': public_user_payload(user), 'csrf_token': session['csrf_token']})
+    return maybe_set_visitor_cookie(response, visitor_token, created), 201
 
 
 @auth_bp.post('/api/login')
 def login():
+    from visits import ensure_visitor_token, maybe_set_visitor_cookie
+
     data = request.get_json(silent=True) or {}
     account = str(data.get('account') or data.get('username') or '').strip()
     password = str(data.get('password') or '')
@@ -167,7 +201,20 @@ def login():
     session.clear()
     session['user_id'] = user['id']
     csrf_token()
-    return jsonify({'user': public_user_payload(current_user()), 'csrf_token': session['csrf_token']})
+    visitor_token, created = ensure_visitor_token()
+    if user['role'] == 'admin':
+        _remove_admin_analytics_traces(db, user['id'], visitor_token)
+    else:
+        record_growth_event(
+            'login_success',
+            user_id=user['id'],
+            visitor_token=visitor_token,
+            ip_address=ip,
+            page_key='auth',
+            payload={'method': 'login'},
+        )
+    response = jsonify({'user': public_user_payload(current_user()), 'csrf_token': session['csrf_token']})
+    return maybe_set_visitor_cookie(response, visitor_token, created)
 
 
 @auth_bp.post('/api/logout')

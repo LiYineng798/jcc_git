@@ -2,6 +2,7 @@
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 
+from analytics import growth_summary
 from audit import write_audit
 from auth import admin_required, validate_password
 from db import get_db, now_text
@@ -185,7 +186,17 @@ def admin_stats():
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     total = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin'").fetchone()['c']
     today_users = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin' AND created_at LIKE ?", (f'{today}%',)).fetchone()['c']
-    today_logins = db.execute("SELECT COUNT(DISTINCT user_id) AS c FROM login_events WHERE success = 1 AND created_at LIKE ?", (f'{today}%',)).fetchone()['c']
+    today_logins = db.execute(
+        '''
+        SELECT COUNT(DISTINCT le.user_id) AS c
+        FROM login_events le
+        JOIN users u ON u.id = le.user_id
+        WHERE le.success = 1
+          AND le.created_at LIKE ?
+          AND u.role != 'admin'
+        ''',
+        (f'{today}%',),
+    ).fetchone()['c']
     hourly = db.execute("SELECT substr(created_at, 12, 2) AS hour, COUNT(*) AS count FROM users WHERE created_at LIKE ? GROUP BY hour", (f'{today}%',)).fetchall()
     return jsonify({
         'total_users': total,
@@ -196,6 +207,14 @@ def admin_stats():
         'last_7_days_uv': last_7_days_uv(),
         'hourly_registrations': [dict(row) for row in hourly],
     })
+
+
+@admin_bp.get('/api/admin/growth')
+def admin_growth():
+    admin, error = admin_required()
+    if error:
+        return error
+    return jsonify(growth_summary(target_date=request.args.get('date')))
 
 
 @admin_bp.get('/api/admin/audit-logs')

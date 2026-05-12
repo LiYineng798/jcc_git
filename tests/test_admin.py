@@ -61,6 +61,20 @@ def test_admin_can_edit_hide_delete_any_lineup(client):
     assert client.put(f"/api/admin/lineups/{lineup['id']}", json={'status': 'hidden'}, headers=headers).status_code == 200
 
 
+def test_admin_lineups_api_includes_hidden_lineup_and_code(client):
+    register_user(client, username='owner', email='owner@example.com')
+    lineup = create_lineup(client, name='隐藏阵容', code='#HIDECODE001').get_json()
+    client.post('/api/logout')
+
+    headers = login_admin(client)
+    assert client.put(f"/api/admin/lineups/{lineup['id']}", json={'status': 'hidden'}, headers=headers).status_code == 200
+
+    payload = client.get('/api/admin/lineups', headers=headers).get_json()
+    target = next(item for item in payload if item['id'] == lineup['id'])
+    assert target['status'] == 'hidden'
+    assert target['code'] == '#HIDECODE001'
+
+
 def test_admin_can_adjust_like_and_copy_counts_and_recalculate_score(client):
     register_user(client)
     lineup = create_lineup(client).get_json()
@@ -178,3 +192,33 @@ def test_admin_user_search_matches_username_email_and_nickname(client):
     assert client.get('/api/admin/users?q=alice', headers=headers).get_json()[0]['username'] == 'alice'
     assert client.get('/api/admin/users?q=example.com', headers=headers).get_json()[0]['email'] == 'alice@example.com'
     assert client.get('/api/admin/users?q=小爱', headers=headers).get_json()[0]['nickname'] == '小爱'
+
+
+def test_admin_growth_stats_returns_funnel_fields(client):
+    client.get('/')
+    me = client.get('/api/me').get_json()
+    client.post(
+        '/api/growth-events',
+        json={'event_name': 'click_login_entry', 'page_key': 'home', 'payload': {'source': 'header'}},
+        headers={'X-CSRF-Token': me['csrf_token']},
+    )
+    register_user(client, username='growth', email='growth@example.com')
+    client.post('/api/logout')
+
+    headers = login_admin(client)
+    today = __import__('datetime').datetime.now().strftime('%Y-%m-%d')
+    data = client.get(f'/api/admin/growth?date={today}', headers=headers).get_json()
+
+    assert data['date'] == today
+    assert 'home_uv' in data
+    assert 'login_entry_visitors' in data
+    assert 'auth_page_visitors' in data
+    assert 'successful_registrations' in data
+    assert 'successful_logins' in data
+    assert 'guest_like_visitors' in data
+    assert 'guest_favorite_visitors' in data
+    assert 'post_login_like_users' in data
+    assert 'post_login_favorite_users' in data
+    assert 'post_login_create_lineup_users' in data
+    assert 'conversion_rates' in data
+    assert data['successful_logins'] == 0

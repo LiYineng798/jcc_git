@@ -2,6 +2,7 @@
 
 from flask import Flask, jsonify, render_template, send_from_directory
 
+from auth import login_required
 from config import apply_config
 from db import close_db, init_db, table_names
 from visits import tracked_template_response
@@ -47,6 +48,21 @@ def create_app(test_config=None):
     @app.get('/lineup/<int:lineup_id>/edit')
     def lineup_edit_page(lineup_id):
         return tracked_template_response('lineup_form.html', 'lineup_editor', lineup_id=lineup_id, page_mode='edit')
+
+    @app.get('/lineup/<int:lineup_id>')
+    def lineup_detail_page(lineup_id):
+        return tracked_template_response('lineup_detail.html', 'lineup_detail', lineup_id=lineup_id)
+
+    @app.get('/author/<username>')
+    def author_page(username):
+        return tracked_template_response('author.html', 'author', username=username)
+
+    @app.get('/me')
+    def account_page():
+        user, error = login_required()
+        if error:
+            return error
+        return tracked_template_response('account.html', 'account')
 
     @app.get('/api/health')
     def health():

@@ -17,6 +17,7 @@
           <div class="brand-mark" aria-hidden="true">阵</div>
           <div class="nav-actions">
             <a class="ghost-link hidden" id="adminLink" href="/admin">后台</a>
+            <a class="ghost-link hidden" id="accountLink" href="/me">个人中心</a>
             <span class="auth-status nav-user" id="authStatus">未登录</span>
             <a class="ghost-link" id="authLink" href="/auth">登录 / 注册</a>
             <button class="ghost-button hidden" id="logoutButton" type="button">退出</button>
@@ -30,7 +31,7 @@
           <section class="hero-copy">
             <p class="eyebrow">JCC Lineup Manager</p>
             <h1>金铲铲阵容库</h1>
-            <p class="hero-description">保存、搜索、点赞和复制阵容码。多人在线，热度排行，公开共享。</p>
+            <p class="hero-description hero-benefits">保存、搜索、点赞和复制阵容码。登录后可收藏阵容并跨设备同步，登录后可查看我的收藏和我的阵容。</p>
           </section>
           <section class="stat-card" aria-label="阵容统计">
             <span class="stat-label">已展示</span>
@@ -53,17 +54,23 @@
           <div class="tabs" id="tabs">
             <button class="tab active" data-sort="latest" data-view="all">最新</button>
             <button class="tab" data-sort="hot" data-view="all">最热</button>
+            <button class="tab" data-sort="rising" data-view="all">上升</button>
+            <button class="tab" data-sort="recommended" data-view="all">推荐</button>
             <button class="tab" data-sort="ss" data-view="all">SS</button>
+            <button class="tab" id="favoritesTab" data-sort="latest" data-view="favorites">我的收藏</button>
             <button class="tab hidden" id="mineTab" data-sort="latest" data-view="mine">我的</button>
           </div>
           <div class="message" id="message" role="status" aria-live="polite"></div>
-          <div class="lineup-list" id="lineupList"></div>
+          <div class="lineup-list" id="lineupList" data-author-link-class="author-link"></div>
           <div class="pagination" id="pagination"></div>
-          <div class="empty-state hidden" id="emptyState"><div class="empty-icon">⌘</div><h3>还没有阵容</h3><p>登录后上传第一套阵容，或切换到全部阵容查看公开内容。</p></div>
+          <div class="empty-state hidden" id="emptyState"><div class="empty-icon">⌘</div><h3>还没有阵容</h3><p>登录后可收藏阵容并随时找回，也可以上传第一套阵容或切换到全部阵容查看公开内容。</p></div>
         </section>
       </main>
     </div>
+    <div id="authPromptRoot"></div>
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script src="{{ url_for('static', filename='history-store.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='auth-intent.js') }}" defer></script>
     <script src="{{ url_for('static', filename='app.js') }}" defer></script>
   </body>
 </html>

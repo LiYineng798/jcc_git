@@ -14,6 +14,8 @@
     me: null,
     csrfToken: '',
     stats: { last_7_days_uv: [] },
+    growth: {},
+    growthDate: todayInputValue(),
     reports: [],
     lineups: [],
     users: [],
@@ -81,8 +83,9 @@
     state.csrfToken = me.csrf_token;
     const lineupParam = state.lineupQuery ? `?q=${encodeURIComponent(state.lineupQuery)}` : '';
     const userParam = state.userQuery ? `?q=${encodeURIComponent(state.userQuery)}` : '';
-    [state.stats, state.reports, state.lineups, state.users, state.logs] = await Promise.all([
+    [state.stats, state.growth, state.reports, state.lineups, state.users, state.logs] = await Promise.all([
       api('/api/admin/stats'),
+      api(`/api/admin/growth?date=${encodeURIComponent(state.growthDate)}`),
       api('/api/admin/reports'),
       api(`/api/admin/lineups${lineupParam}`),
       api(`/api/admin/users${userParam}`),
@@ -110,7 +113,7 @@
 
   function renderModules() {
     const grid = el('div', 'admin-modules-grid');
-    grid.append(renderTraffic(), renderReports(), renderLineups(), renderUsers(), renderLogs());
+    grid.append(renderTraffic(), renderGrowth(), renderReports(), renderLineups(), renderUsers(), renderLogs());
     return grid;
   }
 
@@ -166,6 +169,43 @@
     }
 
     body.append(overview, trendList);
+    return section;
+  }
+
+  function renderGrowth() {
+    const { section, body } = createModule('增长漏斗', '按自然日统计，不记录管理员，可切换查询历史日期', growthDateControl());
+    const list = el('div', 'admin-list compact');
+    [
+      ['首页访问人数', state.growth.home_uv || 0],
+      ['点击登录入口人数', state.growth.login_entry_visitors || 0],
+      ['进入登录页面人数', state.growth.auth_page_visitors || 0],
+      ['注册成功人数', state.growth.successful_registrations || 0],
+      ['登录成功人数', state.growth.successful_logins || 0],
+      ['游客尝试点赞人数', state.growth.guest_like_visitors || 0],
+      ['游客尝试收藏人数', state.growth.guest_favorite_visitors || 0],
+      ['登录后 10 分钟内完成点赞人数', state.growth.post_login_like_users || 0],
+      ['登录后 10 分钟内完成收藏人数', state.growth.post_login_favorite_users || 0],
+      ['登录后 10 分钟内上传阵容人数', state.growth.post_login_create_lineup_users || 0],
+    ].forEach(([label, value]) => {
+      const card = el('article', 'admin-row-card');
+      card.append(el('strong', '', label), el('span', 'admin-meta', String(value)));
+      list.append(card);
+    });
+
+    const rates = el('div', 'admin-list compact');
+    [
+      ['登录入口到登录页转化率', formatPercent(state.growth.conversion_rates?.entry_to_auth_page_pct)],
+      ['登录页到注册/登录成功转化率', formatPercent(state.growth.conversion_rates?.auth_page_to_auth_success_pct)],
+      ['登录后完成点赞转化率', formatPercent(state.growth.conversion_rates?.auth_success_to_like_pct)],
+      ['登录后完成收藏转化率', formatPercent(state.growth.conversion_rates?.auth_success_to_favorite_pct)],
+      ['登录后上传阵容转化率', formatPercent(state.growth.conversion_rates?.auth_success_to_create_lineup_pct)],
+    ].forEach(([label, value]) => {
+      const card = el('article', 'admin-row-card');
+      card.append(el('strong', '', label), el('span', 'admin-meta', value));
+      rates.append(card);
+    });
+
+    body.append(list, rates);
     return section;
   }
 
@@ -230,7 +270,12 @@
     state.lineups.slice(0, 50).forEach((lineup) => {
       const card = el('article', 'admin-row-card');
       const info = el('div');
-      info.append(el('strong', '', lineup.name), el('p', 'admin-meta', `作者：${lineup.owner_nickname || '-'} · ${statusText[lineup.status] || lineup.status} · 赞 ${lineup.like_count} · 复制 ${lineup.copy_count} · 分 ${lineup.score}`));
+      info.append(
+        el('strong', '', lineup.name),
+        el('p', 'admin-meta', `作者：${lineup.owner_nickname || '-'} · ${statusText[lineup.status] || lineup.status} · 赞 ${lineup.like_count} · 复制 ${lineup.copy_count} · 分 ${lineup.score}`),
+      );
+      const code = el('pre', 'admin-code', lineup.code || '无阵容码');
+      info.append(code);
       const actions = el('div', 'card-actions');
       actions.append(
         button(lineup.status === 'hidden' ? '恢复' : '隐藏', () => updateLineupStatus(lineup, lineup.status === 'hidden' ? 'normal' : 'hidden')),
@@ -263,6 +308,32 @@
       } catch (error) {
         alert(error.message || '查找失败，请刷新后重试');
       }
+    });
+    return wrap;
+  }
+
+  function growthDateControl() {
+    const wrap = el('form', 'admin-search');
+    const input = el('input');
+    input.type = 'date';
+    input.value = state.growthDate;
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.className = 'small-button';
+    submit.textContent = '查询';
+    const reset = document.createElement('button');
+    reset.type = 'button';
+    reset.className = 'small-button';
+    reset.textContent = '今天';
+    reset.addEventListener('click', async () => {
+      state.growthDate = todayInputValue();
+      await loadData();
+    });
+    wrap.append(input, submit, reset);
+    wrap.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      state.growthDate = input.value || todayInputValue();
+      await loadData();
     });
     return wrap;
   }
@@ -450,6 +521,18 @@
     const parts = String(value || '').split('-');
     if (parts.length !== 3) return value || '-';
     return `${parts[1]}-${parts[2]}`;
+  }
+
+  function formatPercent(value) {
+    return `${Number(value || 0).toFixed(2)}%`;
+  }
+
+  function todayInputValue() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   function initTheme() {

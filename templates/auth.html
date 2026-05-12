@@ -23,7 +23,7 @@
       <header class="auth-hero">
         <p class="eyebrow">Account</p>
         <h1>登录 / 注册</h1>
-        <p class="hero-description">登录后可以上传阵容、点赞、收藏、举报，并管理你自己的阵容。</p>
+        <p class="hero-description auth-benefits">登录后可收藏阵容并跨设备同步，登录后可发布和管理自己的阵容，登录后可查看我的收藏、我的阵容和个人记录。</p>
       </header>
 
       <section class="panel auth-panel standalone-auth-panel" aria-label="登录注册区域">
@@ -57,6 +57,8 @@
         <div class="message" id="message" role="status" aria-live="polite"></div>
       </section>
     </div>
+    <script src="{{ url_for('static', filename='history-store.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='auth-intent.js') }}" defer></script>
     <script src="{{ url_for('static', filename='auth.js') }}" defer></script>
   </body>
 </html>

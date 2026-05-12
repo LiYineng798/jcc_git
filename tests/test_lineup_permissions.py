@@ -9,8 +9,8 @@ def auth_headers(client):
     return {'X-CSRF-Token': csrf(client)}
 
 
-def create_lineup(client, name='阵容A', code='#CODE123'):
-    return client.post('/api/lineups', json={'name': name, 'code': code}, headers=auth_headers(client))
+def create_lineup(client, name='阵容A', code='#CODE123', status='normal'):
+    return client.post('/api/lineups', json={'name': name, 'code': code, 'status': status}, headers=auth_headers(client))
 
 
 def test_anonymous_can_list_search_and_copy_but_cannot_create_update_delete(client):
@@ -31,6 +31,7 @@ def test_logged_in_user_can_create_lineup_with_owner_id(client):
     assert response.status_code == 201
     assert data['owner_nickname'] == '小明'
     assert data['can_edit'] is True
+    assert data['can_hide'] is True
 
 
 def test_create_lineup_extracts_hash_prefixed_code_from_messy_input(client):
@@ -45,6 +46,16 @@ def test_create_lineup_rejects_unparseable_code(client):
     response = create_lineup(client, code='这不是合法阵容码')
     assert response.status_code == 400
     assert '阵容码无法解析' in response.get_json()['error']
+
+
+def test_create_lineup_supports_hidden_status(client):
+    register_user(client)
+    response = create_lineup(client, name='隐藏新阵容', code='#HIDDENNEW1', status='hidden')
+    assert response.status_code == 201
+    data = response.get_json()
+    assert data['status'] == 'hidden'
+    mine = client.get('/api/lineups?view=mine&page=1&page_size=20', headers=auth_headers(client)).get_json()
+    assert mine['items'][0]['status'] == 'hidden'
 
 
 def test_update_lineup_normalizes_code_before_save(client):
@@ -86,6 +97,69 @@ def test_hidden_lineups_are_not_visible_to_public(client):
     client.post(f"/api/lineups/{lineup['id']}/hide", headers=auth_headers(client))
     client.post('/api/logout')
     assert client.get('/api/lineups').get_json() == []
+
+
+def test_owner_can_hide_own_lineup(client):
+    register_user(client, username='owner', email='owner@example.com')
+    lineup = create_lineup(client, name='我的可隐藏阵容', code='#HIDEOWN1').get_json()
+    headers = auth_headers(client)
+
+    response = client.post(f"/api/lineups/{lineup['id']}/hide", headers=headers)
+
+    assert response.status_code == 200
+    mine = client.get('/api/lineups?view=mine&page=1&page_size=20', headers=headers).get_json()
+    assert mine['items'][0]['status'] == 'hidden'
+
+
+def test_hidden_lineup_only_remains_visible_to_owner_and_admin(client):
+    from test_admin import login_admin
+
+    register_user(client, username='owner', email='owner@example.com')
+    lineup = create_lineup(client, name='被隐藏阵容', code='#HIDDENONLY1').get_json()
+    owner_headers = auth_headers(client)
+    assert client.post(f"/api/lineups/{lineup['id']}/favorite", headers=owner_headers).status_code == 200
+    client.post('/api/logout')
+
+    register_user(client, username='viewer', email='viewer@example.com')
+    viewer_headers = auth_headers(client)
+    assert client.post(f"/api/lineups/{lineup['id']}/favorite", headers=viewer_headers).status_code == 200
+    assert client.post(f"/api/lineups/{lineup['id']}/view", headers=viewer_headers).status_code == 201
+    assert client.post(f"/api/lineups/{lineup['id']}/copy", headers=viewer_headers).status_code == 200
+    client.post('/api/logout')
+
+    client.post('/api/login', json={'account': 'owner', 'password': 'abc123'})
+    owner_headers = auth_headers(client)
+    assert client.post(f"/api/lineups/{lineup['id']}/hide", headers=owner_headers).status_code == 200
+    owner_favorites = client.get('/api/lineups?view=favorites&page=1&page_size=10', headers=owner_headers).get_json()
+    assert owner_favorites['items'][0]['id'] == lineup['id']
+    client.post('/api/logout')
+
+    client.post('/api/login', json={'account': 'viewer', 'password': 'abc123'})
+    viewer_headers = auth_headers(client)
+    public_payload = client.get('/api/lineups?page=1&page_size=10', headers=viewer_headers).get_json()
+    favorites_payload = client.get('/api/lineups?view=favorites&page=1&page_size=10', headers=viewer_headers).get_json()
+    recent_views = client.get('/api/me/recent-views', headers=viewer_headers).get_json()
+    recent_copies = client.get('/api/me/recent-copies', headers=viewer_headers).get_json()
+
+    assert all(item['id'] != lineup['id'] for item in public_payload['items'])
+    assert favorites_payload['items'] == []
+    assert recent_views == []
+    assert recent_copies == []
+    assert client.get(f"/api/lineups/{lineup['id']}", headers=viewer_headers).status_code == 404
+    assert client.post(f"/api/lineups/{lineup['id']}/view", headers=viewer_headers).status_code == 404
+    assert client.post(f"/api/lineups/{lineup['id']}/copy", headers=viewer_headers).status_code == 404
+    assert client.post(f"/api/lineups/{lineup['id']}/like", headers=viewer_headers).status_code == 404
+    assert client.post(f"/api/lineups/{lineup['id']}/favorite", headers=viewer_headers).status_code == 404
+    assert client.post(
+        f"/api/lineups/{lineup['id']}/report",
+        json={'reason': '隐藏后不该再能举报'},
+        headers=viewer_headers,
+    ).status_code == 404
+    client.post('/api/logout')
+
+    admin_headers = login_admin(client)
+    admin_payload = client.get('/api/lineups?page=1&page_size=10', headers=admin_headers).get_json()
+    assert any(item['id'] == lineup['id'] for item in admin_payload['items'])
 
 
 def test_lineups_endpoint_supports_item_fetch_for_editor(client):

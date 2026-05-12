@@ -9,6 +9,8 @@ const elements = {
   lineupVersion: $('#lineupVersion'),
   nameInput: $('#nameInput'),
   codeInput: $('#codeInput'),
+  statusToggle: $('#statusToggle'),
+  statusSummary: $('#statusSummary'),
   submitButton: $('#submitButton'),
   title: $('#editorTitle'),
   description: $('#editorDescription'),
@@ -24,6 +26,7 @@ boot();
 
 elements.themeToggle.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 elements.form.addEventListener('submit', saveLineup);
+elements.statusToggle?.addEventListener('change', syncStatusSummary);
 
 async function boot() {
   await loadMe();
@@ -63,6 +66,8 @@ async function loadLineup() {
     elements.lineupVersion.value = lineup.version;
     elements.nameInput.value = lineup.name;
     elements.codeInput.value = lineup.code;
+    elements.statusToggle.checked = lineup.status === 'hidden';
+    syncStatusSummary();
     elements.title.textContent = '编辑阵容';
     elements.description.textContent = `正在修改「${lineup.name}」，保存后返回阵容列表。`;
   } catch (error) {
@@ -83,6 +88,7 @@ async function saveLineup(event) {
   const body = {
     name: elements.nameInput.value.trim(),
     code: normalizedCode,
+    status: elements.statusToggle.checked ? 'hidden' : 'normal',
   };
   const isEdit = mode === 'edit' && elements.lineupId.value;
   if (elements.lineupVersion.value) body.version = Number(elements.lineupVersion.value);
@@ -101,6 +107,11 @@ function showMessage(text) {
   elements.message.textContent = text;
 }
 
+function syncStatusSummary() {
+  if (!elements.statusSummary || !elements.statusToggle) return;
+  elements.statusSummary.textContent = elements.statusToggle.checked ? '直接隐藏' : '直接展示';
+}
+
 function extractLineupCode(rawCode) {
   const matches = Array.from(String(rawCode || '').matchAll(/[＃#]([A-Za-z0-9]+)/g)).map((item) => item[1]);
   if (!matches.length) return '';
@@ -113,3 +124,5 @@ function setTheme(theme) {
   elements.themeIcon.textContent = theme === 'dark' ? '☼' : '☾';
   elements.themeText.textContent = theme === 'dark' ? '白天模式' : '夜间模式';
 }
+
+syncStatusSummary();

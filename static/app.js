@@ -17,12 +17,14 @@ const elements = {
   authLink: $('#authLink'),
   logoutButton: $('#logoutButton'),
   adminLink: $('#adminLink'),
+  accountLink: $('#accountLink'),
   createLineupLink: $('#createLineupLink'),
   searchInput: $('#searchInput'),
   lineupList: $('#lineupList'),
   emptyState: $('#emptyState'),
   message: $('#message'),
   lineupCount: $('#lineupCount'),
+  favoritesTab: $('#favoritesTab'),
   mineTab: $('#mineTab'),
   tabs: $('#tabs'),
   pagination: $('#pagination'),
@@ -30,6 +32,7 @@ const elements = {
   themeIcon: $('#themeIcon'),
   themeText: $('#themeText'),
   toast: $('#toast'),
+  authPromptRoot: $('#authPromptRoot'),
 };
 
 setTheme(localStorage.getItem('theme') || 'light');
@@ -37,6 +40,9 @@ boot();
 
 elements.themeToggle.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 elements.logoutButton.addEventListener('click', logout);
+elements.authLink.addEventListener('click', () => {
+  trackGrowth('click_login_entry', { source: 'header' });
+});
 elements.searchInput.addEventListener('input', debounce((event) => {
   state.query = event.target.value.trim();
   state.page = 1;
@@ -45,11 +51,15 @@ elements.searchInput.addEventListener('input', debounce((event) => {
 elements.tabs.addEventListener('click', (event) => {
   const tab = event.target.closest('.tab');
   if (!tab) return;
-  document.querySelectorAll('.tab').forEach((item) => item.classList.remove('active'));
-  tab.classList.add('active');
-  state.sort = tab.dataset.sort;
-  state.view = tab.dataset.view;
-  state.page = 1;
+  if (!state.user && tab.dataset.view === 'favorites') {
+    requireAuthIntent({ type: 'open_view_favorites' }, '登录后可收藏阵容并随时找回');
+    return;
+  }
+  if (!state.user && tab.dataset.view === 'mine') {
+    requireAuthIntent({ type: 'open_view_mine' }, '登录后可查看和管理你发布的阵容');
+    return;
+  }
+  setActiveTab(tab.dataset.sort, tab.dataset.view);
   loadLineups();
 });
 elements.pagination.addEventListener('click', (event) => {
@@ -60,10 +70,16 @@ elements.pagination.addEventListener('click', (event) => {
   state.page = nextPage;
   loadLineups();
 });
+elements.createLineupLink.addEventListener('click', (event) => {
+  if (state.user) return;
+  event.preventDefault();
+  requireAuthIntent({ type: 'open_create_lineup' }, '登录后可发布和管理自己的阵容');
+});
 
 async function boot() {
   await loadMe();
   applySavedMessage();
+  await consumePendingIntent();
   await loadLineups();
 }
 
@@ -75,6 +91,20 @@ async function api(url, options = {}) {
   const data = response.status === 204 ? null : await response.json().catch(() => null);
   if (!response.ok) throw new Error(data?.error || '操作失败');
   return data;
+}
+
+async function trackGrowth(eventName, payload = {}) {
+  if (!state.csrfToken) return;
+  await fetch('/api/growth-events', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': state.csrfToken },
+    body: JSON.stringify({
+      event_name: eventName,
+      page_key: 'home',
+      ref_lineup_id: payload.lineupId || null,
+      payload,
+    }),
+  }).catch(() => {});
 }
 
 async function loadMe() {
@@ -89,24 +119,30 @@ function renderAuth() {
   elements.authLink.classList.toggle('hidden', loggedIn);
   elements.logoutButton.classList.toggle('hidden', !loggedIn);
   elements.mineTab.classList.toggle('hidden', !loggedIn);
+  elements.favoritesTab.classList.remove('hidden');
   elements.adminLink.classList.toggle('hidden', !(state.user && state.user.role === 'admin'));
+  elements.accountLink.classList.toggle('hidden', !loggedIn);
   elements.authStatus.textContent = loggedIn ? `${state.user.nickname}` : '未登录';
   elements.createLineupLink.href = loggedIn ? '/lineup/new' : '/auth';
   elements.createLineupLink.textContent = loggedIn ? '新增阵容' : '登录后新增阵容';
-  if (!loggedIn && state.view === 'mine') {
+  if (!loggedIn && (state.view === 'mine' || state.view === 'favorites')) {
+    state.sort = 'latest';
     state.view = 'all';
-    document.querySelectorAll('.tab').forEach((item) => item.classList.toggle('active', item.dataset.view === 'all' && item.dataset.sort === 'latest'));
+    state.page = 1;
   }
+  syncActiveTab();
 }
 
 async function logout() {
   await api('/api/logout', { method: 'POST' });
   state.user = null;
+  state.sort = 'latest';
   state.view = 'all';
   state.page = 1;
+  closeAuthPrompt(true);
   showMessage('已退出登录');
   renderAuth();
-  loadLineups();
+  await loadLineups();
 }
 
 async function loadLineups() {
@@ -131,6 +167,7 @@ function renderLineups() {
   elements.lineupList.replaceChildren();
   elements.lineupCount.textContent = state.total;
   elements.emptyState.classList.toggle('hidden', state.total > 0);
+  renderEmptyState();
   state.lineups.forEach((lineup) => {
     const card = document.createElement('article');
     card.className = 'lineup-card';
@@ -139,23 +176,48 @@ function renderLineups() {
     title.textContent = `${lineup.name} · ${lineup.rank_level}`;
     const meta = document.createElement('div');
     meta.className = 'card-time';
-    meta.textContent = `由 ${lineup.owner_nickname} 上传 · 赞 ${lineup.like_count} · 复制 ${lineup.copy_count} · ${lineup.updated_at}`;
+    meta.append('由 ');
+    const authorLink = document.createElement('a');
+    authorLink.className = 'author-link';
+    authorLink.href = `/author/${encodeURIComponent(lineup.owner_username || '')}`;
+    authorLink.textContent = lineup.owner_nickname;
+    meta.append(authorLink, ` 上传 · 赞 ${lineup.like_count} · 复制 ${lineup.copy_count} · ${lineup.updated_at}`);
     const code = document.createElement('pre');
     code.className = 'code-preview';
     code.textContent = lineup.code;
     const actions = document.createElement('div');
     actions.className = 'card-actions';
     actions.append(button('复制阵容码', () => copyLineup(lineup)));
-    if (state.user) {
-      actions.append(button(lineup.is_liked_today ? '今日已赞' : '点赞', () => likeLineup(lineup), '', lineup.is_liked_today));
-      actions.append(button(lineup.is_favorited ? '已收藏' : '收藏', () => favoriteLineup(lineup), '', lineup.is_favorited));
-      actions.append(button('举报', () => reportLineup(lineup)));
-    }
+    actions.append(button('查看', () => openLineupDetail(lineup.id)));
+    actions.append(button(lineup.is_liked_today ? '今日已赞' : '点赞', () => likeLineup(lineup), '', Boolean(state.user && lineup.is_liked_today)));
+    actions.append(button(lineup.is_favorited ? '取消收藏' : '收藏', () => favoriteLineup(lineup)));
+    actions.append(button('举报', () => reportLineup(lineup)));
+    if (lineup.can_hide) actions.append(button('隐藏阵容', () => hideLineup(lineup), 'danger-button'));
     if (lineup.can_edit) actions.append(button('编辑', () => openEditor(lineup.id)));
     if (lineup.can_delete) actions.append(button('删除', () => deleteLineup(lineup), 'danger-button'));
     card.append(title, meta, code, actions);
     elements.lineupList.append(card);
   });
+}
+
+function renderEmptyState() {
+  const title = elements.emptyState.querySelector('h3');
+  const description = elements.emptyState.querySelector('p');
+  if (state.total > 0 || !title || !description) return;
+  if (state.view === 'favorites') {
+    title.textContent = '还没有收藏阵容';
+    description.textContent = state.user
+      ? '你收藏的阵容会出现在这里，可随时回来查看和复制。'
+      : '登录后可收藏阵容并随时找回，收藏内容会跟随账号同步。';
+    return;
+  }
+  if (state.view === 'mine') {
+    title.textContent = '还没有你的阵容';
+    description.textContent = '登录后上传第一套阵容，管理和维护你自己的阵容库。';
+    return;
+  }
+  title.textContent = '还没有阵容';
+  description.textContent = '登录后上传第一套阵容，或切换到全部阵容查看公开内容。';
 }
 
 function renderPagination() {
@@ -205,8 +267,25 @@ function button(label, handler, extraClass = '', disabled = false) {
   return element;
 }
 
+function setActiveTab(sort, view) {
+  state.sort = sort;
+  state.view = view;
+  state.page = 1;
+  syncActiveTab();
+}
+
+function syncActiveTab() {
+  document.querySelectorAll('.tab').forEach((item) => {
+    item.classList.toggle('active', item.dataset.sort === state.sort && item.dataset.view === state.view);
+  });
+}
+
 function openEditor(lineupId) {
   window.location.href = `/lineup/${lineupId}/edit`;
+}
+
+function openLineupDetail(lineupId) {
+  window.location.href = `/lineup/${lineupId}`;
 }
 
 async function copyLineup(lineup) {
@@ -216,6 +295,9 @@ async function copyLineup(lineup) {
     return;
   }
   await api(`/api/lineups/${lineup.id}/copy`, { method: 'POST' });
+  if (!state.user) {
+    window.jccHistoryStore?.pushLocalCopy(lineup);
+  }
   showToast('复制成功！祝你把把吃鸡！');
   loadLineups();
 }
@@ -242,27 +324,226 @@ async function writeClipboard(text) {
   return copied;
 }
 
+function requireAuthIntent(intent, message) {
+  if (state.user) return false;
+  window.jccAuthIntent?.save(intent);
+  showAuthPrompt(message);
+  return true;
+}
+
+function showAuthPrompt(message) {
+  closeAuthPrompt(false);
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) closeAuthPrompt(true);
+  });
+
+  const card = document.createElement('section');
+  card.className = 'modal-card';
+
+  const header = document.createElement('div');
+  header.className = 'modal-header';
+  const headerCopy = document.createElement('div');
+  const title = document.createElement('h2');
+  title.textContent = '登录后继续';
+  const desc = document.createElement('p');
+  desc.className = 'auth-prompt-copy';
+  desc.textContent = message;
+  headerCopy.append(title, desc);
+  const closeButton = button('关闭', () => closeAuthPrompt(true));
+  header.append(headerCopy, closeButton);
+
+  const hint = document.createElement('p');
+  hint.className = 'field-hint';
+  hint.textContent = '登录后可收藏阵容、查看我的收藏。';
+
+  const actions = document.createElement('div');
+  actions.className = 'auth-prompt-actions';
+  const cancelButton = button('稍后', () => closeAuthPrompt(true));
+  const loginButton = document.createElement('button');
+  loginButton.type = 'button';
+  loginButton.className = 'primary-button auth-prompt-confirm';
+  loginButton.textContent = '去登录';
+  loginButton.addEventListener('click', () => {
+    closeAuthPrompt(false);
+    window.location.href = '/auth';
+  });
+  actions.append(cancelButton, loginButton);
+
+  card.append(header, hint, actions);
+  backdrop.append(card);
+  elements.authPromptRoot.append(backdrop);
+}
+
+function closeAuthPrompt(clearIntent = false) {
+  elements.authPromptRoot.replaceChildren();
+  if (clearIntent) window.jccAuthIntent?.clear();
+}
+
+function closeReportDialog() {
+  elements.authPromptRoot.replaceChildren();
+}
+
 async function likeLineup(lineup) {
+  if (!state.user) trackGrowth('guest_click_like', { source: 'lineup-card', lineupId: lineup.id });
+  if (requireAuthIntent({ type: 'like_lineup', lineupId: lineup.id }, '登录后可点赞并保留个人记录')) return;
   try {
     await api(`/api/lineups/${lineup.id}/like`, { method: 'POST' });
     showMessage('点赞成功');
-    loadLineups();
+    await loadLineups();
   } catch (error) {
     showMessage(error.message);
   }
 }
 
 async function favoriteLineup(lineup) {
-  await api(`/api/lineups/${lineup.id}/favorite`, { method: 'POST' });
-  showMessage('收藏成功');
-  loadLineups();
+  if (!state.user) trackGrowth('guest_click_favorite', { source: 'lineup-card', lineupId: lineup.id });
+  if (requireAuthIntent({ type: 'favorite_lineup', lineupId: lineup.id }, '登录后可收藏阵容并跨设备同步')) return;
+  try {
+    if (lineup.is_favorited) {
+      await api(`/api/lineups/${lineup.id}/favorite`, { method: 'DELETE' });
+      showMessage('已取消收藏');
+    } else {
+      await api(`/api/lineups/${lineup.id}/favorite`, { method: 'POST' });
+      showMessage('收藏成功');
+    }
+    await loadLineups();
+  } catch (error) {
+    showMessage(error.message);
+  }
 }
 
 async function reportLineup(lineup) {
-  const reason = prompt('请输入举报原因');
-  if (!reason) return;
-  await api(`/api/lineups/${lineup.id}/report`, { method: 'POST', body: JSON.stringify({ reason }) });
-  showMessage('举报已提交');
+  if (!state.user) trackGrowth('guest_click_report', { source: 'lineup-card', lineupId: lineup.id });
+  if (requireAuthIntent({ type: 'report_lineup', lineupId: lineup.id }, '登录后可举报问题阵容并保留处理记录')) return;
+  showReportDialog(lineup);
+}
+
+function showReportDialog(lineup) {
+  closeReportDialog();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) closeReportDialog();
+  });
+
+  const card = document.createElement('section');
+  card.className = 'modal-card';
+
+  const header = document.createElement('div');
+  header.className = 'modal-header';
+  const headerCopy = document.createElement('div');
+  const title = document.createElement('h2');
+  title.textContent = '举报阵容';
+  const desc = document.createElement('p');
+  desc.className = 'auth-prompt-copy';
+  desc.textContent = `请填写举报原因，管理员会处理「${lineup.name}」。`;
+  headerCopy.append(title, desc);
+  const closeButton = button('关闭', () => closeReportDialog());
+  header.append(headerCopy, closeButton);
+
+  const form = document.createElement('form');
+  form.className = 'modal-form';
+  const field = document.createElement('label');
+  field.className = 'field';
+  const label = document.createElement('span');
+  label.textContent = '举报原因';
+  const textarea = document.createElement('textarea');
+  textarea.rows = 5;
+  textarea.maxLength = 300;
+  textarea.placeholder = '请简要说明问题，例如：阵容码无效、内容不实、违规信息等';
+  field.append(label, textarea);
+
+  const inlineMessage = document.createElement('div');
+  inlineMessage.className = 'message';
+
+  const actions = document.createElement('div');
+  actions.className = 'auth-prompt-actions';
+  const cancelButton = button('取消', () => closeReportDialog());
+  const submitButton = document.createElement('button');
+  submitButton.type = 'submit';
+  submitButton.className = 'primary-button auth-prompt-confirm';
+  submitButton.textContent = '提交举报';
+  actions.append(cancelButton, submitButton);
+  form.append(field, inlineMessage, actions);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const reason = textarea.value.trim();
+    if (!reason) {
+      inlineMessage.textContent = '请输入举报原因';
+      return;
+    }
+    submitButton.disabled = true;
+    inlineMessage.textContent = '';
+    try {
+      await api(`/api/lineups/${lineup.id}/report`, { method: 'POST', body: JSON.stringify({ reason }) });
+      closeReportDialog();
+      showMessage('举报已提交');
+    } catch (error) {
+      inlineMessage.textContent = error.message;
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+
+  card.append(header, form);
+  backdrop.append(card);
+  elements.authPromptRoot.append(backdrop);
+  textarea.focus();
+}
+
+async function hideLineup(lineup) {
+  if (!confirm(`确定隐藏“${lineup.name}”吗？`)) return;
+  await api(`/api/lineups/${lineup.id}/hide`, { method: 'POST' });
+  showMessage('阵容已隐藏');
+  await loadLineups();
+}
+
+async function consumePendingIntent() {
+  stripResumeIntentFlag();
+  if (!state.user) return;
+  const intent = window.jccAuthIntent?.read();
+  if (!intent) return;
+  window.jccAuthIntent.clear();
+  if (intent.type === 'open_view_favorites') {
+    setActiveTab('latest', 'favorites');
+    showMessage('已进入我的收藏');
+    return;
+  }
+  if (intent.type === 'open_view_mine') {
+    setActiveTab('latest', 'mine');
+    showMessage('已进入我的阵容');
+    return;
+  }
+  if (intent.type === 'favorite_lineup') {
+    try {
+      await api(`/api/lineups/${intent.lineupId}/favorite`, { method: 'POST' });
+      showMessage('已自动完成收藏');
+    } catch (error) {
+      showMessage(error.message);
+    }
+    return;
+  }
+  if (intent.type === 'like_lineup') {
+    try {
+      await api(`/api/lineups/${intent.lineupId}/like`, { method: 'POST' });
+      showMessage('已自动完成点赞');
+    } catch (error) {
+      showMessage(error.message);
+    }
+    return;
+  }
+  if (intent.type === 'report_lineup') {
+    try {
+      const response = await fetch(`/api/lineups/${intent.lineupId}`);
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.error || '阵容不存在');
+      showReportDialog(data);
+    } catch (error) {
+      showMessage(error.message);
+    }
+  }
 }
 
 async function deleteLineup(lineup) {
@@ -279,6 +560,14 @@ function applySavedMessage() {
   if (!saved) return;
   showMessage(saved === 'edit' ? '阵容已更新' : '阵容已新增');
   params.delete('saved');
+  const nextQuery = params.toString();
+  history.replaceState({}, '', `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}`);
+}
+
+function stripResumeIntentFlag() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('resume_intent')) return;
+  params.delete('resume_intent');
   const nextQuery = params.toString();
   history.replaceState({}, '', `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}`);
 }

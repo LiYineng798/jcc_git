@@ -25,6 +25,21 @@ def ensure_visitor_token():
     return secrets.token_urlsafe(18), True
 
 
+def maybe_set_visitor_cookie(response, visitor_token, created):
+    if not created:
+        return response
+    response.set_cookie(
+        VISITOR_COOKIE_NAME,
+        visitor_token,
+        max_age=VISITOR_COOKIE_MAX_AGE,
+        httponly=True,
+        samesite='Lax',
+        secure=not current_app.config.get('TESTING', False),
+        path='/',
+    )
+    return response
+
+
 def record_page_visit(page_key, user=None, visitor_token=None, ip_address=None):
     user = user or current_user()
     ip_address = ip_address or get_client_ip()
@@ -53,22 +68,18 @@ def tracked_template_response(template_name, page_key, **context):
     visitor_token, created = ensure_visitor_token()
     record_page_visit(page_key, user=user, visitor_token=visitor_token, ip_address=get_client_ip())
     response = make_response(render_template(template_name, **context))
-    if created:
-        response.set_cookie(
-            VISITOR_COOKIE_NAME,
-            visitor_token,
-            max_age=VISITOR_COOKIE_MAX_AGE,
-            httponly=True,
-            samesite='Lax',
-            secure=not current_app.config.get('TESTING', False),
-            path='/',
-        )
-    return response
+    return maybe_set_visitor_cookie(response, visitor_token, created)
 
 
 def daily_uv_count(target_date):
     row = get_db().execute(
-        'SELECT COUNT(DISTINCT visitor_key) AS c FROM visit_events WHERE visit_date = ?',
+        '''
+        SELECT COUNT(DISTINCT ve.visitor_key) AS c
+        FROM visit_events ve
+        LEFT JOIN users u ON u.id = ve.user_id
+        WHERE ve.visit_date = ?
+          AND (ve.user_id IS NULL OR COALESCE(u.role, 'user') != 'admin')
+        ''',
         (target_date,),
     ).fetchone()
     return row['c'] if row else 0

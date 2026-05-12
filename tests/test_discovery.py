@@ -1,0 +1,50 @@
+from test_auth import register_user
+from test_lineup_permissions import create_lineup
+
+
+def test_rising_sort_prioritizes_recently_accelerating_lineups(client):
+    register_user(client, username='owner', email='owner@example.com')
+    rising = create_lineup(client, name='上升阵容', code='#RISING001').get_json()
+    stable = create_lineup(client, name='稳定阵容', code='#RISING002').get_json()
+
+    with client.application.app_context():
+        from db import get_db
+
+        db = get_db()
+        db.execute(
+            'INSERT INTO likes (user_id, lineup_id, like_date, created_at) VALUES (?, ?, ?, ?)',
+            (1, rising['id'], '2026-05-12', '2026-05-12 10:00:00'),
+        )
+        db.execute(
+            'INSERT INTO copy_events (lineup_id, user_id, ip_address, copy_key, bucket_start, counted, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)',
+            (rising['id'], 1, '1.1.1.1', 'user:1-growth', '2026-05-12 10:00:00', '2026-05-12 10:00:00'),
+        )
+        db.execute(
+            'INSERT INTO likes (user_id, lineup_id, like_date, created_at) VALUES (?, ?, ?, ?)',
+            (1, stable['id'], '2026-05-11', '2026-05-11 10:00:00'),
+        )
+        db.commit()
+
+    payload = client.get('/api/lineups?sort=rising&page=1&page_size=10').get_json()
+    assert payload['items'][0]['id'] == rising['id']
+
+
+def test_anonymous_recommended_sort_returns_items(client):
+    register_user(client, username='owner', email='owner@example.com')
+    create_lineup(client, name='推荐阵容A', code='#REC001')
+    create_lineup(client, name='推荐阵容B', code='#REC002')
+
+    payload = client.get('/api/lineups?sort=recommended&page=1&page_size=10').get_json()
+    assert payload['total'] == 2
+    assert len(payload['items']) == 2
+
+
+def test_logged_in_recommended_sort_deprioritizes_own_lineups(client):
+    register_user(client, username='owner', email='owner@example.com')
+    create_lineup(client, name='别人的阵容', code='#REC003')
+    client.post('/api/logout')
+    register_user(client, username='other', email='other@example.com')
+    own = create_lineup(client, name='自己的阵容', code='#REC004').get_json()
+
+    payload = client.get('/api/lineups?sort=recommended&page=1&page_size=10').get_json()
+    assert payload['items'][0]['id'] != own['id']

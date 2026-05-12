@@ -54,6 +54,27 @@ def test_favorite_does_not_change_score(client):
     assert after_payload['copy_count'] + after_payload['like_count'] == before
 
 
+def test_favorites_view_returns_only_current_users_favorites(client):
+    register_user(client, username='owner', email='owner@example.com')
+    favorite_target = create_lineup(client, name='收藏目标', code='#FAVORITE1').get_json()
+    non_favorite_target = create_lineup(client, name='普通阵容', code='#NORMAL1').get_json()
+    headers = auth_headers(client)
+    assert client.post(f"/api/lineups/{favorite_target['id']}/favorite", headers=headers).status_code == 200
+
+    payload = client.get('/api/lineups?view=favorites&page=1&page_size=10').get_json()
+
+    assert payload['total'] == 1
+    assert payload['items'][0]['id'] == favorite_target['id']
+    assert payload['items'][0]['is_favorited'] is True
+    assert all(item['id'] != non_favorite_target['id'] for item in payload['items'])
+
+
+def test_anonymous_favorites_view_returns_empty_payload(client):
+    payload = client.get('/api/lineups?view=favorites&page=1&page_size=10').get_json()
+    assert payload['total'] == 0
+    assert payload['items'] == []
+
+
 def test_report_creates_pending_admin_item(client):
     register_user(client)
     lineup = create_lineup(client).get_json()

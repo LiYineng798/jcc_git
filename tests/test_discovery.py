@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from test_auth import register_user
 from test_lineup_permissions import create_lineup
 
@@ -6,6 +8,9 @@ def test_rising_sort_prioritizes_recently_accelerating_lineups(client):
     register_user(client, username='owner', email='owner@example.com')
     rising = create_lineup(client, name='上升阵容', code='#RISING001').get_json()
     stable = create_lineup(client, name='稳定阵容', code='#RISING002').get_json()
+    now = datetime.now().replace(second=0, microsecond=0)
+    recent_time = now - timedelta(hours=1)
+    previous_time = now - timedelta(hours=25)
 
     with client.application.app_context():
         from db import get_db
@@ -13,15 +18,22 @@ def test_rising_sort_prioritizes_recently_accelerating_lineups(client):
         db = get_db()
         db.execute(
             'INSERT INTO likes (user_id, lineup_id, like_date, created_at) VALUES (?, ?, ?, ?)',
-            (1, rising['id'], '2026-05-12', '2026-05-12 10:00:00'),
+            (1, rising['id'], recent_time.strftime('%Y-%m-%d'), recent_time.strftime('%Y-%m-%d %H:%M:%S')),
         )
         db.execute(
             'INSERT INTO copy_events (lineup_id, user_id, ip_address, copy_key, bucket_start, counted, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)',
-            (rising['id'], 1, '1.1.1.1', 'user:1-growth', '2026-05-12 10:00:00', '2026-05-12 10:00:00'),
+            (
+                rising['id'],
+                1,
+                '1.1.1.1',
+                'user:1-growth',
+                recent_time.strftime('%Y-%m-%d %H:%M:%S'),
+                recent_time.strftime('%Y-%m-%d %H:%M:%S'),
+            ),
         )
         db.execute(
             'INSERT INTO likes (user_id, lineup_id, like_date, created_at) VALUES (?, ?, ?, ?)',
-            (1, stable['id'], '2026-05-11', '2026-05-11 10:00:00'),
+            (1, stable['id'], previous_time.strftime('%Y-%m-%d'), previous_time.strftime('%Y-%m-%d %H:%M:%S')),
         )
         db.commit()
 

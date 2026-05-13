@@ -83,4 +83,4 @@ def test_report_creates_pending_admin_item(client):
     client.post('/api/logout')
     client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'})
     reports = client.get('/api/admin/reports').get_json()
-    assert reports[0]['status'] == 'pending'
+    assert reports['items'][0]['status'] == 'pending'

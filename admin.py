@@ -13,6 +13,41 @@ from visits import daily_uv_count, last_7_days_uv, tracked_template_response
 admin_bp = Blueprint('admin', __name__)
 
 
+def _parse_page():
+    try:
+        value = int(request.args.get('page', 1))
+    except (TypeError, ValueError):
+        value = 1
+    return value if value > 0 else 1
+
+
+def _parse_page_size(default=20, maximum=100):
+    try:
+        value = int(request.args.get('page_size', default))
+    except (TypeError, ValueError):
+        value = default
+    if value <= 0:
+        value = default
+    return min(value, maximum)
+
+
+def _paginate_rows(base_sql, count_sql, params, serializer=dict, default_page_size=20):
+    page = _parse_page()
+    page_size = _parse_page_size(default=default_page_size)
+    total = get_db().execute(count_sql, params).fetchone()['c']
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    page = min(page, total_pages)
+    offset = (page - 1) * page_size
+    rows = get_db().execute(f'{base_sql} LIMIT ? OFFSET ?', [*params, page_size, offset]).fetchall()
+    return {
+        'items': [serializer(row) for row in rows],
+        'total': total,
+        'page': page,
+        'page_size': page_size,
+        'total_pages': total_pages,
+    }
+
+
 @admin_bp.get('/admin')
 def admin_page():
     admin, error = admin_required()
@@ -28,12 +63,13 @@ def admin_users():
         return error
     q = request.args.get('q', '').strip()
     params = []
-    sql = 'SELECT id, username, email, nickname, role, status, created_at, updated_at, last_login_at FROM users'
+    from_sql = 'FROM users'
     if q:
-        sql += ' WHERE username LIKE ? OR email LIKE ? OR nickname LIKE ?'
+        from_sql += ' WHERE username LIKE ? OR email LIKE ? OR nickname LIKE ?'
         params = [f'%{q}%', f'%{q}%', f'%{q}%']
-    sql += ' ORDER BY id DESC'
-    return jsonify([dict(row) for row in get_db().execute(sql, params).fetchall()])
+    base_sql = 'SELECT id, username, email, nickname, role, status, created_at, updated_at, last_login_at ' + from_sql + ' ORDER BY id DESC'
+    count_sql = 'SELECT COUNT(*) AS c ' + from_sql
+    return jsonify(_paginate_rows(base_sql, count_sql, params, serializer=dict, default_page_size=20))
 
 
 @admin_bp.post('/api/admin/users')
@@ -117,17 +153,24 @@ def admin_lineups():
         return error
     q = request.args.get('q', '').strip()
     params = []
-    sql = '''SELECT lineups.* FROM lineups
+    from_sql = '''FROM lineups
              LEFT JOIN users ON users.id = lineups.user_id
              WHERE lineups.status != 'deleted' '''
     if q:
-        sql += ''' AND (
+        from_sql += ''' AND (
             lineups.name LIKE ? OR lineups.code LIKE ? OR users.username LIKE ? OR users.nickname LIKE ?
         )'''
         params.extend([f'%{q}%', f'%{q}%', f'%{q}%', f'%{q}%'])
-    rows = get_db().execute(sql + ' ORDER BY lineups.id DESC', params).fetchall()
     scores = score_map()
-    return jsonify([_serialize(row, scores, user=admin, admin=True) for row in rows])
+    base_sql = 'SELECT lineups.* ' + from_sql + ' ORDER BY lineups.id DESC'
+    count_sql = 'SELECT COUNT(*) AS c ' + from_sql
+    return jsonify(_paginate_rows(
+        base_sql,
+        count_sql,
+        params,
+        serializer=lambda row: _serialize(row, scores, user=admin, admin=True),
+        default_page_size=20,
+    ))
 
 
 @admin_bp.put('/api/admin/lineups/<int:lineup_id>')
@@ -209,6 +252,48 @@ def admin_stats():
     })
 
 
+@admin_bp.get('/api/admin/overview')
+def admin_overview():
+    admin, error = admin_required()
+    if error:
+        return error
+    db = get_db()
+    today = now_text()[:10]
+    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    total_users = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin'").fetchone()['c']
+    today_users = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin' AND created_at LIKE ?", (f'{today}%',)).fetchone()['c']
+    today_logins = db.execute(
+        '''
+        SELECT COUNT(DISTINCT le.user_id) AS c
+        FROM login_events le
+        JOIN users u ON u.id = le.user_id
+        WHERE le.success = 1
+          AND le.created_at LIKE ?
+          AND u.role != 'admin'
+        ''',
+        (f'{today}%',),
+    ).fetchone()['c']
+    pending_reports_count = db.execute("SELECT COUNT(*) AS c FROM reports WHERE status = 'pending'").fetchone()['c']
+    hidden_lineups_count = db.execute("SELECT COUNT(*) AS c FROM lineups WHERE status = 'hidden'").fetchone()['c']
+    recent_audit_count = db.execute("SELECT COUNT(*) AS c FROM audit_logs WHERE created_at LIKE ?", (f'{today}%',)).fetchone()['c']
+    return jsonify({
+        'stats': {
+            'today_uv': daily_uv_count(today),
+            'yesterday_uv': daily_uv_count(yesterday),
+            'today_users': today_users,
+            'today_logins': today_logins,
+            'total_users': total_users,
+            'pending_reports_count': pending_reports_count,
+        },
+        'traffic_7d': last_7_days_uv(),
+        'todos': {
+            'pending_reports_count': pending_reports_count,
+            'hidden_lineups_count': hidden_lineups_count,
+            'recent_audit_count': recent_audit_count,
+        },
+    })
+
+
 @admin_bp.get('/api/admin/growth')
 def admin_growth():
     admin, error = admin_required()
@@ -222,8 +307,9 @@ def admin_audit_logs():
     admin, error = admin_required()
     if error:
         return error
-    rows = get_db().execute('SELECT * FROM audit_logs ORDER BY id DESC LIMIT 200').fetchall()
-    return jsonify([dict(row) for row in rows])
+    base_sql = 'SELECT * FROM audit_logs ORDER BY id DESC'
+    count_sql = 'SELECT COUNT(*) AS c FROM audit_logs'
+    return jsonify(_paginate_rows(base_sql, count_sql, [], serializer=dict, default_page_size=30))
 
 
 @admin_bp.get('/api/admin/reports')
@@ -233,7 +319,15 @@ def admin_reports():
         return error
     status = request.args.get('status', 'pending').strip()
     params = []
-    sql = '''SELECT
+    from_sql = '''FROM reports
+             JOIN users AS reporter ON reporter.id = reports.reporter_user_id
+             LEFT JOIN users AS handler ON handler.id = reports.handled_by
+             JOIN lineups ON lineups.id = reports.lineup_id
+             LEFT JOIN users AS owner ON owner.id = lineups.user_id'''
+    if status in {'pending', 'resolved', 'dismissed'}:
+        from_sql += ' WHERE reports.status = ?'
+        params.append(status)
+    base_sql = '''SELECT
                 reports.*,
                 reporter.username AS reporter_username,
                 reporter.nickname AS reporter_nickname,
@@ -244,16 +338,9 @@ def admin_reports():
                 lineups.status AS lineup_status,
                 owner.username AS owner_username,
                 owner.nickname AS owner_nickname
-             FROM reports
-             JOIN users AS reporter ON reporter.id = reports.reporter_user_id
-             LEFT JOIN users AS handler ON handler.id = reports.handled_by
-             JOIN lineups ON lineups.id = reports.lineup_id
-             LEFT JOIN users AS owner ON owner.id = lineups.user_id'''
-    if status in {'pending', 'resolved', 'dismissed'}:
-        sql += ' WHERE reports.status = ?'
-        params.append(status)
-    rows = get_db().execute(sql + ' ORDER BY reports.id DESC', params).fetchall()
-    return jsonify([dict(row) for row in rows])
+             ''' + from_sql + ' ORDER BY reports.id DESC'
+    count_sql = 'SELECT COUNT(*) AS c ' + from_sql
+    return jsonify(_paginate_rows(base_sql, count_sql, params, serializer=dict, default_page_size=20))
 
 
 @admin_bp.post('/api/admin/reports/<int:report_id>/resolve')

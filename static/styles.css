@@ -1072,6 +1072,102 @@ textarea:focus {
   margin-bottom: 14px;
 }
 
+.admin-panel-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-tab {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-solid);
+  color: var(--muted);
+  padding: 10px 16px;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.admin-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(201, 100, 66, 0.42);
+}
+
+.admin-tab.is-active,
+.small-button.is-active {
+  background: var(--accent);
+  color: #fffaf5;
+  border-color: transparent;
+}
+
+.admin-dashboard {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.admin-workspace-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.admin-workspace-body {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.admin-quick-link {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-solid);
+  color: var(--text);
+  padding: 16px;
+}
+
+.admin-empty-search {
+  padding: 44px 20px;
+}
+
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
 .traffic-overview {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1214,6 +1310,10 @@ textarea:focus {
   .traffic-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 700px) {
@@ -1229,6 +1329,12 @@ textarea:focus {
 @media (max-width: 560px) {
   .admin-shell {
     width: min(100% - 18px, 460px);
+  }
+
+  .admin-tab-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
   }
 
   .admin-search {
@@ -1267,6 +1373,14 @@ textarea:focus {
   .traffic-overview,
   .traffic-trend-row {
     grid-template-columns: 1fr;
+  }
+
+  .admin-quick-links {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-pagination {
+    flex-direction: column;
   }
 }
 

@@ -13,7 +13,7 @@ def test_score_weights_like_as_five_and_copy_as_one(client):
     client.post('/api/logout')
     client.post(f"/api/lineups/{lineup['id']}/copy", headers={'X-Forwarded-For': '9.9.9.9'})
     client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'})
-    admin_lineup = client.get('/api/admin/lineups', headers=auth_headers(client)).get_json()[0]
+    admin_lineup = client.get('/api/admin/lineups', headers=auth_headers(client)).get_json()['items'][0]
     assert admin_lineup['score'] == 7
 
 
@@ -33,7 +33,7 @@ def test_public_api_hides_score_but_admin_api_returns_score(client):
     assert 'score' not in public
     client.post('/api/logout')
     client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'})
-    admin = client.get('/api/admin/lineups', headers=auth_headers(client)).get_json()[0]
+    admin = client.get('/api/admin/lineups', headers=auth_headers(client)).get_json()['items'][0]
     assert 'score' in admin
 
 
@@ -45,7 +45,7 @@ def test_percentage_levels_assign_ss_s_a_b(client):
     headers = auth_headers(client)
     for index, lineup_id in enumerate(ids):
         client.post(f'/api/admin/lineups/{lineup_id}/adjust-score', json={'admin_copy_adjustment': 100 - index * 10}, headers=headers)
-    levels = [item['rank_level'] for item in client.get('/api/admin/lineups', headers=headers).get_json()]
+    levels = [item['rank_level'] for item in client.get('/api/admin/lineups', headers=headers).get_json()['items']]
     assert 'SS' in levels
     assert 'S' in levels
     assert 'A' in levels
@@ -62,5 +62,5 @@ def test_score_uses_recent_seven_days_only(client):
         get_db().commit()
     client.post('/api/logout')
     client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'})
-    admin = client.get('/api/admin/lineups', headers=auth_headers(client)).get_json()[0]
+    admin = client.get('/api/admin/lineups', headers=auth_headers(client)).get_json()['items'][0]
     assert admin['score'] == 0

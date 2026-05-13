@@ -46,6 +46,12 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
     assert 'rel="icon"' in admin_html
     assert 'href="/static/favicon.png"' in admin_html
     assert 'id="adminDialogRoot"' in admin_html
+    assert 'data-admin-tab="overview"' in admin_html
+    assert 'data-admin-tab="reports"' in admin_html
+    assert 'data-admin-tab="lineups"' in admin_html
+    assert 'data-admin-tab="users"' in admin_html
+    assert 'data-admin-tab="analytics"' in admin_html
+    assert 'data-admin-tab="audit"' in admin_html
 
     favicon_response = client.get('/favicon.ico')
     assert favicon_response.status_code == 200
@@ -216,11 +222,18 @@ def test_admin_js_supports_daily_growth_filter_and_clear_labels():
     with open(r'D:\1\codex\jcc\claude_project\static\admin.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
+    assert '/api/admin/overview' in js
+    assert 'activeTab' in js
+    assert 'AbortController' in js
+    assert 'debounce' in js
     assert 'growthDate' in js
     assert '/api/admin/growth?date=' in js
     assert '首页访问人数' in js
     assert '点击登录入口人数' in js
     assert '登录后 10 分钟内完成点赞人数' in js
+    assert '搜索用户名、邮箱或昵称后开始查找' in js
+    assert '输入阵容名、阵容码、作者后开始查找' in js
+    assert 'pending_reports_count' in js
 
 
 def test_styles_support_history_scroll_and_visibility_toggle():

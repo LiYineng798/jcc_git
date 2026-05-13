@@ -38,7 +38,15 @@
           </section>
         </div>
       </header>
-      <section class="panel">
+      <section class="panel admin-panel-shell">
+        <div class="admin-tab-bar" id="adminTabBar" role="tablist" aria-label="后台模块">
+          <button class="admin-tab is-active" data-admin-tab="overview" type="button">概览</button>
+          <button class="admin-tab" data-admin-tab="reports" type="button">举报</button>
+          <button class="admin-tab" data-admin-tab="lineups" type="button">阵容</button>
+          <button class="admin-tab" data-admin-tab="users" type="button">用户</button>
+          <button class="admin-tab" data-admin-tab="analytics" type="button">增长分析</button>
+          <button class="admin-tab" data-admin-tab="audit" type="button">审计日志</button>
+        </div>
         <div id="adminApp">后台数据加载中...</div>
       </section>
     </main>

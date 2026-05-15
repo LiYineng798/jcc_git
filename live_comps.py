@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import hashlib
+import base64
 import urllib.request
 from urllib.parse import urlparse
 from datetime import datetime
@@ -102,6 +103,25 @@ def cache_live_comp_image(url):
         return url
     data, content_type = download_live_comp_image(url)
     filename = live_comp_asset_filename(url, content_type)
+    asset_dir = Path(current_app.config['LIVE_COMPS_ASSET_DIR'])
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    target_path = asset_dir / filename
+    if not target_path.exists():
+        target_path.write_bytes(data)
+    return f'{LIVE_COMP_ASSET_ROUTE}/{filename}'
+
+
+def validate_live_comp_asset_filename(filename):
+    filename = str(filename or '')
+    if not filename or Path(filename).name != filename:
+        raise ValueError('图片文件名无效')
+    if Path(filename).suffix.lower() not in ALLOWED_IMAGE_EXTENSIONS:
+        raise ValueError('图片格式不支持')
+    return filename
+
+
+def write_live_comp_asset(filename, data):
+    filename = validate_live_comp_asset_filename(filename)
     asset_dir = Path(current_app.config['LIVE_COMPS_ASSET_DIR'])
     asset_dir.mkdir(parents=True, exist_ok=True)
     target_path = asset_dir / filename
@@ -288,6 +308,23 @@ def write_live_comps_payload(payload):
 @live_comps_bp.get(f'{LIVE_COMP_ASSET_ROUTE}/<path:filename>')
 def live_comp_asset(filename):
     return send_from_directory(current_app.config['LIVE_COMPS_ASSET_DIR'], filename)
+
+
+@live_comps_bp.post('/api/live-comps/assets/upload')
+def upload_live_comp_asset():
+    auth_error = require_live_comps_upload_token()
+    if auth_error:
+        return auth_error
+    data = request.get_json(silent=True) or {}
+    try:
+        filename = validate_live_comp_asset_filename(data.get('filename'))
+        raw_data = base64.b64decode(str(data.get('content_base64') or ''), validate=True)
+        if not raw_data:
+            return jsonify({'error': '图片内容为空'}), 400
+        url = write_live_comp_asset(filename, raw_data)
+    except ValueError as exc:
+        return jsonify({'error': str(exc)}), 400
+    return jsonify({'ok': True, 'url': url, 'filename': filename})
 
 
 @live_comps_bp.get('/api/live-comps/summary')

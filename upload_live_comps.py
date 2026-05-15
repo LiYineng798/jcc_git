@@ -10,10 +10,11 @@ def parse_args(argv=None):
     parser.add_argument('--file', required=True, help='Path to team_codes_by_tier.verify.json')
     parser.add_argument('--url', required=True, help='Upload endpoint URL')
     parser.add_argument('--token', required=True, help='Upload token sent via X-Upload-Token')
+    parser.add_argument('--timeout', type=int, default=180, help='Upload timeout in seconds')
     return parser.parse_args(argv)
 
 
-def upload_payload(file_path, url, token, opener=urllib.request.urlopen):
+def upload_payload(file_path, url, token, timeout=180, opener=urllib.request.urlopen):
     with open(file_path, 'r', encoding='utf-8') as file:
         payload = json.load(file)
     body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
@@ -26,14 +27,14 @@ def upload_payload(file_path, url, token, opener=urllib.request.urlopen):
             'X-Upload-Token': token,
         },
     )
-    with opener(request, timeout=30) as response:
+    with opener(request, timeout=timeout) as response:
         return response.read().decode('utf-8')
 
 
 def main(argv=None, opener=urllib.request.urlopen):
     args = parse_args(argv)
     try:
-        print(upload_payload(args.file, args.url, args.token, opener=opener))
+        print(upload_payload(args.file, args.url, args.token, timeout=args.timeout, opener=opener))
         return 0
     except HTTPError as exc:
         detail = exc.read().decode('utf-8', errors='ignore')

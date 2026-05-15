@@ -1,4 +1,5 @@
 import json
+import base64
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -266,6 +267,21 @@ def test_live_comps_upload_caches_remote_images_and_rewrites_urls(client, monkey
     assert item['heroImages'][0].startswith('/api/live-comps/assets/')
     assert not item['mainAvatar'].startswith('https://static.datatft.com')
     assert client.get(item['mainAvatar']).data == b'image-bytes'
+
+
+def test_live_comp_asset_upload_accepts_pre_cached_image(client):
+    response = client.post(
+        '/api/live-comps/assets/upload',
+        json={
+            'filename': 'abc123.jpg',
+            'content_base64': base64.b64encode(b'asset-bytes').decode('ascii'),
+        },
+        headers={'X-Upload-Token': 'upload-secret'},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()['url'] == '/api/live-comps/assets/abc123.jpg'
+    assert client.get('/api/live-comps/assets/abc123.jpg').data == b'asset-bytes'
 
 
 def test_live_comp_copy_endpoint_increments_copy_count(client):

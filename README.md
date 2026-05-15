@@ -23,6 +23,16 @@ python run_server.py
 
 默认访问：`http://127.0.0.1:5000`
 
+## 实时阵容上传
+
+新增了独立上传接口：`POST /api/live-comps/upload`
+
+本地上传命令：
+
+```bash
+python upload_live_comps.py --file team_codes_by_tier.verify.json --url https://jcc.np5.top/api/live-comps/upload --token YOUR_UPLOAD_TOKEN
+```
+
 ## 账号与权限
 
 - 未登录用户：浏览、搜索、复制阵容码；复制会按 IP 在 10 分钟内计分一次。

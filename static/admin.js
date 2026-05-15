@@ -20,6 +20,7 @@
     growthDate: todayInputValue(),
     reports: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, status: 'pending', loadedAt: 0 },
     lineups: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
+    liveComps: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', updated_at: null, source_meta: null, loadedAt: 0 },
     users: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
     audit: { items: [], total: 0, page: 1, page_size: 30, total_pages: 1, loadedAt: 0 },
     controllers: {},
@@ -115,6 +116,7 @@
     render();
     if (tabKey === 'overview') await loadOverview();
     if (tabKey === 'reports') await loadReports();
+    if (tabKey === 'live-comps') await loadAdminLiveComps();
     if (tabKey === 'analytics') await loadGrowth();
     if (tabKey === 'audit') await loadAudit();
     render();
@@ -149,6 +151,19 @@
     });
     const payload = await api(`/api/admin/lineups?${query.toString()}`, { signal: state.controllers.lineups.signal });
     state.lineups = { ...state.lineups, ...payload, loadedAt: Date.now() };
+  }
+
+  async function loadAdminLiveComps({ force = false } = {}) {
+    if (!force && isFresh(state.liveComps.loadedAt)) return;
+    abortRequest('liveComps');
+    state.controllers.liveComps = new AbortController();
+    const query = new URLSearchParams({
+      q: state.liveComps.query,
+      page: String(state.liveComps.page),
+      page_size: String(state.liveComps.page_size),
+    });
+    const payload = await api(`/api/admin/live-comps?${query.toString()}`, { signal: state.controllers.liveComps.signal });
+    state.liveComps = { ...state.liveComps, ...payload, loadedAt: Date.now() };
   }
 
   async function loadUsers({ force = false } = {}) {
@@ -189,6 +204,7 @@
     if (state.activeTab === 'overview') root.append(renderOverviewDashboard());
     if (state.activeTab === 'reports') root.append(renderReportsWorkspace());
     if (state.activeTab === 'lineups') root.append(renderLineupsWorkspace());
+    if (state.activeTab === 'live-comps') root.append(renderLiveCompsWorkspace());
     if (state.activeTab === 'users') root.append(renderUsersWorkspace());
     if (state.activeTab === 'analytics') root.append(renderAnalyticsWorkspace());
     if (state.activeTab === 'audit') root.append(renderAuditWorkspace());
@@ -418,6 +434,19 @@
     return panel;
   }
 
+  function renderLiveCompsWorkspace() {
+    const panel = workbenchPanel('实时阵容', '按实时阵容专区整体统计复制次数，不再按单个阵容码拆分');
+    const body = panel.querySelector('.admin-workspace-body');
+    body.append(el('p', 'admin-meta', state.liveComps.updated_at ? `实时阵容数据更新时间：${state.liveComps.updated_at}` : '实时阵容数据更新时间：暂无'));
+    const metrics = el('div', 'traffic-grid');
+    metrics.append(
+      trafficMetric('今日复制', state.liveComps.today_copy_count || 0, '今天实时阵容专区所有复制点击'),
+      trafficMetric('累计复制', state.liveComps.total_copy_count || 0, '从统计开始至今的所有复制点击'),
+    );
+    body.append(metrics, el('p', 'admin-meta', `最近统计更新：${state.liveComps.copy_updated_at || '未复制'}`));
+    return panel;
+  }
+
   function lineupSearchControls() {
     const wrap = el('form', 'admin-search');
     const input = el('input');
@@ -461,6 +490,41 @@
       state.lineups.page = 1;
       state.lineups.searched = true;
       await loadLineups({ force: true });
+      render();
+    });
+    wrap.append(input, submit, reset);
+    return wrap;
+  }
+
+  function liveCompSearchControls() {
+    const wrap = el('form', 'admin-search');
+    const input = el('input');
+    input.type = 'search';
+    input.placeholder = '搜索阵容名或 ID';
+    input.value = state.liveComps.query;
+    const submit = el('button', 'small-button', '查找');
+    submit.type = 'submit';
+    const reset = button('清空', async () => {
+      abortRequest('liveComps');
+      state.liveComps = { ...state.liveComps, items: [], total: 0, page: 1, total_pages: 1, query: '', loadedAt: 0 };
+      input.value = '';
+      await loadAdminLiveComps({ force: true });
+      render();
+    });
+    const triggerSearch = debounce(async () => {
+      state.liveComps.query = input.value.trim();
+      state.liveComps.page = 1;
+      await loadAdminLiveComps({ force: true });
+      render();
+    }, 360);
+    input.addEventListener('input', () => {
+      triggerSearch();
+    });
+    wrap.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      state.liveComps.query = input.value.trim();
+      state.liveComps.page = 1;
+      await loadAdminLiveComps({ force: true });
       render();
     });
     wrap.append(input, submit, reset);
@@ -675,6 +739,7 @@
   async function reloadKind(kind) {
     if (kind === 'reports') await loadReports({ force: true });
     if (kind === 'lineups') await loadLineups({ force: true });
+    if (kind === 'liveComps') await loadAdminLiveComps({ force: true });
     if (kind === 'users') await loadUsers({ force: true });
     if (kind === 'audit') await loadAudit({ force: true });
   }

@@ -6,6 +6,7 @@ from analytics import growth_summary
 from audit import write_audit
 from auth import admin_required, validate_password
 from db import get_db, now_text
+from live_comps import build_admin_live_comp_stats_payload, read_live_comps_payload
 from lineups import _lineup_row, _serialize
 from scoring import score_map
 from visits import daily_uv_count, last_7_days_uv, tracked_template_response
@@ -41,6 +42,23 @@ def _paginate_rows(base_sql, count_sql, params, serializer=dict, default_page_si
     rows = get_db().execute(f'{base_sql} LIMIT ? OFFSET ?', [*params, page_size, offset]).fetchall()
     return {
         'items': [serializer(row) for row in rows],
+        'total': total,
+        'page': page,
+        'page_size': page_size,
+        'total_pages': total_pages,
+    }
+
+
+def _paginate_items(items, default_page_size=20):
+    page = _parse_page()
+    page_size = _parse_page_size(default=default_page_size)
+    total = len(items)
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    page = min(page, total_pages)
+    start = (page - 1) * page_size
+    end = start + page_size
+    return {
+        'items': items[start:end],
         'total': total,
         'page': page,
         'page_size': page_size,
@@ -171,6 +189,15 @@ def admin_lineups():
         serializer=lambda row: _serialize(row, scores, user=admin, admin=True),
         default_page_size=20,
     ))
+
+
+@admin_bp.get('/api/admin/live-comps')
+def admin_live_comps():
+    admin, error = admin_required()
+    if error:
+        return error
+    payload, updated_at, is_valid = read_live_comps_payload()
+    return jsonify(build_admin_live_comp_stats_payload(payload, updated_at, is_valid))
 
 
 @admin_bp.put('/api/admin/lineups/<int:lineup_id>')

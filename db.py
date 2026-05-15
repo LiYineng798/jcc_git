@@ -57,6 +57,20 @@ CREATE TABLE IF NOT EXISTS copy_events (
     FOREIGN KEY(lineup_id) REFERENCES lineups(id)
 );
 
+CREATE TABLE IF NOT EXISTS live_comp_global_stats (
+    stats_key TEXT PRIMARY KEY,
+    total_copy_count INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS live_comp_global_daily_stats (
+    copy_date TEXT PRIMARY KEY,
+    copy_count INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS favorites (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -222,6 +236,26 @@ def bootstrap_admin(db):
 
 def migrate_schema(db, admin_id):
     migrate_lineups_table(db, admin_id)
+    migrate_legacy_live_comp_stats(db)
+
+
+def migrate_legacy_live_comp_stats(db):
+    columns = table_columns(db, 'live_comp_stats')
+    if not columns:
+        return
+    if 'total_copy_count' not in columns:
+        db.execute('ALTER TABLE live_comp_stats ADD COLUMN total_copy_count INTEGER NOT NULL DEFAULT 0')
+        if 'copy_count' in columns:
+            db.execute('UPDATE live_comp_stats SET total_copy_count = copy_count WHERE total_copy_count = 0')
+    total_row = db.execute('SELECT COALESCE(SUM(total_copy_count), 0) AS total FROM live_comp_stats').fetchone()
+    existing_global = db.execute("SELECT total_copy_count FROM live_comp_global_stats WHERE stats_key = 'global'").fetchone()
+    if total_row and total_row['total'] and not existing_global:
+        now = now_text()
+        db.execute(
+            '''INSERT INTO live_comp_global_stats (stats_key, total_copy_count, created_at, updated_at)
+               VALUES ('global', ?, ?, ?)''',
+            (int(total_row['total']), now, now),
+        )
 
 
 def migrate_lineups_table(db, admin_id):

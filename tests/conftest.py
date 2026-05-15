@@ -14,8 +14,15 @@ from app import create_app
 @pytest.fixture()
 def app():
     db_path = ROOT / 'test-lineups.sqlite3'
-    if db_path.exists():
-        db_path.unlink()
+    live_comps_path = ROOT / 'test-live-comps.json'
+    live_comps_backup_path = ROOT / 'test-live-comps.previous.json'
+    live_comps_asset_dir = ROOT / 'test-live-comps-assets'
+    for path in [db_path, live_comps_path, live_comps_backup_path]:
+        if path.exists():
+            path.unlink()
+    if live_comps_asset_dir.exists():
+        import shutil
+        shutil.rmtree(live_comps_asset_dir)
     app = create_app({
         'TESTING': True,
         'DATABASE': str(db_path),
@@ -23,10 +30,19 @@ def app():
         'WTF_CSRF_ENABLED': True,
         'ADMIN_USERNAME': 'adminxlx',
         'ADMIN_PASSWORD': 'Admin1234',
+        'LIVE_COMPS_DATA_PATH': str(live_comps_path),
+        'LIVE_COMPS_BACKUP_PATH': str(live_comps_backup_path),
+        'LIVE_COMPS_PAGE_SIZE': 6,
+        'LIVE_COMPS_UPLOAD_TOKEN': 'upload-secret',
+        'LIVE_COMPS_ASSET_DIR': str(live_comps_asset_dir),
     })
     yield app
-    if db_path.exists():
-        db_path.unlink()
+    for path in [db_path, live_comps_path, live_comps_backup_path]:
+        if path.exists():
+            path.unlink()
+    if live_comps_asset_dir.exists():
+        import shutil
+        shutil.rmtree(live_comps_asset_dir)
 
 
 @pytest.fixture()

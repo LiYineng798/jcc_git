@@ -1,8 +1,10 @@
 const state = {
   lineups: [],
+  liveCompsSummary: null,
+  liveCompsPage: null,
   query: '',
-  sort: 'latest',
-  view: 'all',
+  sort: 'live',
+  view: 'live-comps',
   user: null,
   csrfToken: '',
   page: 1,
@@ -10,6 +12,8 @@ const state = {
   total: 0,
   totalPages: 1,
 };
+
+const LINEUP_PAGE_SIZE = 10;
 
 const $ = (selector) => document.querySelector(selector);
 const elements = {
@@ -33,6 +37,7 @@ const elements = {
   themeText: $('#themeText'),
   toast: $('#toast'),
   authPromptRoot: $('#authPromptRoot'),
+  listTitle: $('#listTitle'),
 };
 
 setTheme(localStorage.getItem('theme') || 'light');
@@ -44,6 +49,7 @@ elements.authLink.addEventListener('click', () => {
   trackGrowth('click_login_entry', { source: 'header' });
 });
 elements.searchInput.addEventListener('input', debounce((event) => {
+  if (state.view === 'live-comps') return;
   state.query = event.target.value.trim();
   state.page = 1;
   loadLineups();
@@ -60,7 +66,7 @@ elements.tabs.addEventListener('click', (event) => {
     return;
   }
   setActiveTab(tab.dataset.sort, tab.dataset.view);
-  loadLineups();
+  loadCurrentView();
 });
 elements.pagination.addEventListener('click', (event) => {
   const button = event.target.closest('[data-page]');
@@ -68,7 +74,7 @@ elements.pagination.addEventListener('click', (event) => {
   const nextPage = Number(button.dataset.page);
   if (!nextPage || nextPage === state.page) return;
   state.page = nextPage;
-  loadLineups();
+  loadCurrentView();
 });
 elements.createLineupLink.addEventListener('click', (event) => {
   if (state.user) return;
@@ -80,7 +86,7 @@ async function boot() {
   await loadMe();
   applySavedMessage();
   await consumePendingIntent();
-  await loadLineups();
+  await loadCurrentView();
 }
 
 async function api(url, options = {}) {
@@ -126,8 +132,8 @@ function renderAuth() {
   elements.createLineupLink.href = loggedIn ? '/lineup/new' : '/auth';
   elements.createLineupLink.textContent = loggedIn ? '新增阵容' : '登录后新增阵容';
   if (!loggedIn && (state.view === 'mine' || state.view === 'favorites')) {
-    state.sort = 'latest';
-    state.view = 'all';
+    state.sort = 'live';
+    state.view = 'live-comps';
     state.page = 1;
   }
   syncActiveTab();
@@ -136,13 +142,13 @@ function renderAuth() {
 async function logout() {
   await api('/api/logout', { method: 'POST' });
   state.user = null;
-  state.sort = 'latest';
-  state.view = 'all';
+  state.sort = 'live';
+  state.view = 'live-comps';
   state.page = 1;
   closeAuthPrompt(true);
   showMessage('已退出登录');
   renderAuth();
-  await loadLineups();
+  await loadCurrentView();
 }
 
 async function loadLineups() {
@@ -150,7 +156,7 @@ async function loadLineups() {
     sort: state.sort,
     view: state.view,
     page: String(state.page),
-    page_size: String(state.pageSize),
+    page_size: String(LINEUP_PAGE_SIZE),
   });
   if (state.query) params.set('q', state.query);
   const response = await fetch(`/api/lineups?${params}`).then((result) => result.json());
@@ -160,6 +166,37 @@ async function loadLineups() {
   state.pageSize = response.page_size ?? state.pageSize;
   state.totalPages = response.total_pages ?? 1;
   renderLineups();
+  renderPagination();
+}
+
+function syncSearchInputState(isLiveComps) {
+  elements.searchInput.disabled = isLiveComps;
+  elements.searchInput.placeholder = isLiveComps
+    ? '实时阵容排行暂不支持搜索'
+    : '搜索阵容名称，例如：九五、卡莎、斗士';
+  elements.searchInput.value = isLiveComps ? '' : state.query;
+}
+
+async function loadCurrentView() {
+  syncSearchInputState(state.view === 'live-comps');
+  elements.listTitle.textContent = state.view === 'live-comps' ? '实时阵容排行' : '阵容列表';
+  if (state.view === 'live-comps') {
+    await loadLiveComps();
+    return;
+  }
+  await loadLineups();
+}
+
+async function loadLiveComps() {
+  const summary = await fetch('/api/live-comps/summary').then((response) => response.json());
+  const pagePayload = await fetch(`/api/live-comps?page=${state.page}`).then((response) => response.json());
+  state.liveCompsSummary = summary;
+  state.liveCompsPage = pagePayload;
+  state.total = pagePayload.total ?? 0;
+  state.page = pagePayload.page ?? 1;
+  state.pageSize = pagePayload.page_size ?? state.pageSize;
+  state.totalPages = pagePayload.total_pages ?? 1;
+  renderLiveComps();
   renderPagination();
 }
 
@@ -204,6 +241,11 @@ function renderEmptyState() {
   const title = elements.emptyState.querySelector('h3');
   const description = elements.emptyState.querySelector('p');
   if (state.total > 0 || !title || !description) return;
+  if (state.view === 'live-comps') {
+    title.textContent = '还没有实时阵容';
+    description.textContent = '上传 `team_codes_by_tier.verify.json` 后，这里会直接展示实时阵容排行。';
+    return;
+  }
   if (state.view === 'favorites') {
     title.textContent = '还没有收藏阵容';
     description.textContent = state.user
@@ -243,6 +285,109 @@ function renderPagination() {
   nextButton.dataset.page = String(state.page + 1);
   fragment.append(nextButton);
   elements.pagination.append(fragment);
+}
+
+function renderLiveComps() {
+  elements.lineupList.replaceChildren();
+  elements.lineupCount.textContent = state.total;
+  elements.emptyState.classList.toggle('hidden', state.total > 0);
+  renderEmptyState();
+  if (!state.total) return;
+
+  const shell = document.createElement('div');
+  shell.className = 'live-comps-shell';
+  shell.append(renderLiveCompsSummaryHeader());
+  shell.append(renderLiveCompsGrid());
+  elements.lineupList.append(shell);
+}
+
+function renderLiveCompsSummaryHeader() {
+  const header = document.createElement('section');
+  header.className = 'live-comps-summary';
+
+  const title = document.createElement('h3');
+  title.className = 'live-comps-summary-title';
+  title.textContent = '实时阵容排行';
+
+  const meta = document.createElement('p');
+  meta.className = 'live-comps-summary-meta';
+  meta.textContent = state.liveCompsSummary?.updated_at
+    ? `共 ${state.total} 套 · 最近更新：${state.liveCompsSummary.updated_at}`
+    : '最近更新：暂无数据';
+
+  header.append(title, meta);
+  return header;
+}
+
+function renderLiveCompsGrid() {
+  const grid = document.createElement('div');
+  grid.className = 'live-comps-grid';
+  (state.liveCompsPage?.items || []).forEach((item) => {
+    grid.append(renderLiveCompCard(item));
+  });
+  return grid;
+}
+
+function renderLiveCompCard(item) {
+  const card = document.createElement('article');
+  card.className = `live-comp-card tier-${String(item.tier || '').toLowerCase()}`;
+
+  const header = document.createElement('div');
+  header.className = 'live-comp-header';
+
+  const avatarWrap = document.createElement('div');
+  avatarWrap.className = 'live-comp-avatar-wrap';
+  const avatar = document.createElement('img');
+  avatar.className = 'live-comp-avatar';
+  avatar.src = item.mainAvatar;
+  avatar.alt = item.title;
+  avatar.loading = 'lazy';
+  const badge = document.createElement('span');
+  badge.className = 'live-comp-avatar-badge';
+  badge.textContent = item.tier;
+  avatarWrap.append(avatar, badge);
+
+  const body = document.createElement('div');
+  body.className = 'live-comp-body';
+
+  const name = document.createElement('h3');
+  name.className = 'live-comp-name';
+  name.textContent = item.title;
+
+  const heroes = document.createElement('div');
+  heroes.className = 'live-comp-hero-strip';
+  (item.heroImages || []).forEach((src, index) => {
+    const hero = document.createElement('img');
+    hero.className = 'live-comp-hero';
+    hero.src = src;
+    hero.alt = `${item.title}-${index + 1}`;
+    hero.loading = 'lazy';
+    heroes.append(hero);
+  });
+
+  const actions = document.createElement('div');
+  actions.className = 'live-comp-actions';
+  actions.append(button('复制阵容码', () => copyLiveCompCode(item)));
+
+  body.append(name, heroes);
+  header.append(avatarWrap, body);
+  card.append(header, actions);
+  return card;
+}
+
+async function copyLiveCompCode(item) {
+  const copied = await writeClipboard(item.jccCode);
+  if (!copied) {
+    showMessage('复制失败，请长按阵容码手动复制');
+    return;
+  }
+  try {
+    await api(`/api/live-comps/${encodeURIComponent(item.id)}/copy`, { method: 'POST' });
+  } catch (_) {
+    showMessage('阵容码已复制，但次数统计失败');
+    return;
+  }
+  showToast('阵容码已复制');
 }
 
 function buildPageList(current, total) {

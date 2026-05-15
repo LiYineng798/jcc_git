@@ -19,11 +19,13 @@ def create_app(test_config=None):
     from captcha import captcha_bp, lookup_answer_for_tests
     from lineups import lineups_bp
     from admin import admin_bp
+    from live_comps import live_comps_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(captcha_bp)
     app.register_blueprint(lineups_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(live_comps_bp)
 
     @app.get('/')
     def index():

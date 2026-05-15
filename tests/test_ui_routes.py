@@ -49,6 +49,7 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
     assert 'data-admin-tab="overview"' in admin_html
     assert 'data-admin-tab="reports"' in admin_html
     assert 'data-admin-tab="lineups"' in admin_html
+    assert 'data-admin-tab="live-comps"' in admin_html
     assert 'data-admin-tab="users"' in admin_html
     assert 'data-admin-tab="analytics"' in admin_html
     assert 'data-admin-tab="audit"' in admin_html
@@ -223,6 +224,10 @@ def test_admin_js_supports_daily_growth_filter_and_clear_labels():
         js = file.read()
 
     assert '/api/admin/overview' in js
+    assert '/api/admin/live-comps' in js
+    assert '今日复制' in js
+    assert '累计复制' in js
+    assert '按实时阵容专区整体统计' in js
     assert 'activeTab' in js
     assert 'AbortController' in js
     assert 'debounce' in js
@@ -249,3 +254,48 @@ def test_admin_js_renders_lineup_code_in_lineup_management():
         js = file.read()
 
     assert 'lineup.code' in js
+
+
+def test_index_contains_live_comps_tab_before_latest(client):
+    html = client.get('/').get_data(as_text=True)
+    assert '实时阵容排行' in html
+    assert html.index('实时阵容排行') < html.index('最新')
+    assert 'class="tab active" data-sort="live" data-view="live-comps"' in html
+
+
+def test_index_contains_live_comps_mount_points(client):
+    html = client.get('/').get_data(as_text=True)
+    assert 'id="lineupList"' in html
+    assert 'id="pagination"' in html
+    assert 'data-view="live-comps"' in html
+
+
+def test_app_js_contains_live_comps_mode_and_copy_only_actions():
+    with open(r'D:\1\codex\jcc\claude_project\static\app.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert 'live-comps' in js
+    assert '/api/live-comps/${encodeURIComponent(item.id)}/copy' in js
+    assert '/api/live-comps/summary' in js
+    assert '/api/live-comps?page=' in js
+    assert '实时阵容排行' in js
+    assert 'renderLiveComps' in js
+    assert "sort: 'live'" in js
+    assert "view: 'live-comps'" in js
+    assert 'code.textContent = item.jccCode' not in js
+
+
+def test_styles_include_live_comps_sections_and_cards():
+    with open(r'D:\1\codex\jcc\claude_project\static\styles.css', 'r', encoding='utf-8') as file:
+        css = file.read()
+
+    assert '.live-comps-shell' in css
+    assert '.live-comps-grid' in css
+    assert '.live-comp-card' in css
+    assert '.live-comp-avatar-badge' in css
+    assert '.live-comp-pagination' in css
+    assert '.tier-s' in css
+    assert '.tier-a' in css
+    assert '.tier-b' in css
+    assert '.tier-c' in css
+    assert '.tier-d' in css

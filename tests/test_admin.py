@@ -1,5 +1,6 @@
 ﻿from test_auth import register_user
 from test_lineup_permissions import auth_headers, create_lineup
+from test_live_comps import sample_live_comps_payload, write_live_comps_seed
 
 
 def login_admin(client):
@@ -293,3 +294,18 @@ def test_admin_audit_logs_support_pagination_without_filters(client):
     assert payload['page_size'] == 10
     assert payload['total'] >= 1
     assert payload['items'][0]['action'] == 'create_user'
+
+
+def test_admin_can_view_global_live_comp_copy_counts(client):
+    write_live_comps_seed(client, sample_live_comps_payload())
+    csrf = client.get('/api/me').get_json()['csrf_token']
+    client.post('/api/live-comps/a-02/copy', headers={'X-CSRF-Token': csrf})
+    client.post('/api/live-comps/a-02/copy', headers={'X-CSRF-Token': csrf})
+    client.post('/api/live-comps/s-01/copy', headers={'X-CSRF-Token': csrf})
+
+    headers = login_admin(client)
+    payload = client.get('/api/admin/live-comps', headers=headers).get_json()
+
+    assert payload['today_copy_count'] == 3
+    assert payload['total_copy_count'] == 3
+    assert payload['items'] == []

@@ -9,13 +9,12 @@ from audit import write_audit
 from auth import admin_required, current_user, get_client_ip, login_required
 from db import get_db, now_text
 from history import list_recent_copies, list_recent_views, record_recent_copy, record_recent_view, sync_recent_history
+from lineup_code import LINEUP_CODE_MESSAGE, extract_lineup_code
 from recommendation import recommended_scores
 from scoring import rising_map, score_map
 from visits import ensure_visitor_token, maybe_set_visitor_cookie
 
 lineups_bp = Blueprint('lineups', __name__)
-LINEUP_CODE_MESSAGE = '阵容码无法解析，请改成以 # 开头的阵容码后再提交'
-LINEUP_CODE_PATTERN = re.compile(r'[＃#]([A-Za-z0-9]+)')
 LINEUP_VISIBLE_STATUSES = {'normal', 'hidden'}
 
 
@@ -40,17 +39,10 @@ def _validate_lineup(data, default_status='normal'):
         return None, '请输入阵容码'
     if not status:
         return None, '阵容状态无效'
-    code = _extract_lineup_code(raw_code)
+    code = extract_lineup_code(raw_code)
     if not code:
         return None, LINEUP_CODE_MESSAGE
     return {'name': name, 'code': code, 'status': status}, None
-
-
-def _extract_lineup_code(raw_code):
-    matches = LINEUP_CODE_PATTERN.findall(str(raw_code or ''))
-    if not matches:
-        return None
-    return f'#{max(matches, key=len)}'
 
 
 def _lineup_row(lineup_id):

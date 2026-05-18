@@ -311,9 +311,14 @@ function renderLiveCompsSummaryHeader() {
 
   const meta = document.createElement('p');
   meta.className = 'live-comps-summary-meta';
-  meta.textContent = state.liveCompsSummary?.updated_at
+  const updateText = document.createElement('span');
+  updateText.textContent = state.liveCompsSummary?.updated_at
     ? `共 ${state.total} 套 · 最近更新：${state.liveCompsSummary.updated_at}`
     : '最近更新：暂无数据';
+  const sourceText = document.createElement('span');
+  sourceText.className = 'live-comps-data-source';
+  sourceText.textContent = 'DataTFT数据支持';
+  meta.append(updateText, sourceText);
 
   header.append(title, meta);
   return header;

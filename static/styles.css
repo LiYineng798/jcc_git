@@ -344,6 +344,16 @@ textarea:focus {
 
 .live-comps-summary-meta {
   color: var(--muted);
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.live-comps-data-source {
+  font-size: 12px;
+  color: var(--muted-strong);
+  opacity: 0.78;
 }
 
 .live-comps-grid {

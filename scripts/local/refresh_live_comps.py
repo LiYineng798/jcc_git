@@ -9,10 +9,14 @@ import urllib.request
 from urllib.parse import urlparse
 from pathlib import Path
 
-import upload_live_comps
+PROJECT_DIR = Path(__file__).resolve().parents[2]
+if str(PROJECT_DIR) not in sys.path:
+    sys.path.insert(0, str(PROJECT_DIR))
+
+from scripts.local import upload_live_comps
 
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = PROJECT_DIR
 DEFAULT_FETCH_SCRIPT = BASE_DIR / '实时获取阵容码' / '阵容码代理获取' / 'fetch_tiered_codes.py'
 DEFAULT_OUTPUT_PATH = BASE_DIR / '实时获取阵容码' / '阵容码代理获取' / 'team_codes_by_tier.verify.json'
 DEFAULT_UPLOAD_URL = 'https://jcc.np5.top/api/live-comps/upload'

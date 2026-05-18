@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from urllib.error import HTTPError
 
-import upload_live_comps
+from scripts.local import upload_live_comps
 
 
 def sample_payload():

@@ -1,6 +1,6 @@
 import json
 
-import refresh_live_comps
+from scripts.local import refresh_live_comps
 
 
 def payload_with_items(items_by_tier):

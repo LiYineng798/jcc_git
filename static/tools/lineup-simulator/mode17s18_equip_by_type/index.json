@@ -1,0 +1,3415 @@
+{
+  "mode": "17",
+  "season": "S18",
+  "version": "17.17.2",
+  "root": "mode17s18_equip_by_type",
+  "category_map": {
+    "基础装备": "散件",
+    "成型装备": "成装",
+    "光明武器": "光明装",
+    "神器装备": "神器",
+    "转职纹章": "纹章",
+    "特殊装备": "特殊装备"
+  },
+  "counts": {
+    "selected": 180,
+    "downloaded": 180,
+    "failed": 0,
+    "skipped": 99,
+    "unclassified_selected": 99,
+    "unclassified_downloaded": 99,
+    "unclassified_failed": 0
+  },
+  "selected": [
+    {
+      "id": "2001",
+      "name": "无尽之刃",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2001.png",
+      "filename": "2001-无尽之刃.png",
+      "local_path": "mode17s18_equip_by_type/成装/2001-无尽之刃.png",
+      "bytes": 21291
+    },
+    {
+      "id": "2003",
+      "name": "海克斯科技枪刃",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2003.png",
+      "filename": "2003-海克斯科技枪刃.png",
+      "local_path": "mode17s18_equip_by_type/成装/2003-海克斯科技枪刃.png",
+      "bytes": 24721
+    },
+    {
+      "id": "2004",
+      "name": "朔极之矛",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2004.png",
+      "filename": "2004-朔极之矛.png",
+      "local_path": "mode17s18_equip_by_type/成装/2004-朔极之矛.png",
+      "bytes": 18760
+    },
+    {
+      "id": "2005",
+      "name": "夜之锋刃",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2005.png",
+      "filename": "2005-夜之锋刃.png",
+      "local_path": "mode17s18_equip_by_type/成装/2005-夜之锋刃.png",
+      "bytes": 21216
+    },
+    {
+      "id": "2006",
+      "name": "汲取剑",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2006.png",
+      "filename": "2006-汲取剑.png",
+      "local_path": "mode17s18_equip_by_type/成装/2006-汲取剑.png",
+      "bytes": 20402
+    },
+    {
+      "id": "2007",
+      "name": "斯特拉克的挑战护手",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/steraksgage.png",
+      "filename": "2007-斯特拉克的挑战护手.png",
+      "local_path": "mode17s18_equip_by_type/成装/2007-斯特拉克的挑战护手.png",
+      "bytes": 25250
+    },
+    {
+      "id": "2009",
+      "name": "红霸符",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2009.png",
+      "filename": "2009-红霸符.png",
+      "local_path": "mode17s18_equip_by_type/成装/2009-红霸符.png",
+      "bytes": 17647
+    },
+    {
+      "id": "2010",
+      "name": "鬼索的狂暴之刃",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2010.png",
+      "filename": "2010-鬼索的狂暴之刃.png",
+      "local_path": "mode17s18_equip_by_type/成装/2010-鬼索的狂暴之刃.png",
+      "bytes": 19475
+    },
+    {
+      "id": "2011",
+      "name": "虚空之杖",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/voidstaff.png",
+      "filename": "2011-虚空之杖.png",
+      "local_path": "mode17s18_equip_by_type/成装/2011-虚空之杖.png",
+      "bytes": 23440
+    },
+    {
+      "id": "2012",
+      "name": "泰坦的坚决",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2052.png",
+      "filename": "2012-泰坦的坚决.png",
+      "local_path": "mode17s18_equip_by_type/成装/2012-泰坦的坚决.png",
+      "bytes": 25749
+    },
+    {
+      "id": "2013",
+      "name": "海妖之怒",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/krakensfury.png",
+      "filename": "2013-海妖之怒.png",
+      "local_path": "mode17s18_equip_by_type/成装/2013-海妖之怒.png",
+      "bytes": 21980
+    },
+    {
+      "id": "2014",
+      "name": "纳什之牙",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/nashorstooth.png",
+      "filename": "2014-纳什之牙.png",
+      "local_path": "mode17s18_equip_by_type/成装/2014-纳什之牙.png",
+      "bytes": 21869
+    },
+    {
+      "id": "2016",
+      "name": "班克斯的魔法帽",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2016.png",
+      "filename": "2016-班克斯的魔法帽.png",
+      "local_path": "mode17s18_equip_by_type/成装/2016-班克斯的魔法帽.png",
+      "bytes": 20961
+    },
+    {
+      "id": "2017",
+      "name": "大天使之杖",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2017.png",
+      "filename": "2017-大天使之杖.png",
+      "local_path": "mode17s18_equip_by_type/成装/2017-大天使之杖.png",
+      "bytes": 19512
+    },
+    {
+      "id": "2018",
+      "name": "冕卫",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/crownguard.png",
+      "filename": "2018-冕卫.png",
+      "local_path": "mode17s18_equip_by_type/成装/2018-冕卫.png",
+      "bytes": 22528
+    },
+    {
+      "id": "2019",
+      "name": "离子火花",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2019.png",
+      "filename": "2019-离子火花.png",
+      "local_path": "mode17s18_equip_by_type/成装/2019-离子火花.png",
+      "bytes": 23900
+    },
+    {
+      "id": "2020",
+      "name": "莫雷洛秘典",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2020.png",
+      "filename": "2020-莫雷洛秘典.png",
+      "local_path": "mode17s18_equip_by_type/成装/2020-莫雷洛秘典.png",
+      "bytes": 22628
+    },
+    {
+      "id": "2022",
+      "name": "蓝霸符",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2222.png",
+      "filename": "2022-蓝霸符.png",
+      "local_path": "mode17s18_equip_by_type/成装/2022-蓝霸符.png",
+      "bytes": 18758
+    },
+    {
+      "id": "2023",
+      "name": "圣盾使的誓约",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2023.png",
+      "filename": "2023-圣盾使的誓约.png",
+      "local_path": "mode17s18_equip_by_type/成装/2023-圣盾使的誓约.png",
+      "bytes": 20689
+    },
+    {
+      "id": "2024",
+      "name": "适应性头盔",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/adaptivehelm.png",
+      "filename": "2024-适应性头盔.png",
+      "local_path": "mode17s18_equip_by_type/成装/2024-适应性头盔.png",
+      "bytes": 24828
+    },
+    {
+      "id": "2025",
+      "name": "振奋盔甲",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/spiritvisage.png",
+      "filename": "2025-振奋盔甲.png",
+      "local_path": "mode17s18_equip_by_type/成装/2025-振奋盔甲.png",
+      "bytes": 22460
+    },
+    {
+      "id": "2027",
+      "name": "棘刺背心",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2054.png",
+      "filename": "2027-棘刺背心.png",
+      "local_path": "mode17s18_equip_by_type/成装/2027-棘刺背心.png",
+      "bytes": 21448
+    },
+    {
+      "id": "2028",
+      "name": "石像鬼石板甲",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2248.png",
+      "filename": "2028-石像鬼石板甲.png",
+      "local_path": "mode17s18_equip_by_type/成装/2028-石像鬼石板甲.png",
+      "bytes": 21568
+    },
+    {
+      "id": "2029",
+      "name": "日炎斗篷",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2329.png",
+      "filename": "2029-日炎斗篷.png",
+      "local_path": "mode17s18_equip_by_type/成装/2029-日炎斗篷.png",
+      "bytes": 22490
+    },
+    {
+      "id": "2031",
+      "name": "巨龙之爪",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2031.png",
+      "filename": "2031-巨龙之爪.png",
+      "local_path": "mode17s18_equip_by_type/成装/2031-巨龙之爪.png",
+      "bytes": 22275
+    },
+    {
+      "id": "2032",
+      "name": "薄暮法袍",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/evenshroud.png",
+      "filename": "2032-薄暮法袍.png",
+      "local_path": "mode17s18_equip_by_type/成装/2032-薄暮法袍.png",
+      "bytes": 23814
+    },
+    {
+      "id": "2034",
+      "name": "狂徒铠甲",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2034.png",
+      "filename": "2034-狂徒铠甲.png",
+      "local_path": "mode17s18_equip_by_type/成装/2034-狂徒铠甲.png",
+      "bytes": 22888
+    },
+    {
+      "id": "2036",
+      "name": "金铲铲冠冕",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2036.png",
+      "filename": "2036-金铲铲冠冕.png",
+      "local_path": "mode17s18_equip_by_type/成装/2036-金铲铲冠冕.png",
+      "bytes": 24197
+    },
+    {
+      "id": "2037",
+      "name": "最后的轻语",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2053.png",
+      "filename": "2037-最后的轻语.png",
+      "local_path": "mode17s18_equip_by_type/成装/2037-最后的轻语.png",
+      "bytes": 18048
+    },
+    {
+      "id": "2038",
+      "name": "珠光护手",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2038.png",
+      "filename": "2038-珠光护手.png",
+      "local_path": "mode17s18_equip_by_type/成装/2038-珠光护手.png",
+      "bytes": 19125
+    },
+    {
+      "id": "2039",
+      "name": "正义之手",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2039.png",
+      "filename": "2039-正义之手.png",
+      "local_path": "mode17s18_equip_by_type/成装/2039-正义之手.png",
+      "bytes": 19642
+    },
+    {
+      "id": "2040",
+      "name": "坚定之心",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/nightharvester.png",
+      "filename": "2040-坚定之心.png",
+      "local_path": "mode17s18_equip_by_type/成装/2040-坚定之心.png",
+      "bytes": 22349
+    },
+    {
+      "id": "2041",
+      "name": "水银",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2041.png",
+      "filename": "2041-水银.png",
+      "local_path": "mode17s18_equip_by_type/成装/2041-水银.png",
+      "bytes": 20188
+    },
+    {
+      "id": "2042",
+      "name": "强袭者的链枷",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/strikersflail.png",
+      "filename": "2042-强袭者的链枷.png",
+      "local_path": "mode17s18_equip_by_type/成装/2042-强袭者的链枷.png",
+      "bytes": 23181
+    },
+    {
+      "id": "2044",
+      "name": "秘法手套",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2044.png",
+      "filename": "2044-秘法手套.png",
+      "local_path": "mode17s18_equip_by_type/成装/2044-秘法手套.png",
+      "bytes": 18451
+    },
+    {
+      "id": "2045",
+      "name": "锐利之刃",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2045.png",
+      "filename": "2045-锐利之刃.png",
+      "local_path": "mode17s18_equip_by_type/成装/2045-锐利之刃.png",
+      "bytes": 18896
+    },
+    {
+      "id": "2046",
+      "name": "巨人捕手",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2046.png",
+      "filename": "2046-巨人捕手.png",
+      "local_path": "mode17s18_equip_by_type/成装/2046-巨人捕手.png",
+      "bytes": 21063
+    },
+    {
+      "id": "2047",
+      "name": "金锅锅冠冕",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/tactician_s_shield.png",
+      "filename": "2047-金锅锅冠冕.png",
+      "local_path": "mode17s18_equip_by_type/成装/2047-金锅锅冠冕.png",
+      "bytes": 23653
+    },
+    {
+      "id": "2048",
+      "name": "金锅铲冠冕",
+      "source_type": "成型装备",
+      "category": "成装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/tactician_s_cape.png",
+      "filename": "2048-金锅铲冠冕.png",
+      "local_path": "mode17s18_equip_by_type/成装/2048-金锅铲冠冕.png",
+      "bytes": 23825
+    },
+    {
+      "id": "2059",
+      "name": "光明版无尽之刃",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2548.png",
+      "filename": "2059-光明版无尽之刃.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2059-光明版无尽之刃.png",
+      "bytes": 20548
+    },
+    {
+      "id": "2060",
+      "name": "光明版海克斯科技枪刃",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2549.png",
+      "filename": "2060-光明版海克斯科技枪刃.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2060-光明版海克斯科技枪刃.png",
+      "bytes": 21393
+    },
+    {
+      "id": "2061",
+      "name": "光明版朔极之矛",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2550.png",
+      "filename": "2061-光明版朔极之矛.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2061-光明版朔极之矛.png",
+      "bytes": 21264
+    },
+    {
+      "id": "2062",
+      "name": "光明版夜之锋刃",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2551.png",
+      "filename": "2062-光明版夜之锋刃.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2062-光明版夜之锋刃.png",
+      "bytes": 20198
+    },
+    {
+      "id": "2063",
+      "name": "光明版汲取剑",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2552.png",
+      "filename": "2063-光明版汲取剑.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2063-光明版汲取剑.png",
+      "bytes": 20195
+    },
+    {
+      "id": "2064",
+      "name": "光明版斯特拉克的挑战护手",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/steraksmegashield.png",
+      "filename": "2064-光明版斯特拉克的挑战护手.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2064-光明版斯特拉克的挑战护手.png",
+      "bytes": 21612
+    },
+    {
+      "id": "2065",
+      "name": "光明版红霸符",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2554.png",
+      "filename": "2065-光明版红霸符.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2065-光明版红霸符.png",
+      "bytes": 18221
+    },
+    {
+      "id": "2066",
+      "name": "光明版鬼索的狂暴之刃",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2555.png",
+      "filename": "2066-光明版鬼索的狂暴之刃.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2066-光明版鬼索的狂暴之刃.png",
+      "bytes": 19761
+    },
+    {
+      "id": "2067",
+      "name": "光明版虚空之杖",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/icathiasrevenge.png",
+      "filename": "2067-光明版虚空之杖.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2067-光明版虚空之杖.png",
+      "bytes": 22857
+    },
+    {
+      "id": "2068",
+      "name": "光明版泰坦的坚决",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2557.png",
+      "filename": "2068-光明版泰坦的坚决.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2068-光明版泰坦的坚决.png",
+      "bytes": 21508
+    },
+    {
+      "id": "2069",
+      "name": "光明版海妖之怒",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/torrentialmaelstrom.png",
+      "filename": "2069-光明版海妖之怒.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2069-光明版海妖之怒.png",
+      "bytes": 22448
+    },
+    {
+      "id": "2070",
+      "name": "光明版纳什之牙",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/thebaronsgift.png",
+      "filename": "2070-光明版纳什之牙.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2070-光明版纳什之牙.png",
+      "bytes": 18814
+    },
+    {
+      "id": "2071",
+      "name": "光明版班克斯的魔法帽",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2560.png",
+      "filename": "2071-光明版班克斯的魔法帽.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2071-光明版班克斯的魔法帽.png",
+      "bytes": 20485
+    },
+    {
+      "id": "2072",
+      "name": "光明版大天使之杖",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2561.png",
+      "filename": "2072-光明版大天使之杖.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2072-光明版大天使之杖.png",
+      "bytes": 19179
+    },
+    {
+      "id": "2073",
+      "name": "光明版冕卫",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/royalcrownshield.png",
+      "filename": "2073-光明版冕卫.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2073-光明版冕卫.png",
+      "bytes": 20507
+    },
+    {
+      "id": "2074",
+      "name": "光明版离子火花",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2563.png",
+      "filename": "2074-光明版离子火花.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2074-光明版离子火花.png",
+      "bytes": 20417
+    },
+    {
+      "id": "2075",
+      "name": "光明版莫雷洛秘典",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2564.png",
+      "filename": "2075-光明版莫雷洛秘典.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2075-光明版莫雷洛秘典.png",
+      "bytes": 21124
+    },
+    {
+      "id": "2076",
+      "name": "光明版蓝霸符",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2565.png",
+      "filename": "2076-光明版蓝霸符.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2076-光明版蓝霸符.png",
+      "bytes": 19006
+    },
+    {
+      "id": "2077",
+      "name": "光明版圣盾使的誓约",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2566.png",
+      "filename": "2077-光明版圣盾使的誓约.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2077-光明版圣盾使的誓约.png",
+      "bytes": 21523
+    },
+    {
+      "id": "2078",
+      "name": "光明版适应性头盔",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/jakshotheprotean.png",
+      "filename": "2078-光明版适应性头盔.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2078-光明版适应性头盔.png",
+      "bytes": 21617
+    },
+    {
+      "id": "2079",
+      "name": "光明版振奋盔甲",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/morespiritedvisage.png",
+      "filename": "2079-光明版振奋盔甲.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2079-光明版振奋盔甲.png",
+      "bytes": 22003
+    },
+    {
+      "id": "2080",
+      "name": "光明版棘刺背心",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2569.png",
+      "filename": "2080-光明版棘刺背心.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2080-光明版棘刺背心.png",
+      "bytes": 21132
+    },
+    {
+      "id": "2081",
+      "name": "光明版石像鬼石板甲",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2570.png",
+      "filename": "2081-光明版石像鬼石板甲.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2081-光明版石像鬼石板甲.png",
+      "bytes": 21489
+    },
+    {
+      "id": "2082",
+      "name": "光明版日炎斗篷",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2571.png",
+      "filename": "2082-光明版日炎斗篷.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2082-光明版日炎斗篷.png",
+      "bytes": 21046
+    },
+    {
+      "id": "2083",
+      "name": "光明版巨龙之爪",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2572.png",
+      "filename": "2083-光明版巨龙之爪.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2083-光明版巨龙之爪.png",
+      "bytes": 19202
+    },
+    {
+      "id": "2084",
+      "name": "光明版薄暮法袍",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/equinox.png",
+      "filename": "2084-光明版薄暮法袍.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2084-光明版薄暮法袍.png",
+      "bytes": 19748
+    },
+    {
+      "id": "2085",
+      "name": "光明版狂徒铠甲",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2574.png",
+      "filename": "2085-光明版狂徒铠甲.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2085-光明版狂徒铠甲.png",
+      "bytes": 21601
+    },
+    {
+      "id": "2086",
+      "name": "光明版最后的轻语",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2575.png",
+      "filename": "2086-光明版最后的轻语.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2086-光明版最后的轻语.png",
+      "bytes": 18603
+    },
+    {
+      "id": "2087",
+      "name": "光明版珠光护手",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2576.png",
+      "filename": "2087-光明版珠光护手.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2087-光明版珠光护手.png",
+      "bytes": 19519
+    },
+    {
+      "id": "2088",
+      "name": "光明版正义之手",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2577.png",
+      "filename": "2088-光明版正义之手.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2088-光明版正义之手.png",
+      "bytes": 19515
+    },
+    {
+      "id": "2089",
+      "name": "光明版坚定之心",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/midnightreaper.png",
+      "filename": "2089-光明版坚定之心.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2089-光明版坚定之心.png",
+      "bytes": 20826
+    },
+    {
+      "id": "2090",
+      "name": "光明版水银",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2579.png",
+      "filename": "2090-光明版水银.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2090-光明版水银.png",
+      "bytes": 19743
+    },
+    {
+      "id": "2091",
+      "name": "光明版强袭者的链枷",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/chainstriker.png",
+      "filename": "2091-光明版强袭者的链枷.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2091-光明版强袭者的链枷.png",
+      "bytes": 23274
+    },
+    {
+      "id": "2092",
+      "name": "光明版秘法手套",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2581.png",
+      "filename": "2092-光明版秘法手套.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2092-光明版秘法手套.png",
+      "bytes": 18588
+    },
+    {
+      "id": "2093",
+      "name": "光明版锐利之刃",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2582.png",
+      "filename": "2093-光明版锐利之刃.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2093-光明版锐利之刃.png",
+      "bytes": 19085
+    },
+    {
+      "id": "2094",
+      "name": "光明版巨人捕手",
+      "source_type": "光明武器",
+      "category": "光明装",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2583.png",
+      "filename": "2094-光明版巨人捕手.png",
+      "local_path": "mode17s18_equip_by_type/光明装/2094-光明版巨人捕手.png",
+      "bytes": 20778
+    },
+    {
+      "id": "1001",
+      "name": "暴风之剑",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1001.png",
+      "filename": "1001-暴风之剑.png",
+      "local_path": "mode17s18_equip_by_type/散件/1001-暴风之剑.png",
+      "bytes": 18571
+    },
+    {
+      "id": "1002",
+      "name": "反曲之弓",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1002.png",
+      "filename": "1002-反曲之弓.png",
+      "local_path": "mode17s18_equip_by_type/散件/1002-反曲之弓.png",
+      "bytes": 18122
+    },
+    {
+      "id": "1003",
+      "name": "无用大棒",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1003.png",
+      "filename": "1003-无用大棒.png",
+      "local_path": "mode17s18_equip_by_type/散件/1003-无用大棒.png",
+      "bytes": 20668
+    },
+    {
+      "id": "1004",
+      "name": "女神之泪",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1004.png",
+      "filename": "1004-女神之泪.png",
+      "local_path": "mode17s18_equip_by_type/散件/1004-女神之泪.png",
+      "bytes": 16520
+    },
+    {
+      "id": "1005",
+      "name": "锁子甲",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1005.png",
+      "filename": "1005-锁子甲.png",
+      "local_path": "mode17s18_equip_by_type/散件/1005-锁子甲.png",
+      "bytes": 19133
+    },
+    {
+      "id": "1006",
+      "name": "负极斗篷",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1006.png",
+      "filename": "1006-负极斗篷.png",
+      "local_path": "mode17s18_equip_by_type/散件/1006-负极斗篷.png",
+      "bytes": 20513
+    },
+    {
+      "id": "1007",
+      "name": "巨人腰带",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1007.png",
+      "filename": "1007-巨人腰带.png",
+      "local_path": "mode17s18_equip_by_type/散件/1007-巨人腰带.png",
+      "bytes": 20122
+    },
+    {
+      "id": "1008",
+      "name": "金铲铲",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1008.png",
+      "filename": "1008-金铲铲.png",
+      "local_path": "mode17s18_equip_by_type/散件/1008-金铲铲.png",
+      "bytes": 17196
+    },
+    {
+      "id": "1009",
+      "name": "拳套",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1009.png",
+      "filename": "1009-拳套.png",
+      "local_path": "mode17s18_equip_by_type/散件/1009-拳套.png",
+      "bytes": 16438
+    },
+    {
+      "id": "1010",
+      "name": "金锅锅",
+      "source_type": "基础装备",
+      "category": "散件",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/frying_pan.png",
+      "filename": "1010-金锅锅.png",
+      "local_path": "mode17s18_equip_by_type/散件/1010-金锅锅.png",
+      "bytes": 19064
+    },
+    {
+      "id": "6052",
+      "name": "大亨之铠",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/5004.png",
+      "filename": "6052-大亨之铠.png",
+      "local_path": "mode17s18_equip_by_type/神器/6052-大亨之铠.png",
+      "bytes": 20261
+    },
+    {
+      "id": "6054",
+      "name": "死亡之蔑",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3609.png",
+      "filename": "6054-死亡之蔑.png",
+      "local_path": "mode17s18_equip_by_type/神器/6054-死亡之蔑.png",
+      "bytes": 18783
+    },
+    {
+      "id": "6057",
+      "name": "三相之力",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3607.png",
+      "filename": "6057-三相之力.png",
+      "local_path": "mode17s18_equip_by_type/神器/6057-三相之力.png",
+      "bytes": 20184
+    },
+    {
+      "id": "6059",
+      "name": "金币收集者",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3603.png",
+      "filename": "6059-金币收集者.png",
+      "local_path": "mode17s18_equip_by_type/神器/6059-金币收集者.png",
+      "bytes": 20390
+    },
+    {
+      "id": "6060",
+      "name": "中娅悖论",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3610.png",
+      "filename": "6060-中娅悖论.png",
+      "local_path": "mode17s18_equip_by_type/神器/6060-中娅悖论.png",
+      "bytes": 21864
+    },
+    {
+      "id": "6061",
+      "name": "碎舰者",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2098.png",
+      "filename": "6061-碎舰者.png",
+      "local_path": "mode17s18_equip_by_type/神器/6061-碎舰者.png",
+      "bytes": 22003
+    },
+    {
+      "id": "6063",
+      "name": "狙击手的专注",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/2097.png",
+      "filename": "6063-狙击手的专注.png",
+      "local_path": "mode17s18_equip_by_type/神器/6063-狙击手的专注.png",
+      "bytes": 19608
+    },
+    {
+      "id": "6065",
+      "name": "投机者之刃",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/5008.png",
+      "filename": "6065-投机者之刃.png",
+      "local_path": "mode17s18_equip_by_type/神器/6065-投机者之刃.png",
+      "bytes": 19401
+    },
+    {
+      "id": "6067",
+      "name": "飞升护符",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/talisman_of_ascension.png",
+      "filename": "6067-飞升护符.png",
+      "local_path": "mode17s18_equip_by_type/神器/6067-飞升护符.png",
+      "bytes": 23289
+    },
+    {
+      "id": "6069",
+      "name": "鱼骨头",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fishbones.png",
+      "filename": "6069-鱼骨头.png",
+      "local_path": "mode17s18_equip_by_type/神器/6069-鱼骨头.png",
+      "bytes": 21598
+    },
+    {
+      "id": "6070",
+      "name": "连指手套",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/mittens.png",
+      "filename": "6070-连指手套.png",
+      "local_path": "mode17s18_equip_by_type/神器/6070-连指手套.png",
+      "bytes": 24333
+    },
+    {
+      "id": "6071",
+      "name": "卢登的激荡",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/luden_s_tempest.png",
+      "filename": "6071-卢登的激荡.png",
+      "local_path": "mode17s18_equip_by_type/神器/6071-卢登的激荡.png",
+      "bytes": 25190
+    },
+    {
+      "id": "6072",
+      "name": "密银黎明",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/silvermere_dawn.png",
+      "filename": "6072-密银黎明.png",
+      "local_path": "mode17s18_equip_by_type/神器/6072-密银黎明.png",
+      "bytes": 24029
+    },
+    {
+      "id": "6073",
+      "name": "暗行者之爪",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/chonccsprowlersclaw.png",
+      "filename": "6073-暗行者之爪.png",
+      "local_path": "mode17s18_equip_by_type/神器/6073-暗行者之爪.png",
+      "bytes": 22006
+    },
+    {
+      "id": "6075",
+      "name": "智慧末刃",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/wit_s_end.png",
+      "filename": "6075-智慧末刃.png",
+      "local_path": "mode17s18_equip_by_type/神器/6075-智慧末刃.png",
+      "bytes": 22033
+    },
+    {
+      "id": "6079",
+      "name": "视界专注",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/horizon_focus.png",
+      "filename": "6079-视界专注.png",
+      "local_path": "mode17s18_equip_by_type/神器/6079-视界专注.png",
+      "bytes": 23309
+    },
+    {
+      "id": "6080",
+      "name": "疾射火炮",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/rapid_firecannon.png",
+      "filename": "6080-疾射火炮.png",
+      "local_path": "mode17s18_equip_by_type/神器/6080-疾射火炮.png",
+      "bytes": 22848
+    },
+    {
+      "id": "6083",
+      "name": "枯萎珠宝",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/blighting_jewel.png",
+      "filename": "6083-枯萎珠宝.png",
+      "local_path": "mode17s18_equip_by_type/神器/6083-枯萎珠宝.png",
+      "bytes": 20858
+    },
+    {
+      "id": "6084",
+      "name": "探索者的护臂",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/seeker_s_armguard.png",
+      "filename": "6084-探索者的护臂.png",
+      "local_path": "mode17s18_equip_by_type/神器/6084-探索者的护臂.png",
+      "bytes": 21531
+    },
+    {
+      "id": "6085",
+      "name": "光盾徽章",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/lightshield_crest.png",
+      "filename": "6085-光盾徽章.png",
+      "local_path": "mode17s18_equip_by_type/神器/6085-光盾徽章.png",
+      "bytes": 23556
+    },
+    {
+      "id": "6086",
+      "name": "巫妖之祸",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/lich_bane.png",
+      "filename": "6086-巫妖之祸.png",
+      "local_path": "mode17s18_equip_by_type/神器/6086-巫妖之祸.png",
+      "bytes": 22545
+    },
+    {
+      "id": "6087",
+      "name": "烁刃",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/flickerblade.png",
+      "filename": "6087-烁刃.png",
+      "local_path": "mode17s18_equip_by_type/神器/6087-烁刃.png",
+      "bytes": 18743
+    },
+    {
+      "id": "6088",
+      "name": "斯塔缇克电刃",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/statikkshiv.png",
+      "filename": "6088-斯塔缇克电刃.png",
+      "local_path": "mode17s18_equip_by_type/神器/6088-斯塔缇克电刃.png",
+      "bytes": 19425
+    },
+    {
+      "id": "6089",
+      "name": "顽强不屈",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/theindomitable.png",
+      "filename": "6089-顽强不屈.png",
+      "local_path": "mode17s18_equip_by_type/神器/6089-顽强不屈.png",
+      "bytes": 22944
+    },
+    {
+      "id": "6090",
+      "name": "巨型九头蛇",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/titanichydra.png",
+      "filename": "6090-巨型九头蛇.png",
+      "local_path": "mode17s18_equip_by_type/神器/6090-巨型九头蛇.png",
+      "bytes": 21244
+    },
+    {
+      "id": "6092",
+      "name": "黎明圣盾",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aegisofdawn.png",
+      "filename": "6092-黎明圣盾.png",
+      "local_path": "mode17s18_equip_by_type/神器/6092-黎明圣盾.png",
+      "bytes": 19977
+    },
+    {
+      "id": "6093",
+      "name": "黄昏圣盾",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aegisofdusk.png",
+      "filename": "6093-黄昏圣盾.png",
+      "local_path": "mode17s18_equip_by_type/神器/6093-黄昏圣盾.png",
+      "bytes": 18847
+    },
+    {
+      "id": "6094",
+      "name": "虚空护手",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/voidgauntlet.png",
+      "filename": "6094-虚空护手.png",
+      "local_path": "mode17s18_equip_by_type/神器/6094-虚空护手.png",
+      "bytes": 20451
+    },
+    {
+      "id": "6095",
+      "name": "帽子饮品",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/cappajuice.png",
+      "filename": "6095-帽子饮品.png",
+      "local_path": "mode17s18_equip_by_type/神器/6095-帽子饮品.png",
+      "bytes": 20417
+    },
+    {
+      "id": "6096",
+      "name": "恶火小斧",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hellfirehatchet.png",
+      "filename": "6096-恶火小斧.png",
+      "local_path": "mode17s18_equip_by_type/神器/6096-恶火小斧.png",
+      "bytes": 19789
+    },
+    {
+      "id": "6098",
+      "name": "永恒契约",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/eternalpact.png",
+      "filename": "6098-永恒契约.png",
+      "local_path": "mode17s18_equip_by_type/神器/6098-永恒契约.png",
+      "bytes": 21768
+    },
+    {
+      "id": "6106",
+      "name": "锤石的灯笼",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/threshlantern.png",
+      "filename": "6106-锤石的灯笼.png",
+      "local_path": "mode17s18_equip_by_type/神器/6106-锤石的灯笼.png",
+      "bytes": 20425
+    },
+    {
+      "id": "6107",
+      "name": "阿狸的光环",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ahrirhythm.png",
+      "filename": "6107-阿狸的光环.png",
+      "local_path": "mode17s18_equip_by_type/神器/6107-阿狸的光环.png",
+      "bytes": 18631
+    },
+    {
+      "id": "6108",
+      "name": "艾克的耐心",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ekkopatience.png",
+      "filename": "6108-艾克的耐心.png",
+      "local_path": "mode17s18_equip_by_type/神器/6108-艾克的耐心.png",
+      "bytes": 20516
+    },
+    {
+      "id": "6109",
+      "name": "亚索的剑艺",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/yasuobladework.png",
+      "filename": "6109-亚索的剑艺.png",
+      "local_path": "mode17s18_equip_by_type/神器/6109-亚索的剑艺.png",
+      "bytes": 18985
+    },
+    {
+      "id": "6110",
+      "name": "索拉卡的奇迹",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sorakamiracle.png",
+      "filename": "6110-索拉卡的奇迹.png",
+      "local_path": "mode17s18_equip_by_type/神器/6110-索拉卡的奇迹.png",
+      "bytes": 19747
+    },
+    {
+      "id": "6111",
+      "name": "韦鲁斯的执念",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/varusobsession.png",
+      "filename": "6111-韦鲁斯的执念.png",
+      "local_path": "mode17s18_equip_by_type/神器/6111-韦鲁斯的执念.png",
+      "bytes": 18033
+    },
+    {
+      "id": "6112",
+      "name": "伊芙琳的本能",
+      "source_type": "神器装备",
+      "category": "神器",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/evelynnfang.png",
+      "filename": "6112-伊芙琳的本能.png",
+      "local_path": "mode17s18_equip_by_type/神器/6112-伊芙琳的本能.png",
+      "bytes": 19807
+    },
+    {
+      "id": "3026",
+      "name": "魔像军团",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/1008.png",
+      "filename": "3026-魔像军团.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/3026-魔像军团.png",
+      "bytes": 17196
+    },
+    {
+      "id": "3029",
+      "name": "幸运装备宝箱",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/luckyitemchest.png",
+      "filename": "3029-幸运装备宝箱.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/3029-幸运装备宝箱.png",
+      "bytes": 21290
+    },
+    {
+      "id": "3030",
+      "name": "光明版幸运装备宝箱",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/radiantluckyitemchest.png",
+      "filename": "3030-光明版幸运装备宝箱.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/3030-光明版幸运装备宝箱.png",
+      "bytes": 21886
+    },
+    {
+      "id": "6091",
+      "name": "黎明核心",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/dawncore.png",
+      "filename": "6091-黎明核心.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/6091-黎明核心.png",
+      "bytes": 21624
+    },
+    {
+      "id": "9167",
+      "name": "德玛西亚王冠",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/6901.png",
+      "filename": "9167-德玛西亚王冠.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9167-德玛西亚王冠.png",
+      "bytes": 20465
+    },
+    {
+      "id": "9251",
+      "name": "无人机上行链路",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/droneuplink.png",
+      "filename": "9251-无人机上行链路.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9251-无人机上行链路.png",
+      "bytes": 22699
+    },
+    {
+      "id": "9252",
+      "name": "恶意软件矩阵",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/malwarematrix.png",
+      "filename": "9252-恶意软件矩阵.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9252-恶意软件矩阵.png",
+      "bytes": 21924
+    },
+    {
+      "id": "9253",
+      "name": "生物质维护器",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/neutrongrenades3.png",
+      "filename": "9253-生物质维护器.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9253-生物质维护器.png",
+      "bytes": 24716
+    },
+    {
+      "id": "9255",
+      "name": "共感植入",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sympatheticimplant.png",
+      "filename": "9255-共感植入.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9255-共感植入.png",
+      "bytes": 23978
+    },
+    {
+      "id": "9256",
+      "name": "锁敌光学设备",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/scopedholobow.png",
+      "filename": "9256-锁敌光学设备.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9256-锁敌光学设备.png",
+      "bytes": 22956
+    },
+    {
+      "id": "9329",
+      "name": "霸天机甲变形器",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/mechselector.png",
+      "filename": "9329-霸天机甲变形器.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9329-霸天机甲变形器.png",
+      "bytes": 23341
+    },
+    {
+      "id": "9331",
+      "name": "冰爆护甲",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/iceblastarmor.png",
+      "filename": "9331-冰爆护甲.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9331-冰爆护甲.png",
+      "bytes": 24929
+    },
+    {
+      "id": "9332",
+      "name": "炽烈短弓",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/searingshortbow.png",
+      "filename": "9332-炽烈短弓.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9332-炽烈短弓.png",
+      "bytes": 24862
+    },
+    {
+      "id": "9333",
+      "name": "无情砍削",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/savageslicer.png",
+      "filename": "9333-无情砍削.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9333-无情砍削.png",
+      "bytes": 22846
+    },
+    {
+      "id": "9335",
+      "name": "UwU魔爆炮",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/uwublaster.png",
+      "filename": "9335-UwU魔爆炮.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9335-UwU魔爆炮.png",
+      "bytes": 26556
+    },
+    {
+      "id": "9336",
+      "name": "歼灭者",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/theannihilator.png",
+      "filename": "9336-歼灭者.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9336-歼灭者.png",
+      "bytes": 24478
+    },
+    {
+      "id": "9337",
+      "name": "战兔十字弩",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/battlebunnycrossbow.png",
+      "filename": "9337-战兔十字弩.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9337-战兔十字弩.png",
+      "bytes": 26028
+    },
+    {
+      "id": "9338",
+      "name": "火箭狂潮",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/rocketswarm.png",
+      "filename": "9338-火箭狂潮.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9338-火箭狂潮.png",
+      "bytes": 24709
+    },
+    {
+      "id": "9339",
+      "name": "旋风切割器",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/cyclonicslicers.png",
+      "filename": "9339-旋风切割器.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9339-旋风切割器.png",
+      "bytes": 25442
+    },
+    {
+      "id": "9340",
+      "name": "耀光力场",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/radiantfield.png",
+      "filename": "9340-耀光力场.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9340-耀光力场.png",
+      "bytes": 24459
+    },
+    {
+      "id": "9341",
+      "name": "雌狮之怨",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/lionessslament.png",
+      "filename": "9341-雌狮之怨.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9341-雌狮之怨.png",
+      "bytes": 25529
+    },
+    {
+      "id": "9342",
+      "name": "附灵飞弹",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/guidinghex.png",
+      "filename": "9342-附灵飞弹.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9342-附灵飞弹.png",
+      "bytes": 22499
+    },
+    {
+      "id": "9343",
+      "name": "触手重击",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/tentacleslam.png",
+      "filename": "9343-触手重击.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9343-触手重击.png",
+      "bytes": 23897
+    },
+    {
+      "id": "9344",
+      "name": "回响蝠刃",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/echoingbatblades.png",
+      "filename": "9344-回响蝠刃.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9344-回响蝠刃.png",
+      "bytes": 25192
+    },
+    {
+      "id": "9345",
+      "name": "深度冻结",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/iceblastarmor_up.png",
+      "filename": "9345-深度冻结.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9345-深度冻结.png",
+      "bytes": 24570
+    },
+    {
+      "id": "9346",
+      "name": "进化余烬射击",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/searingshortbow_up.png",
+      "filename": "9346-进化余烬射击.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9346-进化余烬射击.png",
+      "bytes": 24194
+    },
+    {
+      "id": "9347",
+      "name": "OwO魔爆炮",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/uwublaster_up.png",
+      "filename": "9347-OwO魔爆炮.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9347-OwO魔爆炮.png",
+      "bytes": 25994
+    },
+    {
+      "id": "9348",
+      "name": "幻灵启示录",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/theannihilator_up.png",
+      "filename": "9348-幻灵启示录.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9348-幻灵启示录.png",
+      "bytes": 24153
+    },
+    {
+      "id": "9349",
+      "name": "战兔至尊弩炮",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/battlebunnycrossbow_up.png",
+      "filename": "9349-战兔至尊弩炮.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9349-战兔至尊弩炮.png",
+      "bytes": 25288
+    },
+    {
+      "id": "9350",
+      "name": "不息气旋",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/cyclonicslicers_up.png",
+      "filename": "9350-不息气旋.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9350-不息气旋.png",
+      "bytes": 24910
+    },
+    {
+      "id": "9351",
+      "name": "日蚀之刻",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/radiantfield_up.png",
+      "filename": "9351-日蚀之刻.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9351-日蚀之刻.png",
+      "bytes": 24213
+    },
+    {
+      "id": "9352",
+      "name": "薇恩的炫彩战刃",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/echoingbatblades_up.png",
+      "filename": "9352-薇恩的炫彩战刃.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9352-薇恩的炫彩战刃.png",
+      "bytes": 24788
+    },
+    {
+      "id": "9353",
+      "name": "全能武器",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/omniweapon_up.png",
+      "filename": "9353-全能武器.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9353-全能武器.png",
+      "bytes": 26191
+    },
+    {
+      "id": "9354",
+      "name": "闪光原型",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sparkingprototype.png",
+      "filename": "9354-闪光原型.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9354-闪光原型.png",
+      "bytes": 24850
+    },
+    {
+      "id": "9355",
+      "name": "破损原型",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/clunkyprototype.png",
+      "filename": "9355-破损原型.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9355-破损原型.png",
+      "bytes": 23934
+    },
+    {
+      "id": "9356",
+      "name": "泄露原型",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/leakyprototype.png",
+      "filename": "9356-泄露原型.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9356-泄露原型.png",
+      "bytes": 22991
+    },
+    {
+      "id": "9363",
+      "name": "猛狮之殇",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/lionesslament_up.png",
+      "filename": "9363-猛狮之殇.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9363-猛狮之殇.png",
+      "bytes": 25187
+    },
+    {
+      "id": "9367",
+      "name": "特攻队员选择器",
+      "source_type": "特殊装备",
+      "category": "特殊装备",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/strikeselector.png",
+      "filename": "9367-特攻队员选择器.png",
+      "local_path": "mode17s18_equip_by_type/特殊装备/9367-特攻队员选择器.png",
+      "bytes": 21069
+    },
+    {
+      "id": "41701",
+      "name": "幻灵战队纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41701.png",
+      "filename": "41701-幻灵战队纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41701-幻灵战队纹章.png",
+      "bytes": 18582
+    },
+    {
+      "id": "41702",
+      "name": "法官纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41702.png",
+      "filename": "41702-法官纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41702-法官纹章.png",
+      "bytes": 15831
+    },
+    {
+      "id": "41703",
+      "name": "木灵族纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41703.png",
+      "filename": "41703-木灵族纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41703-木灵族纹章.png",
+      "bytes": 16822
+    },
+    {
+      "id": "41704",
+      "name": "暗星纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41704.png",
+      "filename": "41704-暗星纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41704-暗星纹章.png",
+      "bytes": 17230
+    },
+    {
+      "id": "41706",
+      "name": "新星特攻队纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41706.png",
+      "filename": "41706-新星特攻队纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41706-新星特攻队纹章.png",
+      "bytes": 17311
+    },
+    {
+      "id": "41707",
+      "name": "海魔人纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41707.png",
+      "filename": "41707-海魔人纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41707-海魔人纹章.png",
+      "bytes": 16658
+    },
+    {
+      "id": "41708",
+      "name": "灵能特工纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41708.png",
+      "filename": "41708-灵能特工纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41708-灵能特工纹章.png",
+      "bytes": 20147
+    },
+    {
+      "id": "41709",
+      "name": "太空律动纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41709.png",
+      "filename": "41709-太空律动纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41709-太空律动纹章.png",
+      "bytes": 16244
+    },
+    {
+      "id": "41710",
+      "name": "观星者纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41710.png",
+      "filename": "41710-观星者纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41710-观星者纹章.png",
+      "bytes": 17039
+    },
+    {
+      "id": "41711",
+      "name": "未来战士纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41711.png",
+      "filename": "41711-未来战士纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41711-未来战士纹章.png",
+      "bytes": 17168
+    },
+    {
+      "id": "41712",
+      "name": "堡垒卫士纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41712.png",
+      "filename": "41712-堡垒卫士纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41712-堡垒卫士纹章.png",
+      "bytes": 22219
+    },
+    {
+      "id": "41713",
+      "name": "斗士纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41713.png",
+      "filename": "41713-斗士纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41713-斗士纹章.png",
+      "bytes": 20384
+    },
+    {
+      "id": "41714",
+      "name": "挑战者纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41714.png",
+      "filename": "41714-挑战者纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41714-挑战者纹章.png",
+      "bytes": 18696
+    },
+    {
+      "id": "41715",
+      "name": "狂战士纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41715.png",
+      "filename": "41715-狂战士纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41715-狂战士纹章.png",
+      "bytes": 18949
+    },
+    {
+      "id": "41716",
+      "name": "游侠纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41716.png",
+      "filename": "41716-游侠纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41716-游侠纹章.png",
+      "bytes": 19316
+    },
+    {
+      "id": "41717",
+      "name": "狙神纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41717.png",
+      "filename": "41717-狙神纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41717-狙神纹章.png",
+      "bytes": 20730
+    },
+    {
+      "id": "41718",
+      "name": "牧羊人纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41718.png",
+      "filename": "41718-牧羊人纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41718-牧羊人纹章.png",
+      "bytes": 20405
+    },
+    {
+      "id": "41719",
+      "name": "重装战士纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41719.png",
+      "filename": "41719-重装战士纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41719-重装战士纹章.png",
+      "bytes": 19437
+    },
+    {
+      "id": "41720",
+      "name": "旅人纹章",
+      "source_type": "转职纹章",
+      "category": "纹章",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/41720.png",
+      "filename": "41720-旅人纹章.png",
+      "local_path": "mode17s18_equip_by_type/纹章/41720-旅人纹章.png",
+      "bytes": 20653
+    }
+  ],
+  "skipped": [
+    {
+      "id": "2058",
+      "name": "目标假人",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3611.png"
+    },
+    {
+      "id": "3001",
+      "name": "英雄复制器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3701.png"
+    },
+    {
+      "id": "3002",
+      "name": "装备重铸器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3502.png"
+    },
+    {
+      "id": "3003",
+      "name": "装备拆卸器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3503.png"
+    },
+    {
+      "id": "3004",
+      "name": "灌铅骰子",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3504.png"
+    },
+    {
+      "id": "3005",
+      "name": "纹章之书",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3505.png"
+    },
+    {
+      "id": "3007",
+      "name": "基础装备锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3507.png"
+    },
+    {
+      "id": "3008",
+      "name": "成装锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3508.png"
+    },
+    {
+      "id": "3009",
+      "name": "神器装备锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3509.png"
+    },
+    {
+      "id": "3010",
+      "name": "次级英雄复制器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3710.png"
+    },
+    {
+      "id": "3014",
+      "name": "商店回溯器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3105.png"
+    },
+    {
+      "id": "3015",
+      "name": "辅助装锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/support_anvil.png"
+    },
+    {
+      "id": "3016",
+      "name": "免费刷新道具",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3507.png"
+    },
+    {
+      "id": "3017",
+      "name": "五费刷新道具",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3508.png"
+    },
+    {
+      "id": "3018",
+      "name": "推荐装备选择器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3508.png"
+    },
+    {
+      "id": "3019",
+      "name": "金制拆卸器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/golden_remover.png"
+    },
+    {
+      "id": "3020",
+      "name": "杰作升级",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/masterwork_upgrade.png"
+    },
+    {
+      "id": "3021",
+      "name": "战利品",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/plunderequipment_anvil.png"
+    },
+    {
+      "id": "3022",
+      "name": "传承之物",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heritage_anvil.png"
+    },
+    {
+      "id": "3023",
+      "name": "皮城装备锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/piltover_anvil.png"
+    },
+    {
+      "id": "3024",
+      "name": "祖安装备锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/zaun_anvil.png"
+    },
+    {
+      "id": "3025",
+      "name": "古代装备锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ancient_anvil.png"
+    },
+    {
+      "id": "3028",
+      "name": "打捞术",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/salvager.png"
+    },
+    {
+      "id": "3031",
+      "name": "金币神器装备锻造器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3509.png"
+    },
+    {
+      "id": "6105",
+      "name": "凯尔的光明崇拜",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/kaylesradiantexaltation.png"
+    },
+    {
+      "id": "9241",
+      "name": "无人机上行链路",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/droneuplink.png"
+    },
+    {
+      "id": "9242",
+      "name": "恶意软件矩阵",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/malwarematrix.png"
+    },
+    {
+      "id": "9243",
+      "name": "生物质维护器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/neutrongrenades3.png"
+    },
+    {
+      "id": "9245",
+      "name": "共感植入",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sympatheticimplant.png"
+    },
+    {
+      "id": "9246",
+      "name": "锁敌光学设备",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/scopedholobow.png"
+    },
+    {
+      "id": "9257",
+      "name": "指令模块：分析",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/analyze.png"
+    },
+    {
+      "id": "9259",
+      "name": "指令模块：扰乱",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/disrupt.png"
+    },
+    {
+      "id": "9260",
+      "name": "指令模块：双重打击",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/doublestrike.png"
+    },
+    {
+      "id": "9261",
+      "name": "指令模块：装配",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fabricate.png"
+    },
+    {
+      "id": "9262",
+      "name": "指令模块：加固",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/brace.png"
+    },
+    {
+      "id": "9264",
+      "name": "指令模块：虚弱",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/infect.png"
+    },
+    {
+      "id": "9265",
+      "name": "指令模块：优化",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/optimize.png"
+    },
+    {
+      "id": "9268",
+      "name": "指令模块：质变",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/transmute.png"
+    },
+    {
+      "id": "9270",
+      "name": "进攻框架",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/closequarters.png"
+    },
+    {
+      "id": "9271",
+      "name": "重力助推器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/gravbooster.png"
+    },
+    {
+      "id": "9272",
+      "name": "重力助推器+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/gravbooster1.png"
+    },
+    {
+      "id": "9274",
+      "name": "紧急护盾",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/emergencyshielding.png"
+    },
+    {
+      "id": "9275",
+      "name": "紧急护盾+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/emergencyshielding1.png"
+    },
+    {
+      "id": "9277",
+      "name": "重型镀层",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heavyplating.png"
+    },
+    {
+      "id": "9278",
+      "name": "纯粹质量",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sheermass.png"
+    },
+    {
+      "id": "9279",
+      "name": "纳米机械",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/nanomachines.png"
+    },
+    {
+      "id": "9281",
+      "name": "反应护甲",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/reactivearmor.png"
+    },
+    {
+      "id": "9282",
+      "name": "阻塞",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/choke.png"
+    },
+    {
+      "id": "9283",
+      "name": "冲击波",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/shockwave.png"
+    },
+    {
+      "id": "9284",
+      "name": "铅弹",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/buckshot.png"
+    },
+    {
+      "id": "9285",
+      "name": "铅弹+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/buckshot1.png"
+    },
+    {
+      "id": "9286",
+      "name": "铅弹++",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/buckshot2.png"
+    },
+    {
+      "id": "9288",
+      "name": "镭射弹道",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/laserballistics.png"
+    },
+    {
+      "id": "9289",
+      "name": "榨血植入",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/leechingimplants.png"
+    },
+    {
+      "id": "9290",
+      "name": "榨血植入+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/leechingimplants1.png"
+    },
+    {
+      "id": "9291",
+      "name": "熔穿",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/meltthrough.png"
+    },
+    {
+      "id": "9292",
+      "name": "射手框架",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/doubletap.png"
+    },
+    {
+      "id": "9293",
+      "name": "双发快射",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/doubletap1.png"
+    },
+    {
+      "id": "9294",
+      "name": "三连轰",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/tripletap.png"
+    },
+    {
+      "id": "9296",
+      "name": "动力强化",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/revup.png"
+    },
+    {
+      "id": "9297",
+      "name": "动力强化+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/revup1.png"
+    },
+    {
+      "id": "9298",
+      "name": "破甲弹",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ripperbullets.png"
+    },
+    {
+      "id": "9300",
+      "name": "破甲弹+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ripperbullets1.png"
+    },
+    {
+      "id": "9301",
+      "name": "分裂弹",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fragmentationrounds.png"
+    },
+    {
+      "id": "9302",
+      "name": "分裂弹+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fragmentationrounds1.png"
+    },
+    {
+      "id": "9303",
+      "name": "精密准镜",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/precisionscope.png"
+    },
+    {
+      "id": "9304",
+      "name": "精密准镜+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/precisionscope1.png"
+    },
+    {
+      "id": "9305",
+      "name": "精密准镜++",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/precisionscope2.png"
+    },
+    {
+      "id": "9306",
+      "name": "辅助瞄准",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aimassistant.png"
+    },
+    {
+      "id": "9308",
+      "name": "动力框架",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sharpshootermodule.png"
+    },
+    {
+      "id": "9309",
+      "name": "觅心者",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heartseeker.png"
+    },
+    {
+      "id": "9310",
+      "name": "觅心者+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heartseeker1.png"
+    },
+    {
+      "id": "9311",
+      "name": "觅心者++",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heartseeker2.png"
+    },
+    {
+      "id": "9313",
+      "name": "坦克克星",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/tankbuster.png"
+    },
+    {
+      "id": "9314",
+      "name": "穿甲弹",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aprounds.png"
+    },
+    {
+      "id": "9315",
+      "name": "穿甲弹+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aprounds1.png"
+    },
+    {
+      "id": "9316",
+      "name": "潜藏爆炸",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/latentexplosion.png"
+    },
+    {
+      "id": "9317",
+      "name": "爆炸范围",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/blastradius.png"
+    },
+    {
+      "id": "9318",
+      "name": "爆炸范围+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/blastradius1.png"
+    },
+    {
+      "id": "9319",
+      "name": "爆炸范围++",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/blastradius2.png"
+    },
+    {
+      "id": "9320",
+      "name": "共鸣引爆",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sympatheticdetonation.png"
+    },
+    {
+      "id": "9321",
+      "name": "冷却介质",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/coolant.png"
+    },
+    {
+      "id": "9322",
+      "name": "冷却介质+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/coolant1.png"
+    },
+    {
+      "id": "9323",
+      "name": "虚空系数",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/voidcoefficient.png"
+    },
+    {
+      "id": "9324",
+      "name": "裂变",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fission.png"
+    },
+    {
+      "id": "9325",
+      "name": "阻塞",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/choke.png"
+    },
+    {
+      "id": "9326",
+      "name": "裂变+",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fission1.png"
+    },
+    {
+      "id": "9327",
+      "name": "裂变++",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fission2.png"
+    },
+    {
+      "id": "9328",
+      "name": "调试",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/backup.png"
+    },
+    {
+      "id": "9357",
+      "name": "烈阳格",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png"
+    },
+    {
+      "id": "9358",
+      "name": "宇宙格",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png"
+    },
+    {
+      "id": "9359",
+      "name": "增速格",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png"
+    },
+    {
+      "id": "9360",
+      "name": "星光格",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png"
+    },
+    {
+      "id": "9361",
+      "name": "风暴格",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png"
+    },
+    {
+      "id": "9362",
+      "name": "冰晶格",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png"
+    },
+    {
+      "id": "9364",
+      "name": "微型复制器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/championduplicator.png"
+    },
+    {
+      "id": "9365",
+      "name": "异常突变",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/anomaly.png"
+    },
+    {
+      "id": "9366",
+      "name": "口袋重组器",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/pocketrecombobulator.png"
+    },
+    {
+      "id": "9851",
+      "name": "机械重组！",
+      "type": "-1",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/junkyardtitan.png"
+    }
+  ],
+  "failures": [],
+  "unclassified": [
+    {
+      "id": "2058",
+      "name": "目标假人",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3611.png",
+      "filename": "2058-目标假人.png",
+      "local_path": "mode17s18_equip_by_type/未归类/2058-目标假人.png",
+      "bytes": 23421
+    },
+    {
+      "id": "3001",
+      "name": "英雄复制器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3701.png",
+      "filename": "3001-英雄复制器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3001-英雄复制器.png",
+      "bytes": 23764
+    },
+    {
+      "id": "3002",
+      "name": "装备重铸器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3502.png",
+      "filename": "3002-装备重铸器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3002-装备重铸器.png",
+      "bytes": 19462
+    },
+    {
+      "id": "3003",
+      "name": "装备拆卸器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3503.png",
+      "filename": "3003-装备拆卸器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3003-装备拆卸器.png",
+      "bytes": 19476
+    },
+    {
+      "id": "3004",
+      "name": "灌铅骰子",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3504.png",
+      "filename": "3004-灌铅骰子.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3004-灌铅骰子.png",
+      "bytes": 18997
+    },
+    {
+      "id": "3005",
+      "name": "纹章之书",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3505.png",
+      "filename": "3005-纹章之书.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3005-纹章之书.png",
+      "bytes": 20326
+    },
+    {
+      "id": "3007",
+      "name": "基础装备锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3507.png",
+      "filename": "3007-基础装备锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3007-基础装备锻造器.png",
+      "bytes": 12290
+    },
+    {
+      "id": "3008",
+      "name": "成装锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3508.png",
+      "filename": "3008-成装锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3008-成装锻造器.png",
+      "bytes": 16165
+    },
+    {
+      "id": "3009",
+      "name": "神器装备锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3509.png",
+      "filename": "3009-神器装备锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3009-神器装备锻造器.png",
+      "bytes": 17717
+    },
+    {
+      "id": "3010",
+      "name": "次级英雄复制器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3710.png",
+      "filename": "3010-次级英雄复制器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3010-次级英雄复制器.png",
+      "bytes": 25086
+    },
+    {
+      "id": "3014",
+      "name": "商店回溯器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3105.png",
+      "filename": "3014-商店回溯器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3014-商店回溯器.png",
+      "bytes": 18985
+    },
+    {
+      "id": "3015",
+      "name": "辅助装锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/support_anvil.png",
+      "filename": "3015-辅助装锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3015-辅助装锻造器.png",
+      "bytes": 18913
+    },
+    {
+      "id": "3016",
+      "name": "免费刷新道具",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3507.png",
+      "filename": "3016-免费刷新道具.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3016-免费刷新道具.png",
+      "bytes": 12290
+    },
+    {
+      "id": "3017",
+      "name": "五费刷新道具",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3508.png",
+      "filename": "3017-五费刷新道具.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3017-五费刷新道具.png",
+      "bytes": 16165
+    },
+    {
+      "id": "3018",
+      "name": "推荐装备选择器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3508.png",
+      "filename": "3018-推荐装备选择器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3018-推荐装备选择器.png",
+      "bytes": 16165
+    },
+    {
+      "id": "3019",
+      "name": "金制拆卸器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/golden_remover.png",
+      "filename": "3019-金制拆卸器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3019-金制拆卸器.png",
+      "bytes": 22527
+    },
+    {
+      "id": "3020",
+      "name": "杰作升级",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/masterwork_upgrade.png",
+      "filename": "3020-杰作升级.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3020-杰作升级.png",
+      "bytes": 23190
+    },
+    {
+      "id": "3021",
+      "name": "战利品",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/plunderequipment_anvil.png",
+      "filename": "3021-战利品.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3021-战利品.png",
+      "bytes": 25913
+    },
+    {
+      "id": "3022",
+      "name": "传承之物",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heritage_anvil.png",
+      "filename": "3022-传承之物.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3022-传承之物.png",
+      "bytes": 26629
+    },
+    {
+      "id": "3023",
+      "name": "皮城装备锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/piltover_anvil.png",
+      "filename": "3023-皮城装备锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3023-皮城装备锻造器.png",
+      "bytes": 18851
+    },
+    {
+      "id": "3024",
+      "name": "祖安装备锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/zaun_anvil.png",
+      "filename": "3024-祖安装备锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3024-祖安装备锻造器.png",
+      "bytes": 16787
+    },
+    {
+      "id": "3025",
+      "name": "古代装备锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ancient_anvil.png",
+      "filename": "3025-古代装备锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3025-古代装备锻造器.png",
+      "bytes": 16032
+    },
+    {
+      "id": "3028",
+      "name": "打捞术",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/salvager.png",
+      "filename": "3028-打捞术.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3028-打捞术.png",
+      "bytes": 18256
+    },
+    {
+      "id": "3031",
+      "name": "金币神器装备锻造器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/3509.png",
+      "filename": "3031-金币神器装备锻造器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/3031-金币神器装备锻造器.png",
+      "bytes": 17717
+    },
+    {
+      "id": "6105",
+      "name": "凯尔的光明崇拜",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/kaylesradiantexaltation.png",
+      "filename": "6105-凯尔的光明崇拜.png",
+      "local_path": "mode17s18_equip_by_type/未归类/6105-凯尔的光明崇拜.png",
+      "bytes": 19821
+    },
+    {
+      "id": "9241",
+      "name": "无人机上行链路",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/droneuplink.png",
+      "filename": "9241-无人机上行链路.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9241-无人机上行链路.png",
+      "bytes": 22699
+    },
+    {
+      "id": "9242",
+      "name": "恶意软件矩阵",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/malwarematrix.png",
+      "filename": "9242-恶意软件矩阵.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9242-恶意软件矩阵.png",
+      "bytes": 21924
+    },
+    {
+      "id": "9243",
+      "name": "生物质维护器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/neutrongrenades3.png",
+      "filename": "9243-生物质维护器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9243-生物质维护器.png",
+      "bytes": 24716
+    },
+    {
+      "id": "9245",
+      "name": "共感植入",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sympatheticimplant.png",
+      "filename": "9245-共感植入.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9245-共感植入.png",
+      "bytes": 23978
+    },
+    {
+      "id": "9246",
+      "name": "锁敌光学设备",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/scopedholobow.png",
+      "filename": "9246-锁敌光学设备.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9246-锁敌光学设备.png",
+      "bytes": 22956
+    },
+    {
+      "id": "9257",
+      "name": "指令模块：分析",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/analyze.png",
+      "filename": "9257-指令模块：分析.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9257-指令模块：分析.png",
+      "bytes": 22931
+    },
+    {
+      "id": "9259",
+      "name": "指令模块：扰乱",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/disrupt.png",
+      "filename": "9259-指令模块：扰乱.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9259-指令模块：扰乱.png",
+      "bytes": 22947
+    },
+    {
+      "id": "9260",
+      "name": "指令模块：双重打击",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/doublestrike.png",
+      "filename": "9260-指令模块：双重打击.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9260-指令模块：双重打击.png",
+      "bytes": 23064
+    },
+    {
+      "id": "9261",
+      "name": "指令模块：装配",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fabricate.png",
+      "filename": "9261-指令模块：装配.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9261-指令模块：装配.png",
+      "bytes": 23818
+    },
+    {
+      "id": "9262",
+      "name": "指令模块：加固",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/brace.png",
+      "filename": "9262-指令模块：加固.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9262-指令模块：加固.png",
+      "bytes": 23777
+    },
+    {
+      "id": "9264",
+      "name": "指令模块：虚弱",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/infect.png",
+      "filename": "9264-指令模块：虚弱.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9264-指令模块：虚弱.png",
+      "bytes": 23280
+    },
+    {
+      "id": "9265",
+      "name": "指令模块：优化",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/optimize.png",
+      "filename": "9265-指令模块：优化.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9265-指令模块：优化.png",
+      "bytes": 24427
+    },
+    {
+      "id": "9268",
+      "name": "指令模块：质变",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/transmute.png",
+      "filename": "9268-指令模块：质变.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9268-指令模块：质变.png",
+      "bytes": 24291
+    },
+    {
+      "id": "9270",
+      "name": "进攻框架",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/closequarters.png",
+      "filename": "9270-进攻框架.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9270-进攻框架.png",
+      "bytes": 17939
+    },
+    {
+      "id": "9271",
+      "name": "重力助推器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/gravbooster.png",
+      "filename": "9271-重力助推器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9271-重力助推器.png",
+      "bytes": 19594
+    },
+    {
+      "id": "9272",
+      "name": "重力助推器+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/gravbooster1.png",
+      "filename": "9272-重力助推器+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9272-重力助推器+.png",
+      "bytes": 19884
+    },
+    {
+      "id": "9274",
+      "name": "紧急护盾",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/emergencyshielding.png",
+      "filename": "9274-紧急护盾.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9274-紧急护盾.png",
+      "bytes": 19583
+    },
+    {
+      "id": "9275",
+      "name": "紧急护盾+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/emergencyshielding1.png",
+      "filename": "9275-紧急护盾+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9275-紧急护盾+.png",
+      "bytes": 19858
+    },
+    {
+      "id": "9277",
+      "name": "重型镀层",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heavyplating.png",
+      "filename": "9277-重型镀层.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9277-重型镀层.png",
+      "bytes": 19260
+    },
+    {
+      "id": "9278",
+      "name": "纯粹质量",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sheermass.png",
+      "filename": "9278-纯粹质量.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9278-纯粹质量.png",
+      "bytes": 19543
+    },
+    {
+      "id": "9279",
+      "name": "纳米机械",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/nanomachines.png",
+      "filename": "9279-纳米机械.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9279-纳米机械.png",
+      "bytes": 17973
+    },
+    {
+      "id": "9281",
+      "name": "反应护甲",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/reactivearmor.png",
+      "filename": "9281-反应护甲.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9281-反应护甲.png",
+      "bytes": 19196
+    },
+    {
+      "id": "9282",
+      "name": "阻塞",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/choke.png",
+      "filename": "9282-阻塞.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9282-阻塞.png",
+      "bytes": 18003
+    },
+    {
+      "id": "9283",
+      "name": "冲击波",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/shockwave.png",
+      "filename": "9283-冲击波.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9283-冲击波.png",
+      "bytes": 16460
+    },
+    {
+      "id": "9284",
+      "name": "铅弹",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/buckshot.png",
+      "filename": "9284-铅弹.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9284-铅弹.png",
+      "bytes": 19911
+    },
+    {
+      "id": "9285",
+      "name": "铅弹+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/buckshot1.png",
+      "filename": "9285-铅弹+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9285-铅弹+.png",
+      "bytes": 20121
+    },
+    {
+      "id": "9286",
+      "name": "铅弹++",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/buckshot2.png",
+      "filename": "9286-铅弹++.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9286-铅弹++.png",
+      "bytes": 20304
+    },
+    {
+      "id": "9288",
+      "name": "镭射弹道",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/laserballistics.png",
+      "filename": "9288-镭射弹道.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9288-镭射弹道.png",
+      "bytes": 16215
+    },
+    {
+      "id": "9289",
+      "name": "榨血植入",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/leechingimplants.png",
+      "filename": "9289-榨血植入.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9289-榨血植入.png",
+      "bytes": 16536
+    },
+    {
+      "id": "9290",
+      "name": "榨血植入+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/leechingimplants1.png",
+      "filename": "9290-榨血植入+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9290-榨血植入+.png",
+      "bytes": 16709
+    },
+    {
+      "id": "9291",
+      "name": "熔穿",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/meltthrough.png",
+      "filename": "9291-熔穿.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9291-熔穿.png",
+      "bytes": 15304
+    },
+    {
+      "id": "9292",
+      "name": "射手框架",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/doubletap.png",
+      "filename": "9292-射手框架.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9292-射手框架.png",
+      "bytes": 19126
+    },
+    {
+      "id": "9293",
+      "name": "双发快射",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/doubletap1.png",
+      "filename": "9293-双发快射.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9293-双发快射.png",
+      "bytes": 18784
+    },
+    {
+      "id": "9294",
+      "name": "三连轰",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/tripletap.png",
+      "filename": "9294-三连轰.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9294-三连轰.png",
+      "bytes": 19584
+    },
+    {
+      "id": "9296",
+      "name": "动力强化",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/revup.png",
+      "filename": "9296-动力强化.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9296-动力强化.png",
+      "bytes": 19646
+    },
+    {
+      "id": "9297",
+      "name": "动力强化+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/revup1.png",
+      "filename": "9297-动力强化+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9297-动力强化+.png",
+      "bytes": 19249
+    },
+    {
+      "id": "9298",
+      "name": "破甲弹",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ripperbullets.png",
+      "filename": "9298-破甲弹.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9298-破甲弹.png",
+      "bytes": 17790
+    },
+    {
+      "id": "9300",
+      "name": "破甲弹+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/ripperbullets1.png",
+      "filename": "9300-破甲弹+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9300-破甲弹+.png",
+      "bytes": 17509
+    },
+    {
+      "id": "9301",
+      "name": "分裂弹",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fragmentationrounds.png",
+      "filename": "9301-分裂弹.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9301-分裂弹.png",
+      "bytes": 20035
+    },
+    {
+      "id": "9302",
+      "name": "分裂弹+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fragmentationrounds1.png",
+      "filename": "9302-分裂弹+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9302-分裂弹+.png",
+      "bytes": 19797
+    },
+    {
+      "id": "9303",
+      "name": "精密准镜",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/precisionscope.png",
+      "filename": "9303-精密准镜.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9303-精密准镜.png",
+      "bytes": 17354
+    },
+    {
+      "id": "9304",
+      "name": "精密准镜+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/precisionscope1.png",
+      "filename": "9304-精密准镜+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9304-精密准镜+.png",
+      "bytes": 17539
+    },
+    {
+      "id": "9305",
+      "name": "精密准镜++",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/precisionscope2.png",
+      "filename": "9305-精密准镜++.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9305-精密准镜++.png",
+      "bytes": 17725
+    },
+    {
+      "id": "9306",
+      "name": "辅助瞄准",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aimassistant.png",
+      "filename": "9306-辅助瞄准.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9306-辅助瞄准.png",
+      "bytes": 20495
+    },
+    {
+      "id": "9308",
+      "name": "动力框架",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sharpshootermodule.png",
+      "filename": "9308-动力框架.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9308-动力框架.png",
+      "bytes": 18303
+    },
+    {
+      "id": "9309",
+      "name": "觅心者",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heartseeker.png",
+      "filename": "9309-觅心者.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9309-觅心者.png",
+      "bytes": 19148
+    },
+    {
+      "id": "9310",
+      "name": "觅心者+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heartseeker1.png",
+      "filename": "9310-觅心者+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9310-觅心者+.png",
+      "bytes": 19402
+    },
+    {
+      "id": "9311",
+      "name": "觅心者++",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/heartseeker2.png",
+      "filename": "9311-觅心者++.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9311-觅心者++.png",
+      "bytes": 19630
+    },
+    {
+      "id": "9313",
+      "name": "坦克克星",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/tankbuster.png",
+      "filename": "9313-坦克克星.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9313-坦克克星.png",
+      "bytes": 19863
+    },
+    {
+      "id": "9314",
+      "name": "穿甲弹",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aprounds.png",
+      "filename": "9314-穿甲弹.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9314-穿甲弹.png",
+      "bytes": 18166
+    },
+    {
+      "id": "9315",
+      "name": "穿甲弹+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/aprounds1.png",
+      "filename": "9315-穿甲弹+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9315-穿甲弹+.png",
+      "bytes": 18534
+    },
+    {
+      "id": "9316",
+      "name": "潜藏爆炸",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/latentexplosion.png",
+      "filename": "9316-潜藏爆炸.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9316-潜藏爆炸.png",
+      "bytes": 16788
+    },
+    {
+      "id": "9317",
+      "name": "爆炸范围",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/blastradius.png",
+      "filename": "9317-爆炸范围.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9317-爆炸范围.png",
+      "bytes": 17985
+    },
+    {
+      "id": "9318",
+      "name": "爆炸范围+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/blastradius1.png",
+      "filename": "9318-爆炸范围+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9318-爆炸范围+.png",
+      "bytes": 18227
+    },
+    {
+      "id": "9319",
+      "name": "爆炸范围++",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/blastradius2.png",
+      "filename": "9319-爆炸范围++.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9319-爆炸范围++.png",
+      "bytes": 18443
+    },
+    {
+      "id": "9320",
+      "name": "共鸣引爆",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/sympatheticdetonation.png",
+      "filename": "9320-共鸣引爆.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9320-共鸣引爆.png",
+      "bytes": 19420
+    },
+    {
+      "id": "9321",
+      "name": "冷却介质",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/coolant.png",
+      "filename": "9321-冷却介质.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9321-冷却介质.png",
+      "bytes": 19046
+    },
+    {
+      "id": "9322",
+      "name": "冷却介质+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/coolant1.png",
+      "filename": "9322-冷却介质+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9322-冷却介质+.png",
+      "bytes": 19378
+    },
+    {
+      "id": "9323",
+      "name": "虚空系数",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/voidcoefficient.png",
+      "filename": "9323-虚空系数.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9323-虚空系数.png",
+      "bytes": 19442
+    },
+    {
+      "id": "9324",
+      "name": "裂变",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fission.png",
+      "filename": "9324-裂变.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9324-裂变.png",
+      "bytes": 17107
+    },
+    {
+      "id": "9325",
+      "name": "阻塞",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/choke.png",
+      "filename": "9325-阻塞.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9325-阻塞.png",
+      "bytes": 18003
+    },
+    {
+      "id": "9326",
+      "name": "裂变+",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fission1.png",
+      "filename": "9326-裂变+.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9326-裂变+.png",
+      "bytes": 17346
+    },
+    {
+      "id": "9327",
+      "name": "裂变++",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/fission2.png",
+      "filename": "9327-裂变++.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9327-裂变++.png",
+      "bytes": 17569
+    },
+    {
+      "id": "9328",
+      "name": "调试",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/backup.png",
+      "filename": "9328-调试.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9328-调试.png",
+      "bytes": 16222
+    },
+    {
+      "id": "9357",
+      "name": "烈阳格",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png",
+      "filename": "9357-烈阳格.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9357-烈阳格.png",
+      "bytes": 21859
+    },
+    {
+      "id": "9358",
+      "name": "宇宙格",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png",
+      "filename": "9358-宇宙格.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9358-宇宙格.png",
+      "bytes": 21859
+    },
+    {
+      "id": "9359",
+      "name": "增速格",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png",
+      "filename": "9359-增速格.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9359-增速格.png",
+      "bytes": 21859
+    },
+    {
+      "id": "9360",
+      "name": "星光格",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png",
+      "filename": "9360-星光格.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9360-星光格.png",
+      "bytes": 21859
+    },
+    {
+      "id": "9361",
+      "name": "风暴格",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png",
+      "filename": "9361-风暴格.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9361-风暴格.png",
+      "bytes": 21859
+    },
+    {
+      "id": "9362",
+      "name": "冰晶格",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/hexpaintbrush.png",
+      "filename": "9362-冰晶格.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9362-冰晶格.png",
+      "bytes": 21859
+    },
+    {
+      "id": "9364",
+      "name": "微型复制器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/championduplicator.png",
+      "filename": "9364-微型复制器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9364-微型复制器.png",
+      "bytes": 28252
+    },
+    {
+      "id": "9365",
+      "name": "异常突变",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/anomaly.png",
+      "filename": "9365-异常突变.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9365-异常突变.png",
+      "bytes": 18462
+    },
+    {
+      "id": "9366",
+      "name": "口袋重组器",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/pocketrecombobulator.png",
+      "filename": "9366-口袋重组器.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9366-口袋重组器.png",
+      "bytes": 27880
+    },
+    {
+      "id": "9851",
+      "name": "机械重组！",
+      "type": "-1",
+      "category": "未归类",
+      "picture": "https://game.gtimg.cn/images/lol/act/jkzlk/gamedata/equip/junkyardtitan.png",
+      "filename": "9851-机械重组！.png",
+      "local_path": "mode17s18_equip_by_type/未归类/9851-机械重组！.png",
+      "bytes": 21998
+    }
+  ],
+  "unclassified_failures": []
+}

@@ -59,6 +59,10 @@ def create_app(test_config=None):
     def author_page(username):
         return tracked_template_response('author.html', 'author', username=username)
 
+    @app.get('/tools/lineup-simulator')
+    def lineup_simulator_page():
+        return tracked_template_response('lineup_simulator.html', 'lineup_simulator')
+
     @app.get('/me')
     def account_page():
         user, error = login_required()

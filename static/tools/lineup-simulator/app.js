@@ -650,6 +650,29 @@ function getHeroCostClass(cost) {
   return COST_CLASS_BY_VALUE[Number(cost)] ?? "cost-1";
 }
 
+function getBlurImagePath(imagePath) {
+  const normalizedPath = String(imagePath ?? "").replace(/^\.\//, "");
+  return normalizedPath ? `blur/${normalizedPath}` : "";
+}
+
+function getProgressiveImageStyle(imagePath) {
+  const blurPath = getBlurImagePath(imagePath);
+  return blurPath ? ` style="--blur-image: url('${blurPath}')"` : "";
+}
+
+function markProgressiveImageLoaded(image) {
+  image.classList.add("is-loaded");
+  image.closest(".progressive-image-shell")?.classList.add("is-loaded");
+}
+
+function hydrateProgressiveImages(refs) {
+  refs.root?.querySelectorAll("[data-progressive-image]").forEach((image) => {
+    if (image instanceof HTMLImageElement && image.complete) {
+      markProgressiveImageLoaded(image);
+    }
+  });
+}
+
 function buildFallbackTrait(name) {
   return {
     id: name,
@@ -749,6 +772,7 @@ async function initSimulator() {
   renderBoardState(refs, state);
   syncBattleCardScale(refs);
   bindEvents(refs, state);
+  hydrateProgressiveImages(refs);
 }
 
 function getRefs() {
@@ -776,6 +800,13 @@ function getRefs() {
 }
 
 function bindEvents(refs, state) {
+  refs.root?.addEventListener("load", (event) => {
+    const image = event.target;
+    if (image instanceof HTMLImageElement && image.matches("[data-progressive-image]")) {
+      markProgressiveImageLoaded(image);
+    }
+  }, true);
+
   refs.heroTabButton?.addEventListener("click", () => {
     state.activePanel = "heroes";
     clearSelectedEquip(refs, state);
@@ -1188,8 +1219,8 @@ function renderHeroList(refs, state) {
               data-hero-key="${hero.key}"
               title="${hero.name} | ${hero.traits.join(" / ")}"
             >
-              <div class="pool-card-pic-box">
-                <img class="pool-card-pic" src="${hero.image}" alt="${hero.name}" draggable="false" />
+              <div class="pool-card-pic-box progressive-image-shell"${getProgressiveImageStyle(hero.image)}>
+                <img class="pool-card-pic progressive-image" src="${hero.image}" alt="${hero.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />
               </div>
               <div class="pool-card-name">${hero.name}</div>
               <div class="pool-card-meta">${hero.traits.join(" / ")}</div>
@@ -1219,8 +1250,8 @@ function renderEquipList(refs, state) {
               data-equip-id="${equip.id}"
               title="${equip.name}"
             >
-              <div class="pool-card-pic-box">
-                <img class="pool-card-pic" src="${equip.image}" alt="${equip.name}" draggable="false" />
+              <div class="pool-card-pic-box progressive-image-shell"${getProgressiveImageStyle(equip.image)}>
+                <img class="pool-card-pic progressive-image" src="${equip.image}" alt="${equip.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />
               </div>
               <div class="pool-card-name">${equip.name}</div>
               <div class="pool-card-meta">${equip.type}${equip.draggable ? "" : " · 仅展示"}</div>
@@ -1258,8 +1289,8 @@ function renderBoard(refs, state) {
         title="${hero.name}"
       >
         ${isPet ? "" : `<button class="board-unit-remove" type="button" data-remove-board-slot="${index}" aria-label="删除${escapeHtml(hero.name)}">×</button>`}
-        <div class="board-unit-frame ${isPet ? "board-unit-frame--pet" : ""}">
-          <img class="board-unit-image" src="${hero.image}" alt="${hero.name}" draggable="false" />
+        <div class="board-unit-frame progressive-image-shell ${isPet ? "board-unit-frame--pet" : ""}"${getProgressiveImageStyle(hero.image)}>
+          <img class="board-unit-image progressive-image" src="${hero.image}" alt="${hero.name}" data-progressive-image draggable="false" />
         </div>
         <div class="board-unit-name ${state.showBoardNames ? "" : "is-hidden"}">${hero.name}</div>
         <div class="board-unit-equips">
@@ -1269,7 +1300,7 @@ function renderBoard(refs, state) {
             .map(
               (equip, equipIndex) => `
                 <button class="board-unit-equip" type="button" title="移除${equip.name}" data-board-slot="${index}" data-remove-equip-index="${equipIndex}" aria-label="移除${equip.name}">
-                  <img src="${equip.image}" alt="${equip.name}" draggable="false" />
+                  <span class="board-unit-equip-image-shell progressive-image-shell"${getProgressiveImageStyle(equip.image)}><img class="progressive-image" src="${equip.image}" alt="${equip.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" /></span>
                 </button>
               `,
             )

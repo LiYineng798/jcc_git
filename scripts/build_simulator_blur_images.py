@@ -17,6 +17,7 @@ DEFAULT_INCLUDE_DIRS = (
     'mode17s18_equip_by_type',
     'mode17s18_trait_icons',
     'assets/pets',
+    'webp',
 )
 
 

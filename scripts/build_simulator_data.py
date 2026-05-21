@@ -98,6 +98,30 @@ def _version_payload(data: dict[str, Any], source: Path) -> dict[str, Any]:
     return payload
 
 
+
+def _rewrite_image_to_webp(image_path: str) -> str:
+    normalized = image_path.replace('\\', '/').lstrip('./')
+    if normalized.startswith('webp/'):
+        return str(Path(normalized).with_suffix('.webp')).replace('\\', '/')
+    return f"webp/{Path(normalized).with_suffix('.webp').as_posix()}"
+
+
+def _rewrite_section_images(items: list[Any], image_format: str) -> list[Any]:
+    if image_format == 'source':
+        return items
+    if image_format != 'webp':
+        raise ValueError('image_format ??? source ? webp')
+
+    rewritten: list[Any] = []
+    for item in items:
+        if isinstance(item, dict) and isinstance(item.get('image'), str):
+            clone = dict(item)
+            clone['image'] = _rewrite_image_to_webp(clone['image'])
+            rewritten.append(clone)
+        else:
+            rewritten.append(item)
+    return rewritten
+
 def _write_json(path: Path, value: Any) -> None:
     path.write_text(
         json.dumps(value, ensure_ascii=False, indent=2) + '\n',
@@ -105,11 +129,17 @@ def _write_json(path: Path, value: Any) -> None:
     )
 
 
-def build_simulator_data(source: str | Path = DEFAULT_SOURCE, output: str | Path = DEFAULT_OUTPUT) -> list[Path]:
+def build_simulator_data(
+    source: str | Path = DEFAULT_SOURCE,
+    output: str | Path = DEFAULT_OUTPUT,
+    image_format: str = 'source',
+) -> list[Path]:
     source_path = Path(source)
     output_path = Path(output)
     data = load_source_data(source_path)
     _validate_data(data)
+    if image_format not in {'source', 'webp'}:
+        raise ValueError('image_format ??? source ? webp')
 
     output_path.mkdir(parents=True, exist_ok=True)
     files = {
@@ -118,10 +148,10 @@ def build_simulator_data(source: str | Path = DEFAULT_SOURCE, output: str | Path
             'heroCostTabs': data['heroCostTabs'],
             'equipTabs': data['equipTabs'],
         },
-        'heroes.json': data['heroes'],
-        'equips.json': data['equips'],
-        'traits.json': data['traits'],
-        'pets.json': data['pets'],
+        'heroes.json': _rewrite_section_images(data['heroes'], image_format),
+        'equips.json': _rewrite_section_images(data['equips'], image_format),
+        'traits.json': _rewrite_section_images(data['traits'], image_format),
+        'pets.json': _rewrite_section_images(data['pets'], image_format),
     }
 
     written: list[Path] = []
@@ -144,9 +174,15 @@ def main() -> int:
         default=str(DEFAULT_OUTPUT),
         help='输出目录，默认写入模拟器 data 目录',
     )
+    parser.add_argument(
+        '--image-format',
+        choices=('source', 'webp'),
+        default='source',
+        help='???????source ??????webp ??? WebP ??',
+    )
     args = parser.parse_args()
 
-    written = build_simulator_data(args.source, args.output)
+    written = build_simulator_data(args.source, args.output, image_format=args.image_format)
     print('已生成阵容模拟器数据：')
     for path in written:
         print(f'- {path}')

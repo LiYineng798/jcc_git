@@ -92,3 +92,37 @@ def test_admin_page_records_visit_for_admin(client):
         ).fetchone()
         assert row['visitor_kind'] == 'user'
         assert row['page_key'] == 'admin'
+
+
+def test_daily_new_and_returning_visitors_excludes_admin(client):
+    with client.application.app_context():
+        from db import get_db, now_text
+        from visits import daily_new_returning_visitors
+
+        today = datetime.now().strftime('%Y-%m-%d')
+        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        db = get_db()
+        db.execute("INSERT INTO users (id, username, email, password_hash, nickname, role, status, created_at, updated_at) VALUES (90, 'normal', 'normal@example.com', 'x', 'Normal', 'user', 'active', ?, ?)", (now_text(), now_text()))
+        db.execute("INSERT INTO users (id, username, email, password_hash, nickname, role, status, created_at, updated_at) VALUES (91, 'admin2', 'admin2@example.com', 'x', 'Admin', 'admin', 'active', ?, ?)", (now_text(), now_text()))
+        db.execute("INSERT INTO visit_events (visit_date, visitor_key, visitor_kind, user_id, visitor_token, ip_address, page_key, created_at) VALUES (?, 'guest:returning', 'guest_token', NULL, 'returning', '1.1.1.1', 'home', ?)", (yesterday, f'{yesterday} 10:00:00'))
+        db.execute("INSERT INTO visit_events (visit_date, visitor_key, visitor_kind, user_id, visitor_token, ip_address, page_key, created_at) VALUES (?, 'guest:returning', 'guest_token', NULL, 'returning', '1.1.1.1', 'lineup_detail', ?)", (today, f'{today} 10:00:00'))
+        db.execute("INSERT INTO visit_events (visit_date, visitor_key, visitor_kind, user_id, visitor_token, ip_address, page_key, created_at) VALUES (?, 'guest:new', 'guest_token', NULL, 'new', '2.2.2.2', 'home', ?)", (today, f'{today} 11:00:00'))
+        db.execute("INSERT INTO visit_events (visit_date, visitor_key, visitor_kind, user_id, visitor_token, ip_address, page_key, created_at) VALUES (?, 'user:90', 'user', 90, NULL, '3.3.3.3', 'home', ?)", (today, f'{today} 12:00:00'))
+        db.execute("INSERT INTO visit_events (visit_date, visitor_key, visitor_kind, user_id, visitor_token, ip_address, page_key, created_at) VALUES (?, 'user:91', 'user', 91, NULL, '4.4.4.4', 'admin', ?)", (today, f'{today} 13:00:00'))
+        db.commit()
+
+        result = daily_new_returning_visitors(today)
+
+    assert result == {'new_visitors': 2, 'returning_visitors': 1}
+
+
+def test_admin_stats_include_new_and_returning_visitors(client):
+    client.get('/')
+    headers = login_admin(client)
+    data = client.get('/api/admin/stats', headers=headers).get_json()
+
+    assert 'today_new_visitors' in data
+    assert 'today_returning_visitors' in data
+    assert 'yesterday_new_visitors' in data
+    assert 'yesterday_returning_visitors' in data
+

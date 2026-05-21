@@ -233,7 +233,7 @@ def test_admin_js_supports_daily_growth_filter_and_clear_labels():
     assert 'debounce' in js
     assert 'growthDate' in js
     assert '/api/admin/growth?date=' in js
-    assert '首页访问人数' in js
+    assert '首页 UV' in js
     assert '点击登录入口人数' in js
     assert '登录后 10 分钟内完成点赞人数' in js
     assert '搜索用户名、邮箱或昵称后开始查找' in js
@@ -586,3 +586,16 @@ def test_lineup_simulator_remembers_loaded_progressive_images():
     assert 'class="pool-card-pic-box ${getProgressiveShellClass(hero.image)}"' in js
     assert 'class="pool-card-pic ${getProgressiveImageClass(hero.image)}"' in js
 
+
+def test_admin_dashboard_clarifies_uv_labels_and_new_returning_visitors():
+    with open(r'D:\\1\\codex\\jcc\\claude_project\\static\\admin.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert '\u4eca\u65e5\u5168\u7ad9 UV' in js
+    assert '\u6628\u65e5\u5168\u7ad9 UV' in js
+    assert '7 \u65e5\u7d2f\u8ba1\u5168\u7ad9 UV' in js
+    assert '\u9996\u9875 UV' in js
+    assert '\u4eca\u65e5\u65b0\u8bbf\u5ba2' in js
+    assert '\u4eca\u65e5\u8001\u8bbf\u5ba2' in js
+    assert '\u9996\u6b21\u8bbf\u95ee\u65e5\u671f\u4e3a\u4eca\u5929' in js
+    assert '\u4eca\u5929\u4e4b\u524d\u5df2\u8bbf\u95ee\u8fc7' in js

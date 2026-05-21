@@ -85,6 +85,37 @@ def daily_uv_count(target_date):
     return row['c'] if row else 0
 
 
+def daily_new_returning_visitors(target_date):
+    rows = get_db().execute(
+        """
+        WITH non_admin_visits AS (
+            SELECT ve.visitor_key, ve.visit_date
+            FROM visit_events ve
+            LEFT JOIN users u ON u.id = ve.user_id
+            WHERE ve.user_id IS NULL OR COALESCE(u.role, 'user') != 'admin'
+        ), first_seen AS (
+            SELECT visitor_key, MIN(visit_date) AS first_visit_date
+            FROM non_admin_visits
+            GROUP BY visitor_key
+        ), today_visitors AS (
+            SELECT DISTINCT visitor_key
+            FROM non_admin_visits
+            WHERE visit_date = ?
+        )
+        SELECT
+            SUM(CASE WHEN first_seen.first_visit_date = ? THEN 1 ELSE 0 END) AS new_visitors,
+            SUM(CASE WHEN first_seen.first_visit_date < ? THEN 1 ELSE 0 END) AS returning_visitors
+        FROM today_visitors
+        JOIN first_seen ON first_seen.visitor_key = today_visitors.visitor_key
+        """,
+        (target_date, target_date, target_date),
+    ).fetchone()
+    return {
+        'new_visitors': int(rows['new_visitors'] or 0) if rows else 0,
+        'returning_visitors': int(rows['returning_visitors'] or 0) if rows else 0,
+    }
+
+
 def last_7_days_uv():
     today = datetime.now().date()
     values = []

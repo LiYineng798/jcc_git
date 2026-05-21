@@ -9,7 +9,7 @@ from db import get_db, now_text
 from live_comps import build_admin_live_comp_stats_payload, read_live_comps_payload
 from lineups import _lineup_row, _serialize
 from scoring import score_map
-from visits import daily_uv_count, last_7_days_uv, tracked_template_response
+from visits import daily_new_returning_visitors, daily_uv_count, last_7_days_uv, tracked_template_response
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -255,6 +255,8 @@ def admin_stats():
     today = now_text()[:10]
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     total = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin'").fetchone()['c']
+    today_visitor_mix = daily_new_returning_visitors(today)
+    yesterday_visitor_mix = daily_new_returning_visitors(yesterday)
     today_users = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin' AND created_at LIKE ?", (f'{today}%',)).fetchone()['c']
     today_logins = db.execute(
         '''
@@ -274,6 +276,14 @@ def admin_stats():
         'today_logins': today_logins,
         'today_uv': daily_uv_count(today),
         'yesterday_uv': daily_uv_count(yesterday),
+        'today_new_visitors': today_visitor_mix['new_visitors'],
+        'today_returning_visitors': today_visitor_mix['returning_visitors'],
+        'yesterday_new_visitors': yesterday_visitor_mix['new_visitors'],
+        'yesterday_returning_visitors': yesterday_visitor_mix['returning_visitors'],
+        'today_new_visitors': today_visitor_mix['new_visitors'],
+        'today_returning_visitors': today_visitor_mix['returning_visitors'],
+        'yesterday_new_visitors': yesterday_visitor_mix['new_visitors'],
+        'yesterday_returning_visitors': yesterday_visitor_mix['returning_visitors'],
         'last_7_days_uv': last_7_days_uv(),
         'hourly_registrations': [dict(row) for row in hourly],
     })
@@ -288,6 +298,8 @@ def admin_overview():
     today = now_text()[:10]
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     total_users = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin'").fetchone()['c']
+    today_visitor_mix = daily_new_returning_visitors(today)
+    yesterday_visitor_mix = daily_new_returning_visitors(yesterday)
     today_users = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin' AND created_at LIKE ?", (f'{today}%',)).fetchone()['c']
     today_logins = db.execute(
         '''

@@ -240,7 +240,7 @@
     const stats = state.overview?.stats || {};
     const cards = el('div', 'admin-stat-grid');
     [
-      ['今日 UV', stats.today_uv || 0, '全站按自然日去重'],
+      ['今日全站 UV', stats.today_uv || 0, '全站页面按自然日去重'],
       ['今日注册', stats.today_users || 0, '新增用户数'],
       ['今日登录', stats.today_logins || 0, '去重登录用户'],
       ['待处理举报', stats.pending_reports_count || 0, '优先处理'],
@@ -263,9 +263,11 @@
 
     const overview = el('div', 'traffic-overview');
     overview.append(
-      trafficMetric('今日 UV', stats.today_uv || 0, buildDeltaText(stats.today_uv || 0, stats.yesterday_uv || 0)),
-      trafficMetric('昨日 UV', stats.yesterday_uv || 0, '上一自然日'),
-      trafficMetric('7 日累计 UV', totalUv, '最近 7 天总访问人数'),
+      trafficMetric('今日全站 UV', stats.today_uv || 0, buildDeltaText(stats.today_uv || 0, stats.yesterday_uv || 0)),
+      trafficMetric('昨日全站 UV', stats.yesterday_uv || 0, '上一自然日全站去重'),
+      trafficMetric('7 日累计全站 UV', totalUv, '最近 7 天全站访问人数'),
+      trafficMetric('今日新访客', stats.today_new_visitors || 0, '首次访问日期为今天'),
+      trafficMetric('今日老访客', stats.today_returning_visitors || 0, '今天之前已访问过'),
     );
 
     const trendList = el('div', 'traffic-trend-list');
@@ -641,7 +643,7 @@
     const growth = state.growth || {};
     const list = el('div', 'admin-list compact');
     [
-      ['首页访问人数', growth.home_uv || 0],
+      ['首页 UV', growth.home_uv || 0],
       ['点击登录入口人数', growth.login_entry_visitors || 0],
       ['进入登录页面人数', growth.auth_page_visitors || 0],
       ['注册成功人数', growth.successful_registrations || 0],

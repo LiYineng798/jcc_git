@@ -552,9 +552,9 @@ def test_lineup_simulator_pool_images_use_lazy_loading():
     with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
-    assert '<img class="pool-card-pic progressive-image" src="${hero.image}" alt="${hero.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />' in js
-    assert '<img class="pool-card-pic progressive-image" src="${equip.image}" alt="${equip.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />' in js
-    assert '<img class="progressive-image" src="${equip.image}" alt="${equip.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />' in js
+    assert '<img class="pool-card-pic ${getProgressiveImageClass(hero.image)}" src="${hero.image}" alt="${hero.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />' in js
+    assert '<img class="pool-card-pic ${getProgressiveImageClass(equip.image)}" src="${equip.image}" alt="${equip.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />' in js
+    assert '<img class="${getProgressiveImageClass(equip.image)}" src="${equip.image}" alt="${equip.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />' in js
 
 
 def test_lineup_simulator_uses_blur_placeholders_for_progressive_images():
@@ -564,7 +564,7 @@ def test_lineup_simulator_uses_blur_placeholders_for_progressive_images():
         css = file.read()
 
     assert 'function getBlurImagePath' in js
-    assert 'class="pool-card-pic-box progressive-image-shell"' in js
+    assert 'class="pool-card-pic-box ${getProgressiveShellClass(hero.image)}"' in js
     assert 'getProgressiveImageStyle(hero.image)' in js
     assert 'getProgressiveImageStyle(equip.image)' in js
     assert 'return normalizedPath ? `blur/${normalizedPath}` : "";' in js
@@ -572,4 +572,17 @@ def test_lineup_simulator_uses_blur_placeholders_for_progressive_images():
     assert 'markProgressiveImageLoaded' in js
     assert '.progressive-image-shell::before' in css
     assert '.progressive-image.is-loaded' in css
+
+
+def test_lineup_simulator_remembers_loaded_progressive_images():
+    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert 'const loadedProgressiveImagePaths = new Set();' in js
+    assert 'function isProgressiveImageLoaded' in js
+    assert 'function getProgressiveShellClass' in js
+    assert 'function getProgressiveImageClass' in js
+    assert 'loadedProgressiveImagePaths.add(getProgressiveImageCacheKey(image.getAttribute("src")))' in js
+    assert 'class="pool-card-pic-box ${getProgressiveShellClass(hero.image)}"' in js
+    assert 'class="pool-card-pic ${getProgressiveImageClass(hero.image)}"' in js
 

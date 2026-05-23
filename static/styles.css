@@ -67,18 +67,21 @@ button {
 .content-grid,
 .panel-heading,
 .card-actions,
-.meta-row {
+.meta-row,
+.nav-actions {
   display: flex;
 }
 
 .nav-bar {
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 52px;
 }
 
 .brand-mark {
   display: grid;
+  flex: 0 0 auto;
   width: 44px;
   height: 44px;
   place-items: center;
@@ -90,6 +93,107 @@ button {
   font-weight: 700;
 }
 
+.nav-actions {
+  position: relative;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.nav-tool-link {
+  white-space: nowrap;
+}
+
+.nav-icon-button {
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  padding: 0;
+}
+
+.nav-icon-button #themeText {
+  display: none;
+}
+
+.account-menu-wrap {
+  position: relative;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.account-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: min(220px, 42vw);
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 10px 15px;
+  box-shadow: 0 12px 32px rgba(55, 45, 31, 0.08);
+  font-weight: 650;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.account-toggle:hover,
+.account-toggle.is-open {
+  transform: translateY(-1px);
+  border-color: rgba(201, 100, 66, 0.42);
+}
+
+#accountToggleText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-chevron {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 120;
+  display: grid;
+  min-width: 172px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface-solid);
+  box-shadow: 0 22px 64px rgba(55, 45, 31, 0.16);
+}
+
+.account-menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  padding: 10px 12px;
+  text-align: left;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.account-menu-item:hover {
+  background: var(--accent-soft);
+}
+
+.account-menu-danger {
+  color: var(--accent-strong);
+}
+
 .theme-toggle,
 .ghost-button,
 .small-button {
@@ -98,6 +202,7 @@ button {
   color: var(--text);
   border-radius: 999px;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  min-height: 42px;
 }
 
 .theme-toggle {
@@ -344,16 +449,6 @@ textarea:focus {
 
 .live-comps-summary-meta {
   color: var(--muted);
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.live-comps-data-source {
-  font-size: 12px;
-  color: var(--muted-strong);
-  opacity: 0.78;
 }
 
 .live-comps-grid {
@@ -650,8 +745,21 @@ textarea:focus {
     width: min(100% - 18px, 460px);
   }
 
-  .theme-toggle span:last-child {
-    display: none;
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .nav-tool-link {
+    padding-inline: 13px;
+  }
+
+  .account-toggle {
+    max-width: 150px;
+    padding-inline: 13px;
+  }
+
+  .account-menu {
+    right: 0;
   }
 
   .meta-row {
@@ -674,7 +782,6 @@ textarea:focus {
   }
 }
 
-.nav-actions,
 .auth-grid,
 .tabs {
   display: flex;
@@ -711,10 +818,23 @@ textarea:focus {
   margin: 18px 0 22px;
 }
 
+.auth-page-status {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 0.98rem;
+  font-weight: 650;
+  line-height: 1.7;
+}
+
 .auth-status {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
   color: var(--muted);
   font-weight: 600;
-  margin-bottom: 14px;
+  padding: 10px 14px;
 }
 
 .auth-grid {
@@ -1566,8 +1686,7 @@ textarea:focus {
 }
 
 @media (max-width: 860px) {
-  .auth-grid,
-  .nav-actions {
+  .auth-grid {
     align-items: stretch;
   }
 }

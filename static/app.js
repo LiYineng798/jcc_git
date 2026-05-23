@@ -17,11 +17,14 @@ const LINEUP_PAGE_SIZE = 10;
 
 const $ = (selector) => document.querySelector(selector);
 const elements = {
-  authStatus: $('#authStatus'),
-  authLink: $('#authLink'),
-  logoutButton: $('#logoutButton'),
-  adminLink: $('#adminLink'),
-  accountLink: $('#accountLink'),
+  accountToggle: $('#accountToggle'),
+  accountToggleText: $('#accountToggleText'),
+  accountMenu: $('#accountMenu'),
+  menuAuthLink: $('#menuAuthLink'),
+  menuAccountLink: $('#menuAccountLink'),
+  menuCreateLineupLink: $('#menuCreateLineupLink'),
+  menuAdminLink: $('#menuAdminLink'),
+  menuLogoutButton: $('#menuLogoutButton'),
   createLineupLink: $('#createLineupLink'),
   searchInput: $('#searchInput'),
   lineupList: $('#lineupList'),
@@ -38,16 +41,20 @@ const elements = {
   toast: $('#toast'),
   authPromptRoot: $('#authPromptRoot'),
   listTitle: $('#listTitle'),
+  heroDescription: $('#heroDescription'),
 };
 
 setTheme(localStorage.getItem('theme') || 'light');
 boot();
 
 elements.themeToggle.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
-elements.logoutButton.addEventListener('click', logout);
-elements.authLink.addEventListener('click', () => {
-  trackGrowth('click_login_entry', { source: 'header' });
+elements.accountToggle.addEventListener('click', handleAccountToggle);
+elements.menuLogoutButton.addEventListener('click', logout);
+elements.menuAuthLink.addEventListener('click', () => {
+  trackGrowth('click_login_entry', { source: 'account_menu' });
 });
+document.addEventListener('click', closeAccountMenuOnOutsideClick);
+document.addEventListener('keydown', closeAccountMenuOnEscape);
 elements.searchInput.addEventListener('input', debounce((event) => {
   if (state.view === 'live-comps') return;
   state.query = event.target.value.trim();
@@ -122,13 +129,21 @@ async function loadMe() {
 
 function renderAuth() {
   const loggedIn = Boolean(state.user);
-  elements.authLink.classList.toggle('hidden', loggedIn);
-  elements.logoutButton.classList.toggle('hidden', !loggedIn);
+  const nickname = state.user?.nickname || state.user?.username || '';
+  const isAdmin = Boolean(state.user && state.user.role === 'admin');
   elements.mineTab.classList.toggle('hidden', !loggedIn);
   elements.favoritesTab.classList.remove('hidden');
-  elements.adminLink.classList.toggle('hidden', !(state.user && state.user.role === 'admin'));
-  elements.accountLink.classList.toggle('hidden', !loggedIn);
-  elements.authStatus.textContent = loggedIn ? `${state.user.nickname}` : '未登录';
+  elements.accountToggleText.textContent = loggedIn ? `${isAdmin ? '管理员' : '已登录'} · ${nickname}` : '登录 / 注册';
+  elements.menuAuthLink.classList.add('hidden');
+  elements.menuAccountLink.classList.toggle('hidden', !loggedIn);
+  elements.menuCreateLineupLink.classList.toggle('hidden', !loggedIn);
+  elements.menuAdminLink.classList.toggle('hidden', !isAdmin);
+  elements.menuLogoutButton.classList.toggle('hidden', !loggedIn);
+  if (elements.heroDescription) {
+    elements.heroDescription.textContent = loggedIn
+      ? '保存、搜索、点赞和复制阵容码。收藏、个人中心和跨设备同步已开启。'
+      : '保存、搜索、点赞和复制阵容码。登录后可收藏阵容并跨设备同步，登录后可查看我的收藏和我的阵容。';
+  }
   elements.createLineupLink.href = loggedIn ? '/lineup/new' : '/auth';
   elements.createLineupLink.textContent = loggedIn ? '新增阵容' : '登录后新增阵容';
   if (!loggedIn && (state.view === 'mine' || state.view === 'favorites')) {
@@ -136,9 +151,41 @@ function renderAuth() {
     state.view = 'live-comps';
     state.page = 1;
   }
+  closeAccountMenu();
   syncActiveTab();
 }
 
+function handleAccountToggle(event) {
+  if (!state.user) {
+    trackGrowth('click_login_entry', { source: 'header' });
+    window.location.href = '/auth';
+    return;
+  }
+  toggleAccountMenu(event);
+}
+
+function toggleAccountMenu(event) {
+  event.stopPropagation();
+  const willOpen = elements.accountMenu.classList.contains('hidden');
+  elements.accountMenu.classList.toggle('hidden', !willOpen);
+  elements.accountToggle.classList.toggle('is-open', willOpen);
+  elements.accountToggle.setAttribute('aria-expanded', String(willOpen));
+}
+
+function closeAccountMenu() {
+  elements.accountMenu.classList.add('hidden');
+  elements.accountToggle.classList.remove('is-open');
+  elements.accountToggle.setAttribute('aria-expanded', 'false');
+}
+
+function closeAccountMenuOnOutsideClick(event) {
+  if (event.target.closest('#accountMenuWrap')) return;
+  closeAccountMenu();
+}
+
+function closeAccountMenuOnEscape(event) {
+  if (event.key === 'Escape') closeAccountMenu();
+}
 async function logout() {
   await api('/api/logout', { method: 'POST' });
   state.user = null;
@@ -311,14 +358,9 @@ function renderLiveCompsSummaryHeader() {
 
   const meta = document.createElement('p');
   meta.className = 'live-comps-summary-meta';
-  const updateText = document.createElement('span');
-  updateText.textContent = state.liveCompsSummary?.updated_at
+  meta.textContent = state.liveCompsSummary?.updated_at
     ? `共 ${state.total} 套 · 最近更新：${state.liveCompsSummary.updated_at}`
     : '最近更新：暂无数据';
-  const sourceText = document.createElement('span');
-  sourceText.className = 'live-comps-data-source';
-  sourceText.textContent = 'DataTFT数据支持';
-  meta.append(updateText, sourceText);
 
   header.append(title, meta);
   return header;

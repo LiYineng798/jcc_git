@@ -16,23 +16,31 @@
         <nav class="nav-bar" aria-label="页面工具">
           <div class="brand-mark" aria-hidden="true">阵</div>
           <div class="nav-actions">
-            <a class="ghost-link" href="/tools/lineup-simulator">阵容模拟器</a>
-            <a class="ghost-link hidden" id="adminLink" href="/admin">后台</a>
-            <a class="ghost-link hidden" id="accountLink" href="/me">个人中心</a>
-            <span class="auth-status nav-user" id="authStatus">未登录</span>
-            <a class="ghost-link" id="authLink" href="/auth">登录 / 注册</a>
-            <button class="ghost-button hidden" id="logoutButton" type="button">退出</button>
-            <button class="theme-toggle" id="themeToggle" type="button" aria-label="切换深浅色模式">
+            <a class="ghost-link nav-tool-link" href="/tools/lineup-simulator">阵容模拟器</a>
+            <button class="theme-toggle nav-icon-button" id="themeToggle" type="button" aria-label="切换深浅色模式">
               <span id="themeIcon">☾</span>
               <span id="themeText">夜间模式</span>
             </button>
+            <div class="account-menu-wrap" id="accountMenuWrap">
+              <button class="account-toggle" id="accountToggle" type="button" aria-haspopup="menu" aria-expanded="false">
+                <span id="accountToggleText">登录 / 注册</span>
+                <span class="account-chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div class="account-menu hidden" id="accountMenu" role="menu">
+                <a class="account-menu-item" id="menuAuthLink" href="/auth" role="menuitem">登录 / 注册</a>
+                <a class="account-menu-item hidden" id="menuAccountLink" href="/me" role="menuitem">个人中心</a>
+                <a class="account-menu-item hidden" id="menuCreateLineupLink" href="/lineup/new" role="menuitem">新增阵容</a>
+                <a class="account-menu-item hidden" id="menuAdminLink" href="/admin" role="menuitem">后台管理</a>
+                <button class="account-menu-item account-menu-danger hidden" id="menuLogoutButton" type="button" role="menuitem">退出登录</button>
+              </div>
+            </div>
           </div>
         </nav>
         <div class="hero-grid">
           <section class="hero-copy">
             <p class="eyebrow">JCC Lineup Manager</p>
             <h1>金铲铲阵容库</h1>
-            <p class="hero-description hero-benefits">保存、搜索、点赞和复制阵容码。登录后可收藏阵容并跨设备同步，登录后可查看我的收藏和我的阵容。</p>
+            <p class="hero-description hero-benefits" id="heroDescription">保存、搜索、点赞和复制阵容码。登录后可收藏阵容并跨设备同步，登录后可查看我的收藏和我的阵容。</p>
           </section>
           <section class="stat-card" aria-label="阵容统计">
             <span class="stat-label">已展示</span>

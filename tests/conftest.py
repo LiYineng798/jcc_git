@@ -27,7 +27,7 @@ def app():
         if directory.exists():
             shutil.rmtree(directory)
     live_comps_manifest_path.write_text(
-        '{"default_season_id":"s17-star-god","seasons":[{"id":"s17-star-god","name":"S17 · 星神","status":"active","order":1,"description":"当前赛季","data_file":"s17-star-god.json"},{"id":"s16-archive","name":"S16 · 归档","status":"archived","order":2,"description":"历史赛季","data_file":"s16-archive.json"}]}',
+        '{"default_season_id":"s17-star-god","seasons":[{"id":"s17-star-god","name":"S17 · 星神","status":"active","order":1,"description":"当前赛季","data_file":"s17-star-god.json"},{"id":"s16-legends","name":"S16 · 英雄联盟传奇","status":"active","order":2,"description":"经典赛季","data_file":"s16-legends.json"},{"id":"lucky-lantern","name":"天选福星","status":"active","order":3,"description":"返场赛季","data_file":"lucky-lantern.json"}]}',
         encoding='utf-8',
     )
     app = create_app({
@@ -41,7 +41,7 @@ def app():
         'LIVE_COMPS_BACKUP_PATH': str(live_comps_backup_path),
         'LIVE_COMPS_SEASON_MANIFEST_PATH': str(live_comps_manifest_path),
         'LIVE_COMPS_SEASON_DIR': str(live_comps_season_dir),
-        'LIVE_COMPS_DEFAULT_SEASON_ID': 'default',
+        'LIVE_COMPS_DEFAULT_SEASON_ID': 's17-star-god',
         'LIVE_COMPS_PAGE_SIZE': 6,
         'LIVE_COMPS_UPLOAD_TOKEN': 'upload-secret',
         'LIVE_COMPS_ASSET_DIR': str(live_comps_asset_dir),

@@ -84,6 +84,89 @@ def test_live_comps_summary_returns_empty_totals_when_file_missing(client):
     assert data['updated_at'] is None
 
 
+def test_live_comps_seasons_falls_back_to_default_manifest(client):
+    data = client.get('/api/live-comps/seasons').get_json()
+
+    assert data['default_season_id'] == 's17-star-god'
+    assert [season['id'] for season in data['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
+    assert data['seasons'][0]['id'] == 's17-star-god'
+    assert data['seasons'][0]['status'] == 'active'
+
+
+def test_live_comps_seasons_hides_private_entries_from_public(client):
+    manifest_path = Path(client.application.config['LIVE_COMPS_SEASON_MANIFEST_PATH'])
+    manifest_path.write_text(json.dumps({
+        'default_season_id': 's17-star-god',
+        'seasons': [
+            {'id': 's17-star-god', 'name': 'S17 · 星神', 'status': 'active', 'order': 1},
+            {'id': 's16-legends', 'name': 'S16 · 英雄联盟传奇', 'status': 'active', 'order': 2},
+            {'id': 'secret', 'name': '隐藏赛季', 'status': 'hidden', 'order': 2},
+        ],
+    }, ensure_ascii=False), encoding='utf-8')
+
+    data = client.get('/api/live-comps/seasons').get_json()
+
+    assert [season['id'] for season in data['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
+
+
+def test_live_comps_summary_returns_empty_for_public_season_without_payload(client):
+    summary = client.get('/api/live-comps/summary?season=s16-legends').get_json()
+    listing = client.get('/api/live-comps?season=s16-legends').get_json()
+
+    assert summary['season']['id'] == 's16-legends'
+    assert summary['tiers'] == [
+        {'tier': 'S', 'total': 0},
+        {'tier': 'A', 'total': 0},
+        {'tier': 'B', 'total': 0},
+        {'tier': 'C', 'total': 0},
+        {'tier': 'D', 'total': 0},
+    ]
+    assert listing['total'] == 0
+    assert listing['items'] == []
+
+
+def test_upload_live_comps_registers_missing_season(client):
+    payload = sample_live_comps_payload()
+    import live_comps
+    def fake_download(url):
+        return b'image-bytes', 'image/jpeg'
+    live_comps.download_live_comp_image = fake_download
+    response = client.post(
+        '/api/live-comps/upload?season=s18-new-season',
+        json=payload,
+        headers={'X-Upload-Token': 'upload-secret'},
+    )
+
+    assert response.status_code == 200
+    manifest = json.loads(Path(client.application.config['LIVE_COMPS_SEASON_MANIFEST_PATH']).read_text(encoding='utf-8'))
+    assert any(season['id'] == 's18-new-season' for season in manifest['seasons'])
+
+
+def test_live_comps_season_query_reads_separate_payload(client):
+    season_dir = Path(client.application.config['LIVE_COMPS_SEASON_DIR'])
+    season_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = Path(client.application.config['LIVE_COMPS_SEASON_MANIFEST_PATH'])
+    manifest_path.write_text(json.dumps({
+        'default_season_id': 's17-star-god',
+        'seasons': [
+            {'id': 's17-star-god', 'name': 'S17 · 星神', 'status': 'active', 'order': 1},
+            {'id': 's16-legends', 'name': 'S16 · 英雄联盟传奇', 'status': 'active', 'order': 2},
+        ],
+    }, ensure_ascii=False), encoding='utf-8')
+    s17_payload = sample_live_comps_payload()
+    s16_payload = sample_live_comps_payload()
+    s16_payload['tiers']['S'] = [s16_payload['tiers']['S'][0]]
+    (season_dir / 's17-star-god.json').write_text(json.dumps(s17_payload, ensure_ascii=False), encoding='utf-8')
+    (season_dir / 's16-legends.json').write_text(json.dumps(s16_payload, ensure_ascii=False), encoding='utf-8')
+
+    summary = client.get('/api/live-comps/summary?season=s16-legends').get_json()
+    data = client.get('/api/live-comps?season=s16-legends').get_json()
+
+    assert summary['season']['id'] == 's16-legends'
+    assert summary['tiers'][0] == {'tier': 'S', 'total': 1}
+    assert data['total'] == 6
+
+
 def test_live_comps_list_returns_second_page_for_combined_ranking(client):
     write_live_comps_seed(client, sample_live_comps_payload())
     data = client.get('/api/live-comps?page=2').get_json()

@@ -12,34 +12,20 @@ from history import list_recent_copies, list_recent_views, record_recent_copy, r
 from lineup_code import LINEUP_CODE_MESSAGE, extract_lineup_code
 from recommendation import recommended_scores
 from scoring import rising_map, score_map
+from seasons import DEFAULT_SEASON_ID, canonical_season_id, season_manifest
 from visits import ensure_visitor_token, maybe_set_visitor_cookie
-from live_comps import load_live_comps_manifest
 
 lineups_bp = Blueprint('lineups', __name__)
 LINEUP_VISIBLE_STATUSES = {'normal', 'hidden'}
-DEFAULT_LINEUP_SEASON_ID = 's17-star-god'
-LINEUP_SEASON_ALIASES = {'default': DEFAULT_LINEUP_SEASON_ID}
+DEFAULT_LINEUP_SEASON_ID = DEFAULT_SEASON_ID
 
 
 def _canonical_lineup_season_id(season_id):
-    season_id = str(season_id or '').strip()
-    return LINEUP_SEASON_ALIASES.get(season_id, season_id)
+    return canonical_season_id(season_id)
 
 
 def _lineup_season_manifest():
-    return {
-        'default_season_id': DEFAULT_LINEUP_SEASON_ID,
-        'seasons': [
-            {
-                'id': DEFAULT_LINEUP_SEASON_ID,
-                'name': 'S17 · 星神',
-                'status': 'active',
-                'order': 1,
-                'description': '当前赛季',
-                'data_file': 'live-comps.json',
-            }
-        ],
-    }
+    return season_manifest(DEFAULT_LINEUP_SEASON_ID)
 
 
 def _bucket_start():

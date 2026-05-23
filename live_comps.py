@@ -11,6 +11,7 @@ from pathlib import Path
 from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from db import get_db, now_text
 from lineup_code import extract_lineup_code
+from seasons import DEFAULT_SEASON_ID, canonical_season_id, season_catalog, season_manifest
 
 live_comps_bp = Blueprint('live_comps', __name__)
 
@@ -23,7 +24,7 @@ CONTENT_TYPE_EXTENSIONS = {
     'image/webp': '.webp',
     'image/gif': '.gif',
 }
-DEFAULT_LIVE_COMPS_SEASON_ID = 'default'
+DEFAULT_LIVE_COMPS_SEASON_ID = DEFAULT_SEASON_ID
 
 
 def empty_live_comps_payload():
@@ -68,20 +69,8 @@ def normalize_live_comps_payload(payload):
 
 
 def empty_live_comps_manifest(default_season_id=None):
-    season_id = str(default_season_id or current_app.config.get('LIVE_COMPS_DEFAULT_SEASON_ID') or DEFAULT_LIVE_COMPS_SEASON_ID)
-    return {
-        'default_season_id': season_id,
-        'seasons': [
-            {
-                'id': season_id,
-                'name': 'S17 · 星神',
-                'status': 'active',
-                'order': 1,
-                'description': '当前赛季',
-                'data_file': 'live-comps.json',
-            }
-        ],
-    }
+    season_id = canonical_season_id(default_season_id or current_app.config.get('LIVE_COMPS_DEFAULT_SEASON_ID') or DEFAULT_LIVE_COMPS_SEASON_ID)
+    return season_manifest(season_id)
 
 
 def manifest_path():
@@ -93,12 +82,12 @@ def season_dir():
 
 
 def season_data_filename(season_id):
-    safe_id = str(season_id or '').strip() or DEFAULT_LIVE_COMPS_SEASON_ID
+    safe_id = canonical_season_id(season_id) or DEFAULT_LIVE_COMPS_SEASON_ID
     return f'{safe_id}.json'
 
 
 def season_data_path(season_id):
-    safe_id = str(season_id or '').strip() or DEFAULT_LIVE_COMPS_SEASON_ID
+    safe_id = canonical_season_id(season_id) or DEFAULT_LIVE_COMPS_SEASON_ID
     if safe_id == DEFAULT_LIVE_COMPS_SEASON_ID:
         return Path(current_app.config['LIVE_COMPS_DATA_PATH'])
     return season_dir() / season_data_filename(safe_id)
@@ -117,7 +106,7 @@ def public_live_comps_manifest(manifest):
 
 
 def ensure_live_comps_season(season_id, name=None, status='active'):
-    season_id = str(season_id or '').strip()
+    season_id = canonical_season_id(season_id)
     if not season_id:
         return load_live_comps_manifest()
     manifest = load_live_comps_manifest()
@@ -144,22 +133,32 @@ def normalize_live_comps_manifest(manifest):
     seasons = manifest.get('seasons')
     if not isinstance(seasons, list) or not seasons:
         return empty_live_comps_manifest(manifest.get('default_season_id'))
+    normalized_catalog = {season['id']: season for season in season_catalog()}
     normalized_seasons = []
+    seen_ids = set()
     for index, season in enumerate(seasons, start=1):
         if not isinstance(season, dict):
             continue
-        season_id = str(season.get('id') or '').strip()
+        season_id = canonical_season_id(season.get('id'))
         if not season_id:
             continue
-        normalized_seasons.append({
+        base = dict(normalized_catalog.get(season_id) or {})
+        normalized = {
             'id': season_id,
-            'name': str(season.get('name') or season_id),
-            'status': str(season.get('status') or 'active'),
-            'order': int(season.get('order') or index),
-            'description': str(season.get('description') or ''),
-            'data_file': str(season.get('data_file') or season_data_filename(season_id)),
-        })
-    default_season_id = str(manifest.get('default_season_id') or normalized_seasons[0]['id'])
+            'name': str(season.get('name') or base.get('name') or season_id),
+            'status': str(season.get('status') or base.get('status') or 'active'),
+            'order': int(season.get('order') or base.get('order') or index),
+            'description': str(season.get('description') or base.get('description') or ''),
+            'data_file': str(season.get('data_file') or base.get('data_file') or season_data_filename(season_id)),
+        }
+        if season_id in seen_ids:
+            normalized_seasons = [item for item in normalized_seasons if item['id'] != season_id]
+        normalized_seasons.append(normalized)
+        seen_ids.add(season_id)
+    for base in season_catalog():
+        if base['id'] not in seen_ids:
+            normalized_seasons.append(base)
+    default_season_id = canonical_season_id(manifest.get('default_season_id')) or normalized_seasons[0]['id']
     if not any(season['id'] == default_season_id for season in normalized_seasons):
         default_season_id = normalized_seasons[0]['id']
     return {
@@ -188,7 +187,7 @@ def save_live_comps_manifest(manifest):
 
 def get_live_comps_season(season_id=None):
     manifest = load_live_comps_manifest()
-    selected_id = str(season_id or '').strip() or manifest['default_season_id']
+    selected_id = canonical_season_id(season_id) or manifest['default_season_id']
     season = next((item for item in manifest['seasons'] if item['id'] == selected_id), None)
     if season is None:
         selected_id = manifest['default_season_id']
@@ -205,7 +204,7 @@ def default_season_file_exists():
 
 def read_live_comps_payload_for_season(season_id=None):
     manifest = load_live_comps_manifest()
-    selected_id = str(season_id or '').strip() or manifest['default_season_id']
+    selected_id = canonical_season_id(season_id) or manifest['default_season_id']
     season = next((item for item in manifest['seasons'] if item['id'] == selected_id), None)
     if season is None:
         season = next((item for item in manifest['seasons'] if item['id'] == manifest['default_season_id']), None)
@@ -546,7 +545,7 @@ def upload_live_comps():
     if payload is None:
         return jsonify({'error': '请求体必须是 JSON'}), 400
     try:
-        season_id = request.args.get('season') or (payload.get('season') if isinstance(payload, dict) else None)
+        season_id = canonical_season_id(request.args.get('season') or (payload.get('season') if isinstance(payload, dict) else None))
         if season_id:
             write_live_comps_payload_for_season(season_id, payload)
         else:

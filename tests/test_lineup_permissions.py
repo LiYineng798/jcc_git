@@ -19,11 +19,11 @@ def test_create_lineup_accepts_explicit_season_id(client):
     register_user(client)
     response = client.post(
         '/api/lineups',
-        json={'name': 'S17 阵容', 'code': '#S17001', 'status': 'normal', 'season_id': 's17-star-god'},
+        json={'name': 'S16 阵容', 'code': '#S16001', 'status': 'normal', 'season_id': 's16-legends'},
         headers=auth_headers(client),
     )
     assert response.status_code == 201
-    assert response.get_json()['season_id'] == 's17-star-god'
+    assert response.get_json()['season_id'] == 's16-legends'
 
 
 def test_update_lineup_rejects_unavailable_season_id(client):
@@ -35,7 +35,7 @@ def test_update_lineup_rejects_unavailable_season_id(client):
         json={
             'name': lineup['name'],
             'code': lineup['code'],
-            'season_id': 's16-archive',
+            'season_id': 'unknown-season',
             'version': lineup['version'],
         },
         headers=auth_headers(client),
@@ -47,7 +47,8 @@ def test_update_lineup_rejects_unavailable_season_id(client):
 def test_lineup_list_filters_by_selected_season(client):
     register_user(client)
     client.post('/api/lineups', json={'name': 'S17 阵容', 'code': '#S17001', 'season_id': 's17-star-god'}, headers=auth_headers(client))
-    client.post('/api/lineups', json={'name': 'S16 阵容', 'code': '#S16001', 'season_id': 's16-archive'}, headers=auth_headers(client))
+    client.post('/api/lineups', json={'name': 'S16 阵容', 'code': '#S16001', 'season_id': 's16-legends'}, headers=auth_headers(client))
+    client.post('/api/lineups', json={'name': '福星 阵容', 'code': '#FUXING01', 'season_id': 'lucky-lantern'}, headers=auth_headers(client))
 
     payload = client.get('/api/lineups?season=s17-star-god&page=1&page_size=10').get_json()
 
@@ -68,22 +69,24 @@ def test_lineup_seasons_endpoint_exposes_only_public_choices(client):
     payload = client.get('/api/lineup-seasons').get_json()
 
     assert payload['default_season_id'] == 's17-star-god'
-    assert [season['id'] for season in payload['seasons']] == ['s17-star-god']
+    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
     assert payload['seasons'][0]['name'] == 'S17 · 星神'
+    assert payload['seasons'][1]['name'] == 'S16 · 英雄联盟传奇'
+    assert payload['seasons'][2]['name'] == '天选福星'
     assert all(season['status'] in {'active'} for season in payload['seasons'])
 
 
 def test_lineup_seasons_ignore_live_comps_default_season(client):
     manifest_path = Path(client.application.config['LIVE_COMPS_SEASON_MANIFEST_PATH'])
     manifest_path.write_text(
-        '{"default_season_id":"default","seasons":[{"id":"default","name":"S17 · 星神","status":"active","order":1,"description":"当前赛季","data_file":"live-comps.json"}]}',
+        '{"default_season_id":"default","seasons":[{"id":"default","name":"S17 · 星神","status":"active","order":1,"description":"当前赛季","data_file":"live-comps.json"},{"id":"s16-legends","name":"S16 · 英雄联盟传奇","status":"active","order":2,"description":"经典赛季","data_file":"s16-legends.json"},{"id":"lucky-lantern","name":"天选福星","status":"active","order":3,"description":"返场赛季","data_file":"lucky-lantern.json"}]}',
         encoding='utf-8',
     )
 
     payload = client.get('/api/lineup-seasons').get_json()
 
     assert payload['default_season_id'] == 's17-star-god'
-    assert [season['id'] for season in payload['seasons']] == ['s17-star-god']
+    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
     assert payload['seasons'][0]['name'] == 'S17 · 星神'
 
 

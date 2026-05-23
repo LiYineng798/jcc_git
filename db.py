@@ -279,6 +279,7 @@ def migrate_lineups_table(db, admin_id):
 
     db.execute('UPDATE lineups SET user_id = ? WHERE user_id IS NULL', (admin_id,))
     db.execute("UPDATE lineups SET season_id = 's17-star-god' WHERE season_id IS NULL OR season_id = ''")
+    db.execute("UPDATE lineups SET season_id = 's16-legends' WHERE season_id = 's16-archive'")
 
 
 def ensure_indexes(db):

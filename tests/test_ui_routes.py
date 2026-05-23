@@ -282,12 +282,15 @@ def test_app_js_contains_live_comps_mode_and_copy_only_actions():
     assert 'renderLiveComps' in js
     assert "sort: 'live'" in js
     assert "view: 'live-comps'" in js
+    assert '由 DataTFT 支持' in js
     assert 'code.textContent = item.jccCode' not in js
 
 
 def test_styles_include_live_comps_sections_and_cards():
     with open(r'D:\1\codex\jcc\claude_project\static\styles.css', 'r', encoding='utf-8') as file:
         css = file.read()
+
+    assert '.live-comps-summary-source' in css
 
     assert '.live-comps-shell' in css
     assert '.live-comps-grid' in css

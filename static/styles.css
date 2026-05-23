@@ -430,6 +430,51 @@ textarea:focus {
   gap: 14px;
 }
 
+.list-heading-left {
+  display: grid;
+  gap: 12px;
+}
+
+.list-heading-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.season-menu-wrap,
+.editor-season-wrap {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+}
+
+.season-toggle {
+  min-width: 168px;
+  justify-content: space-between;
+}
+
+.season-menu {
+  min-width: 168px;
+  top: calc(100% + 10px);
+  left: 0;
+  right: auto;
+  z-index: 60;
+}
+
+.editor-season-wrap {
+  align-self: start;
+}
+
+.editor-season-menu {
+  z-index: 80;
+}
+
+.season-menu .account-menu-item.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
 .live-comps-shell {
   display: grid;
   gap: 16px;
@@ -449,6 +494,54 @@ textarea:focus {
 
 .live-comps-summary-meta {
   color: var(--muted);
+}
+
+.live-comps-season-switch {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-solid) 84%, transparent);
+}
+
+.live-comps-season-row,
+.live-comps-season-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.season-chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--surface-solid);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.season-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+
+.season-chip.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.live-comps-archive summary {
+  width: fit-content;
+  margin-bottom: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .live-comps-grid {
@@ -1343,6 +1436,50 @@ textarea:focus {
 
 .admin-row-card p {
   margin: 5px 0 0;
+}
+
+.admin-subpanel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.admin-subpanel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-subpanel-head h3 {
+  margin-bottom: 0;
+}
+
+.admin-season-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-season-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-solid);
+}
+
+.admin-season-info {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-season-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .admin-log-list {

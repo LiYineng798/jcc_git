@@ -2,6 +2,8 @@ const state = {
   lineups: [],
   liveCompsSummary: null,
   liveCompsPage: null,
+  lineupSeasons: [],
+  selectedLineupSeasonId: null,
   query: '',
   sort: 'live',
   view: 'live-comps',
@@ -31,6 +33,10 @@ const elements = {
   emptyState: $('#emptyState'),
   message: $('#message'),
   lineupCount: $('#lineupCount'),
+  seasonFilterToggle: $('#seasonFilterToggle'),
+  seasonFilterText: $('#seasonFilterText'),
+  seasonFilterMenu: $('#seasonFilterMenu'),
+  seasonMenuWrap: $('#seasonMenuWrap'),
   favoritesTab: $('#favoritesTab'),
   mineTab: $('#mineTab'),
   tabs: $('#tabs'),
@@ -61,6 +67,9 @@ elements.searchInput.addEventListener('input', debounce((event) => {
   state.page = 1;
   loadLineups();
 }, 180));
+elements.seasonFilterToggle?.addEventListener('click', toggleSeasonMenu);
+document.addEventListener('click', closeSeasonMenuOnOutsideClick);
+document.addEventListener('keydown', closeSeasonMenuOnEscape);
 elements.tabs.addEventListener('click', (event) => {
   const tab = event.target.closest('.tab');
   if (!tab) return;
@@ -125,6 +134,38 @@ async function loadMe() {
   state.user = data.user;
   state.csrfToken = data.csrf_token;
   renderAuth();
+}
+
+async function loadLineupSeasons() {
+  if (state.lineupSeasons.length) return;
+  const payload = await fetch('/api/lineup-seasons').then((response) => response.json());
+  state.lineupSeasons = payload.seasons || [];
+  state.selectedLineupSeasonId = state.selectedLineupSeasonId || payload.default_season_id || state.lineupSeasons[0]?.id || '';
+  renderLineupSeasonFilter();
+}
+
+function toggleSeasonMenu(event) {
+  event.stopPropagation();
+  const willOpen = elements.seasonFilterMenu.classList.contains('hidden');
+  elements.seasonFilterMenu.classList.toggle('hidden', !willOpen);
+  elements.seasonFilterToggle.classList.toggle('is-open', willOpen);
+  elements.seasonFilterToggle.setAttribute('aria-expanded', String(willOpen));
+}
+
+function closeSeasonMenu() {
+  if (!elements.seasonFilterMenu || !elements.seasonFilterToggle) return;
+  elements.seasonFilterMenu.classList.add('hidden');
+  elements.seasonFilterToggle.classList.remove('is-open');
+  elements.seasonFilterToggle.setAttribute('aria-expanded', 'false');
+}
+
+function closeSeasonMenuOnOutsideClick(event) {
+  if (event.target.closest('#seasonMenuWrap')) return;
+  closeSeasonMenu();
+}
+
+function closeSeasonMenuOnEscape(event) {
+  if (event.key === 'Escape') closeSeasonMenu();
 }
 
 function renderAuth() {
@@ -199,6 +240,7 @@ async function logout() {
 }
 
 async function loadLineups() {
+  await loadLineupSeasons();
   const params = new URLSearchParams({
     sort: state.sort,
     view: state.view,
@@ -206,6 +248,7 @@ async function loadLineups() {
     page_size: String(LINEUP_PAGE_SIZE),
   });
   if (state.query) params.set('q', state.query);
+  if (state.selectedLineupSeasonId) params.set('season', state.selectedLineupSeasonId);
   const response = await fetch(`/api/lineups?${params}`).then((result) => result.json());
   state.lineups = response.items || [];
   state.total = response.total ?? state.lineups.length;
@@ -235,8 +278,11 @@ async function loadCurrentView() {
 }
 
 async function loadLiveComps() {
-  const summary = await fetch('/api/live-comps/summary').then((response) => response.json());
-  const pagePayload = await fetch(`/api/live-comps?page=${state.page}`).then((response) => response.json());
+  await loadLineupSeasons();
+  const seasonQuery = state.selectedLineupSeasonId ? `&season=${encodeURIComponent(state.selectedLineupSeasonId)}` : '';
+  const summarySeasonQuery = state.selectedLineupSeasonId ? `?season=${encodeURIComponent(state.selectedLineupSeasonId)}` : '';
+  const summary = await fetch(`/api/live-comps/summary${summarySeasonQuery}`).then((response) => response.json());
+  const pagePayload = await fetch(`/api/live-comps?page=${state.page}${seasonQuery}`).then((response) => response.json());
   state.liveCompsSummary = summary;
   state.liveCompsPage = pagePayload;
   state.total = pagePayload.total ?? 0;
@@ -245,6 +291,31 @@ async function loadLiveComps() {
   state.totalPages = pagePayload.total_pages ?? 1;
   renderLiveComps();
   renderPagination();
+}
+
+function renderLineupSeasonFilter() {
+  if (!elements.seasonFilterMenu || !elements.seasonFilterText) return;
+  elements.seasonFilterMenu.replaceChildren();
+  const selectedSeason = state.lineupSeasons.find((season) => season.id === state.selectedLineupSeasonId) || state.lineupSeasons[0] || {};
+  elements.seasonFilterText.textContent = selectedSeason.name || selectedSeason.id || '赛季';
+  state.lineupSeasons.forEach((season) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = `account-menu-item${season.id === state.selectedLineupSeasonId ? ' is-active' : ''}`;
+    item.textContent = season.name || season.id;
+    item.addEventListener('click', async () => {
+      if (state.selectedLineupSeasonId === season.id) {
+        closeSeasonMenu();
+        return;
+      }
+      state.selectedLineupSeasonId = season.id;
+      state.page = 1;
+      closeSeasonMenu();
+      renderLineupSeasonFilter();
+      await loadCurrentView();
+    });
+    elements.seasonFilterMenu.append(item);
+  });
 }
 
 function renderLineups() {
@@ -271,8 +342,8 @@ function renderLineups() {
     code.textContent = lineup.code;
     const actions = document.createElement('div');
     actions.className = 'card-actions';
-    actions.append(button('复制阵容码', () => copyLineup(lineup)));
     actions.append(button('查看', () => openLineupDetail(lineup.id)));
+    actions.append(button('复制阵容码', () => copyLineup(lineup)));
     actions.append(button(lineup.is_liked_today ? '今日已赞' : '点赞', () => likeLineup(lineup), '', Boolean(state.user && lineup.is_liked_today)));
     actions.append(button(lineup.is_favorited ? '取消收藏' : '收藏', () => favoriteLineup(lineup)));
     actions.append(button('举报', () => reportLineup(lineup)));
@@ -429,7 +500,8 @@ async function copyLiveCompCode(item) {
     return;
   }
   try {
-    await api(`/api/live-comps/${encodeURIComponent(item.id)}/copy`, { method: 'POST' });
+    const seasonQuery = state.selectedLineupSeasonId ? `?season=${encodeURIComponent(state.selectedLineupSeasonId)}` : '';
+    await api(`/api/live-comps/${encodeURIComponent(item.id)}/copy${seasonQuery}`, { method: 'POST' });
   } catch (_) {
     showMessage('阵容码已复制，但次数统计失败');
     return;

@@ -6,7 +6,7 @@ from analytics import growth_summary
 from audit import write_audit
 from auth import admin_required, validate_password
 from db import get_db, now_text
-from live_comps import build_admin_live_comp_stats_payload, read_live_comps_payload
+from live_comps import build_admin_live_comp_stats_payload, load_live_comps_manifest, read_live_comps_payload, save_live_comps_manifest
 from lineups import _lineup_row, _serialize
 from scoring import score_map
 from visits import daily_new_returning_visitors, daily_uv_count, last_7_days_uv, tracked_template_response
@@ -198,6 +198,44 @@ def admin_live_comps():
         return error
     payload, updated_at, is_valid = read_live_comps_payload()
     return jsonify(build_admin_live_comp_stats_payload(payload, updated_at, is_valid))
+
+
+@admin_bp.get('/api/admin/live-comps/seasons')
+def admin_live_comps_seasons():
+    admin, error = admin_required()
+    if error:
+        return error
+    return jsonify(load_live_comps_manifest())
+
+
+@admin_bp.put('/api/admin/live-comps/seasons/<season_id>')
+def admin_update_live_comps_season(season_id):
+    admin, error = admin_required()
+    if error:
+        return error
+    data = request.get_json(silent=True) or {}
+    manifest = load_live_comps_manifest()
+    seasons = []
+    found = False
+    for season in manifest['seasons']:
+        updated = dict(season)
+        if str(updated.get('id')) == str(season_id):
+            found = True
+            for key in ['name', 'status', 'description', 'order']:
+                if key in data:
+                    updated[key] = data[key]
+        seasons.append(updated)
+    if not found:
+        return jsonify({'error': '赛季不存在'}), 404
+    default_season_id = str(data.get('default_season_id') or manifest.get('default_season_id') or season_id)
+    if not any(str(season.get('id')) == default_season_id for season in seasons):
+        default_season_id = season_id
+    updated_manifest = save_live_comps_manifest({
+        'default_season_id': default_season_id,
+        'seasons': seasons,
+    })
+    write_audit(admin['id'], 'update_live_comps_season', 'live_comp_season', season_id, before=manifest, after=updated_manifest)
+    return jsonify(updated_manifest)
 
 
 @admin_bp.put('/api/admin/lineups/<int:lineup_id>')

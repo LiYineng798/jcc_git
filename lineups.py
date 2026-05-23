@@ -13,9 +13,11 @@ from lineup_code import LINEUP_CODE_MESSAGE, extract_lineup_code
 from recommendation import recommended_scores
 from scoring import rising_map, score_map
 from visits import ensure_visitor_token, maybe_set_visitor_cookie
+from live_comps import load_live_comps_manifest, public_live_comps_manifest
 
 lineups_bp = Blueprint('lineups', __name__)
 LINEUP_VISIBLE_STATUSES = {'normal', 'hidden'}
+DEFAULT_LINEUP_SEASON_ID = 's17-star-god'
 
 
 def _bucket_start():
@@ -29,7 +31,22 @@ def _normalize_lineup_status(raw_status, default='normal'):
     return status if status in LINEUP_VISIBLE_STATUSES else None
 
 
-def _validate_lineup(data, default_status='normal'):
+def _season_choice_map():
+    manifest = load_live_comps_manifest()
+    return {
+        season['id']: season
+        for season in manifest['seasons']
+        if season.get('status') in {'active', 'archived'}
+    }
+
+
+@lineups_bp.get('/api/lineup-seasons')
+def lineup_seasons():
+    manifest = load_live_comps_manifest()
+    return jsonify(public_live_comps_manifest(manifest))
+
+
+def _validate_lineup(data, default_status='normal', default_season_id=None):
     name = str(data.get('name', '')).strip()
     raw_code = str(data.get('code', '')).strip()
     status = _normalize_lineup_status(data.get('status'), default=default_status)
@@ -42,7 +59,14 @@ def _validate_lineup(data, default_status='normal'):
     code = extract_lineup_code(raw_code)
     if not code:
         return None, LINEUP_CODE_MESSAGE
-    return {'name': name, 'code': code, 'status': status}, None
+    season_id = str(data.get('season_id') or '').strip()
+    if not season_id:
+        season_id = str(default_season_id or '').strip()
+    if not season_id:
+        return None, '请选择所属赛季'
+    if season_id not in _season_choice_map():
+        return None, '赛季无效或已隐藏'
+    return {'name': name, 'code': code, 'status': status, 'season_id': season_id}, None
 
 
 def _lineup_row(lineup_id):
@@ -100,6 +124,10 @@ def _list_clauses(user, view, query):
     visibility_clause, visibility_params = _visibility_clause(user, alias='l')
     clauses = [visibility_clause]
     params = list(visibility_params)
+    season_id = request.args.get('season', '').strip() or load_live_comps_manifest().get('default_season_id', '')
+    if season_id:
+        clauses.append('l.season_id = ?')
+        params.append(season_id)
     if view == 'mine':
         clauses = ["l.status != 'deleted'"]
         params = []
@@ -214,6 +242,7 @@ def _serialize(row, scores, user=None, admin=False):
         'id': row['id'],
         'name': row['name'],
         'code': row['code'],
+        'season_id': row['season_id'],
         'created_at': row['created_at'],
         'updated_at': row['updated_at'],
         'version': row['version'],
@@ -533,9 +562,9 @@ def create_lineup():
     now = now_text()
     db = get_db()
     cursor = db.execute(
-        '''INSERT INTO lineups (user_id, name, code, status, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?)''',
-        (user['id'], payload['name'], payload['code'], payload['status'], now, now),
+        '''INSERT INTO lineups (user_id, name, code, season_id, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)''',
+        (user['id'], payload['name'], payload['code'], payload['season_id'], payload['status'], now, now),
     )
     write_audit(user['id'], 'create_lineup', 'lineup', cursor.lastrowid, after=payload)
     db.commit()
@@ -556,13 +585,13 @@ def update_lineup(lineup_id):
     data = request.get_json(silent=True) or {}
     if 'version' in data and int(data['version']) != row['version']:
         return jsonify({'error': '阵容已被更新，请刷新后重试'}), 409
-    payload, validation_error = _validate_lineup(data, default_status=row['status'])
+    payload, validation_error = _validate_lineup(data, default_status=row['status'], default_season_id=row['season_id'])
     if validation_error:
         return jsonify({'error': validation_error}), 400
     now = now_text()
     get_db().execute(
-        'UPDATE lineups SET name = ?, code = ?, status = ?, updated_at = ?, version = version + 1 WHERE id = ?',
-        (payload['name'], payload['code'], payload['status'], now, lineup_id),
+        'UPDATE lineups SET name = ?, code = ?, season_id = ?, status = ?, updated_at = ?, version = version + 1 WHERE id = ?',
+        (payload['name'], payload['code'], payload['season_id'], payload['status'], now, lineup_id),
     )
     write_audit(user['id'], 'update_lineup', 'lineup', lineup_id, before=dict(row), after=payload)
     get_db().commit()

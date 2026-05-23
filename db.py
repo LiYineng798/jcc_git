@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS lineups (
     user_id INTEGER NOT NULL,
     name TEXT NOT NULL,
     code TEXT NOT NULL,
+    season_id TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'normal',
     admin_like_adjustment INTEGER NOT NULL DEFAULT 0,
     admin_copy_adjustment INTEGER NOT NULL DEFAULT 0,
@@ -269,6 +270,7 @@ def migrate_lineups_table(db, admin_id):
         'admin_like_adjustment': 'ALTER TABLE lineups ADD COLUMN admin_like_adjustment INTEGER NOT NULL DEFAULT 0',
         'admin_copy_adjustment': 'ALTER TABLE lineups ADD COLUMN admin_copy_adjustment INTEGER NOT NULL DEFAULT 0',
         'version': 'ALTER TABLE lineups ADD COLUMN version INTEGER NOT NULL DEFAULT 1',
+        'season_id': "ALTER TABLE lineups ADD COLUMN season_id TEXT NOT NULL DEFAULT 's17-star-god'",
     }
 
     for column_name, statement in migrations.items():
@@ -276,10 +278,12 @@ def migrate_lineups_table(db, admin_id):
             db.execute(statement)
 
     db.execute('UPDATE lineups SET user_id = ? WHERE user_id IS NULL', (admin_id,))
+    db.execute("UPDATE lineups SET season_id = 's17-star-god' WHERE season_id IS NULL OR season_id = ''")
 
 
 def ensure_indexes(db):
     db.execute('CREATE INDEX IF NOT EXISTS idx_lineups_user_status_updated_at ON lineups (user_id, status, updated_at)')
+    db.execute('CREATE INDEX IF NOT EXISTS idx_lineups_season_status_updated_at ON lineups (season_id, status, updated_at)')
 
 
 def table_columns(db, table_name):

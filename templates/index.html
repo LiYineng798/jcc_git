@@ -54,9 +54,18 @@
       <main class="content-grid">
         <section class="panel list-panel list-panel-full" aria-labelledby="listTitle">
           <div class="panel-heading list-heading">
-            <div>
+            <div class="list-heading-left">
               <p class="section-kicker">Library</p>
-              <h2 id="listTitle">阵容列表</h2>
+              <div class="list-heading-main">
+                <h2 id="listTitle">阵容列表</h2>
+                <div class="season-menu-wrap" id="seasonMenuWrap">
+                  <button class="account-toggle season-toggle" id="seasonFilterToggle" type="button" aria-haspopup="menu" aria-expanded="false">
+                    <span id="seasonFilterText">S17 · 星神</span>
+                    <span class="account-chevron" aria-hidden="true">⌄</span>
+                  </button>
+                  <div class="account-menu hidden season-menu" id="seasonFilterMenu" role="menu"></div>
+                </div>
+              </div>
             </div>
             <label class="search-field"><span class="sr-only">搜索阵容名称</span><input id="searchInput" type="search" placeholder="搜索阵容名称，例如：九五、卡莎、斗士" /></label>
           </div>

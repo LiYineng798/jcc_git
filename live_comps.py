@@ -23,6 +23,7 @@ CONTENT_TYPE_EXTENSIONS = {
     'image/webp': '.webp',
     'image/gif': '.gif',
 }
+DEFAULT_LIVE_COMPS_SEASON_ID = 'default'
 
 
 def empty_live_comps_payload():
@@ -64,6 +65,188 @@ def normalize_live_comps_payload(payload):
             normalized_items.append(normalized_item)
         normalized['tiers'][tier] = normalized_items
     return normalized
+
+
+def empty_live_comps_manifest(default_season_id=None):
+    season_id = str(default_season_id or current_app.config.get('LIVE_COMPS_DEFAULT_SEASON_ID') or DEFAULT_LIVE_COMPS_SEASON_ID)
+    return {
+        'default_season_id': season_id,
+        'seasons': [
+            {
+                'id': season_id,
+                'name': 'S17 · 星神',
+                'status': 'active',
+                'order': 1,
+                'description': '当前赛季',
+                'data_file': 'live-comps.json',
+            }
+        ],
+    }
+
+
+def manifest_path():
+    return Path(current_app.config['LIVE_COMPS_SEASON_MANIFEST_PATH'])
+
+
+def season_dir():
+    return Path(current_app.config['LIVE_COMPS_SEASON_DIR'])
+
+
+def season_data_filename(season_id):
+    safe_id = str(season_id or '').strip() or DEFAULT_LIVE_COMPS_SEASON_ID
+    return f'{safe_id}.json'
+
+
+def season_data_path(season_id):
+    safe_id = str(season_id or '').strip() or DEFAULT_LIVE_COMPS_SEASON_ID
+    if safe_id == DEFAULT_LIVE_COMPS_SEASON_ID:
+        return Path(current_app.config['LIVE_COMPS_DATA_PATH'])
+    return season_dir() / season_data_filename(safe_id)
+
+
+def public_live_comps_manifest(manifest):
+    public_statuses = {'active', 'archived'}
+    seasons = [season for season in manifest.get('seasons', []) if season.get('status') in public_statuses]
+    default_season_id = manifest.get('default_season_id')
+    if not any(season['id'] == default_season_id for season in seasons) and seasons:
+        default_season_id = seasons[0]['id']
+    return {
+        'default_season_id': default_season_id,
+        'seasons': seasons,
+    }
+
+
+def ensure_live_comps_season(season_id, name=None, status='active'):
+    season_id = str(season_id or '').strip()
+    if not season_id:
+        return load_live_comps_manifest()
+    manifest = load_live_comps_manifest()
+    if any(season['id'] == season_id for season in manifest['seasons']):
+        return manifest
+    seasons = list(manifest['seasons'])
+    seasons.append({
+        'id': season_id,
+        'name': name or season_id,
+        'status': status,
+        'order': max([int(season.get('order') or 0) for season in seasons] or [0]) + 1,
+        'description': '',
+        'data_file': season_data_filename(season_id),
+    })
+    return save_live_comps_manifest({
+        'default_season_id': manifest.get('default_season_id') or season_id,
+        'seasons': seasons,
+    })
+
+
+def normalize_live_comps_manifest(manifest):
+    if not isinstance(manifest, dict):
+        return empty_live_comps_manifest()
+    seasons = manifest.get('seasons')
+    if not isinstance(seasons, list) or not seasons:
+        return empty_live_comps_manifest(manifest.get('default_season_id'))
+    normalized_seasons = []
+    for index, season in enumerate(seasons, start=1):
+        if not isinstance(season, dict):
+            continue
+        season_id = str(season.get('id') or '').strip()
+        if not season_id:
+            continue
+        normalized_seasons.append({
+            'id': season_id,
+            'name': str(season.get('name') or season_id),
+            'status': str(season.get('status') or 'active'),
+            'order': int(season.get('order') or index),
+            'description': str(season.get('description') or ''),
+            'data_file': str(season.get('data_file') or season_data_filename(season_id)),
+        })
+    default_season_id = str(manifest.get('default_season_id') or normalized_seasons[0]['id'])
+    if not any(season['id'] == default_season_id for season in normalized_seasons):
+        default_season_id = normalized_seasons[0]['id']
+    return {
+        'default_season_id': default_season_id,
+        'seasons': sorted(normalized_seasons, key=lambda season: (season['order'], season['id'])),
+    }
+
+
+def load_live_comps_manifest():
+    path = manifest_path()
+    if not path.exists():
+        return empty_live_comps_manifest()
+    try:
+        return normalize_live_comps_manifest(json.loads(path.read_text(encoding='utf-8')))
+    except Exception:
+        return empty_live_comps_manifest()
+
+
+def save_live_comps_manifest(manifest):
+    normalized = normalize_live_comps_manifest(manifest)
+    path = manifest_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding='utf-8')
+    return normalized
+
+
+def get_live_comps_season(season_id=None):
+    manifest = load_live_comps_manifest()
+    selected_id = str(season_id or '').strip() or manifest['default_season_id']
+    season = next((item for item in manifest['seasons'] if item['id'] == selected_id), None)
+    if season is None:
+        selected_id = manifest['default_season_id']
+        season = next((item for item in manifest['seasons'] if item['id'] == selected_id), None)
+    if season is None:
+        season = manifest['seasons'][0]
+        selected_id = season['id']
+    return manifest, season, selected_id
+
+
+def default_season_file_exists():
+    return Path(current_app.config['LIVE_COMPS_DATA_PATH']).exists()
+
+
+def read_live_comps_payload_for_season(season_id=None):
+    manifest = load_live_comps_manifest()
+    selected_id = str(season_id or '').strip() or manifest['default_season_id']
+    season = next((item for item in manifest['seasons'] if item['id'] == selected_id), None)
+    if season is None:
+        season = next((item for item in manifest['seasons'] if item['id'] == manifest['default_season_id']), None)
+    if season is None:
+        season = manifest['seasons'][0]
+    data_path = season_data_path(season['id'])
+    if not data_path.exists() and season['id'] == manifest['default_season_id']:
+        data_path = Path(current_app.config['LIVE_COMPS_DATA_PATH'])
+    if not data_path.exists():
+        return empty_live_comps_payload(), None, False, manifest, season
+    updated_at = datetime.fromtimestamp(data_path.stat().st_mtime).isoformat(timespec='seconds')
+    try:
+        payload = json.loads(data_path.read_text(encoding='utf-8'))
+        validate_live_comps_payload(payload)
+        return normalize_live_comps_payload(payload), updated_at, True, manifest, season
+    except Exception:
+        return empty_live_comps_payload(), updated_at, False, manifest, season
+
+
+def read_live_comps_payload():
+    payload, updated_at, is_valid, _, _ = read_live_comps_payload_for_season()
+    return payload, updated_at, is_valid
+
+
+def build_live_comps_summary(payload, updated_at, is_valid, season=None, manifest=None):
+    season_info = season or {}
+    manifest = manifest or load_live_comps_manifest()
+    return {
+        'tiers': [{'tier': tier, 'total': len(payload['tiers'].get(tier, []))} for tier in TIER_ORDER],
+        'updated_at': updated_at,
+        'season': {
+            'id': season_info.get('id') or manifest.get('default_season_id'),
+            'name': season_info.get('name') or 'S17 · 星神',
+            'status': season_info.get('status') or 'active',
+            'description': season_info.get('description') or '',
+        },
+        'source_meta': {
+            **payload.get('meta', {}),
+            'is_valid': is_valid,
+        },
+    }
 
 
 def is_local_live_comp_asset_url(value):
@@ -137,30 +320,6 @@ def cache_live_comps_payload_images(payload):
             item['mainAvatar'] = cache_live_comp_image(item.get('mainAvatar'))
             item['heroImages'] = [cache_live_comp_image(src) for src in item.get('heroImages', [])]
     return payload
-
-
-def read_live_comps_payload():
-    data_path = Path(current_app.config['LIVE_COMPS_DATA_PATH'])
-    if not data_path.exists():
-        return empty_live_comps_payload(), None, False
-    updated_at = datetime.fromtimestamp(data_path.stat().st_mtime).isoformat(timespec='seconds')
-    try:
-        payload = json.loads(data_path.read_text(encoding='utf-8'))
-        validate_live_comps_payload(payload)
-        return normalize_live_comps_payload(payload), updated_at, True
-    except Exception:
-        return empty_live_comps_payload(), updated_at, False
-
-
-def build_live_comps_summary(payload, updated_at, is_valid):
-    return {
-        'tiers': [{'tier': tier, 'total': len(payload['tiers'].get(tier, []))} for tier in TIER_ORDER],
-        'updated_at': updated_at,
-        'source_meta': {
-            **payload.get('meta', {}),
-            'is_valid': is_valid,
-        },
-    }
 
 
 def get_live_comps_page(payload, tier, page, page_size):
@@ -292,9 +451,14 @@ def require_live_comps_upload_token():
 
 
 def write_live_comps_payload(payload):
+    write_live_comps_payload_for_season(DEFAULT_LIVE_COMPS_SEASON_ID, payload)
+
+
+def write_live_comps_payload_for_season(season_id, payload):
     validate_live_comps_payload(payload)
     payload = cache_live_comps_payload_images(payload)
-    data_path = Path(current_app.config['LIVE_COMPS_DATA_PATH'])
+    ensure_live_comps_season(season_id)
+    data_path = season_data_path(season_id)
     backup_path = Path(current_app.config['LIVE_COMPS_BACKUP_PATH'])
     data_path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = data_path.with_suffix('.tmp')
@@ -327,17 +491,25 @@ def upload_live_comp_asset():
     return jsonify({'ok': True, 'url': url, 'filename': filename})
 
 
+@live_comps_bp.get('/api/live-comps/seasons')
+def live_comps_seasons():
+    manifest = load_live_comps_manifest()
+    return jsonify(public_live_comps_manifest(manifest))
+
+
 @live_comps_bp.get('/api/live-comps/summary')
 def live_comps_summary():
-    payload, updated_at, is_valid = read_live_comps_payload()
-    return jsonify(build_live_comps_summary(payload, updated_at, is_valid))
+    season_id = request.args.get('season')
+    payload, updated_at, is_valid, manifest, season = read_live_comps_payload_for_season(season_id)
+    return jsonify(build_live_comps_summary(payload, updated_at, is_valid, season=season, manifest=manifest))
 
 
 @live_comps_bp.get('/api/live-comps')
 def live_comps_list():
     page = parse_positive_int(request.args.get('page'), 1)
     page_size = int(current_app.config['LIVE_COMPS_PAGE_SIZE'])
-    payload, _, _ = read_live_comps_payload()
+    season_id = request.args.get('season')
+    payload, _, _, _, _ = read_live_comps_payload_for_season(season_id)
     tier = request.args.get('tier')
     if tier:
         tier = tier.upper()
@@ -349,7 +521,8 @@ def live_comps_list():
 
 @live_comps_bp.post('/api/live-comps/<live_comp_id>/copy')
 def copy_live_comp(live_comp_id):
-    payload, _, _ = read_live_comps_payload()
+    season_id = request.args.get('season')
+    payload, _, _, _, _ = read_live_comps_payload_for_season(season_id)
     if not find_live_comp(payload, live_comp_id):
         return jsonify({'error': '实时阵容不存在'}), 404
     stat = increment_live_comp_global_copy_count()
@@ -373,7 +546,11 @@ def upload_live_comps():
     if payload is None:
         return jsonify({'error': '请求体必须是 JSON'}), 400
     try:
-        write_live_comps_payload(payload)
+        season_id = request.args.get('season') or (payload.get('season') if isinstance(payload, dict) else None)
+        if season_id:
+            write_live_comps_payload_for_season(season_id, payload)
+        else:
+            write_live_comps_payload(payload)
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
     counts = {tier: len(payload['tiers'].get(tier, [])) for tier in TIER_ORDER}

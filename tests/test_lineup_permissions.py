@@ -9,8 +9,66 @@ def auth_headers(client):
     return {'X-CSRF-Token': csrf(client)}
 
 
-def create_lineup(client, name='阵容A', code='#CODE123', status='normal'):
-    return client.post('/api/lineups', json={'name': name, 'code': code, 'status': status}, headers=auth_headers(client))
+def create_lineup(client, name='阵容A', code='#CODE123', status='normal', season_id='s17-star-god'):
+    return client.post('/api/lineups', json={'name': name, 'code': code, 'status': status, 'season_id': season_id}, headers=auth_headers(client))
+
+
+def test_create_lineup_accepts_explicit_season_id(client):
+    register_user(client)
+    response = client.post(
+        '/api/lineups',
+        json={'name': 'S17 阵容', 'code': '#S17001', 'status': 'normal', 'season_id': 's17-star-god'},
+        headers=auth_headers(client),
+    )
+    assert response.status_code == 201
+    assert response.get_json()['season_id'] == 's17-star-god'
+
+
+def test_update_lineup_can_change_season_id(client):
+    register_user(client)
+    lineup = create_lineup(client, season_id='s17-star-god').get_json()
+
+    response = client.put(
+        f"/api/lineups/{lineup['id']}",
+        json={
+            'name': lineup['name'],
+            'code': lineup['code'],
+            'season_id': 's16-archive',
+            'version': lineup['version'],
+        },
+        headers=auth_headers(client),
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()['season_id'] == 's16-archive'
+
+
+def test_lineup_list_filters_by_selected_season(client):
+    register_user(client)
+    client.post('/api/lineups', json={'name': 'S17 阵容', 'code': '#S17001', 'season_id': 's17-star-god'}, headers=auth_headers(client))
+    client.post('/api/lineups', json={'name': 'S16 阵容', 'code': '#S16001', 'season_id': 's16-archive'}, headers=auth_headers(client))
+
+    payload = client.get('/api/lineups?season=s17-star-god&page=1&page_size=10').get_json()
+
+    assert payload['total'] == 1
+    assert payload['items'][0]['name'] == 'S17 阵容'
+
+
+def test_create_lineup_rejects_missing_or_hidden_season(client):
+    register_user(client)
+    missing = client.post('/api/lineups', json={'name': '无赛季', 'code': '#NOSEASON'}, headers=auth_headers(client))
+    invalid = client.post('/api/lineups', json={'name': '无效赛季', 'code': '#BADSEASON', 'season_id': 'unknown'}, headers=auth_headers(client))
+
+    assert missing.status_code == 400
+    assert invalid.status_code == 400
+
+
+def test_lineup_seasons_endpoint_exposes_only_public_choices(client):
+    payload = client.get('/api/lineup-seasons').get_json()
+
+    assert payload['default_season_id'] == 's17-star-god'
+    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-archive']
+    assert all(season['status'] in {'active', 'archived'} for season in payload['seasons'])
 
 
 def test_anonymous_can_list_search_and_copy_but_cannot_create_update_delete(client):

@@ -224,6 +224,44 @@ def test_live_comps_list_normalizes_wrapped_lineup_code_for_copying(client):
     assert response['items'][0]['jccCode'] == '#MjIwMDIzMzMzOTU3NzQ4MzcxNzc3OTAxNzUwMDU4'
 
 
+def test_live_comps_upload_allows_items_without_jcc_code(client):
+    payload = {
+        'meta': {'source': 's16-no-code'},
+        'tiers': {
+            'S': [{
+                'id': 's16-s-01',
+                'title': 'S16 阵容 1',
+                'tier': 'S',
+                'jccCode': '',
+                'mainAvatar': 'https://example.com/s16-s-1.png',
+                'heroImages': ['https://example.com/s16-s-1-1.png'],
+            }],
+            'A': [],
+            'B': [],
+            'C': [],
+            'D': [],
+        },
+    }
+    import live_comps
+
+    def fake_download(url):
+        return b'image-bytes', 'image/png'
+
+    live_comps.download_live_comp_image = fake_download
+    response = client.post(
+        '/api/live-comps/upload?season=s16-legends',
+        json=payload,
+        headers={'X-Upload-Token': 'upload-secret'},
+    )
+
+    assert response.status_code == 200
+    summary = client.get('/api/live-comps/summary?season=s16-legends').get_json()
+    listing = client.get('/api/live-comps?season=s16-legends').get_json()
+    assert summary['tiers'][0] == {'tier': 'S', 'total': 1}
+    assert listing['items'][0]['id'] == 's16-s-01'
+    assert listing['items'][0]['jccCode'] == ''
+
+
 def test_live_comps_upload_requires_valid_token(client):
     response = client.post('/api/live-comps/upload', json={'tiers': {}})
     assert response.status_code == 401
@@ -415,3 +453,15 @@ def test_live_comp_copy_endpoint_rejects_unknown_live_comp_id(client):
 
     assert response.status_code == 404
     assert response.get_json()['error'] == '实时阵容不存在'
+
+
+def test_live_comp_copy_endpoint_rejects_live_comp_without_jcc_code(client):
+    payload = sample_live_comps_payload()
+    payload['tiers']['S'][0]['jccCode'] = ''
+    write_live_comps_seed(client, payload)
+    csrf = client.get('/api/me').get_json()['csrf_token']
+
+    response = client.post('/api/live-comps/s-01/copy', headers={'X-CSRF-Token': csrf})
+
+    assert response.status_code == 400
+    assert response.get_json()['error'] == '当前阵容暂无可复制的阵容码'

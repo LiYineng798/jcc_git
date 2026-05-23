@@ -44,12 +44,15 @@ def validate_live_comps_payload(payload):
         for item in items:
             if not isinstance(item, dict):
                 raise ValueError('阵容项必须是对象')
-            for field in ['id', 'title', 'tier', 'jccCode', 'mainAvatar', 'heroImages']:
+            for field in ['id', 'title', 'tier', 'mainAvatar', 'heroImages']:
                 if not item.get(field):
                     raise ValueError(f'缺少字段 {field}')
+            if 'jccCode' not in item:
+                raise ValueError('缺少字段 jccCode')
             if not isinstance(item['heroImages'], list):
                 raise ValueError('heroImages 必须是数组')
-            if not extract_lineup_code(item.get('jccCode')):
+            normalized_code = extract_lineup_code(item.get('jccCode'))
+            if str(item.get('jccCode') or '').strip() and not normalized_code:
                 raise ValueError('jccCode 无法解析')
 
 
@@ -62,7 +65,7 @@ def normalize_live_comps_payload(payload):
         normalized_items = []
         for item in payload.get('tiers', {}).get(tier, []):
             normalized_item = dict(item)
-            normalized_item['jccCode'] = extract_lineup_code(item.get('jccCode'))
+            normalized_item['jccCode'] = extract_lineup_code(item.get('jccCode')) or ''
             normalized_items.append(normalized_item)
         normalized['tiers'][tier] = normalized_items
     return normalized
@@ -522,8 +525,11 @@ def live_comps_list():
 def copy_live_comp(live_comp_id):
     season_id = request.args.get('season')
     payload, _, _, _, _ = read_live_comps_payload_for_season(season_id)
-    if not find_live_comp(payload, live_comp_id):
+    item = find_live_comp(payload, live_comp_id)
+    if not item:
         return jsonify({'error': '实时阵容不存在'}), 404
+    if not str(item.get('jccCode') or '').strip():
+        return jsonify({'error': '当前阵容暂无可复制的阵容码'}), 400
     stat = increment_live_comp_global_copy_count()
     return jsonify({
         'ok': True,

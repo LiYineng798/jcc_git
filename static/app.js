@@ -489,7 +489,9 @@ function renderLiveCompCard(item) {
 
   const actions = document.createElement('div');
   actions.className = 'live-comp-actions';
-  actions.append(button('复制阵容码', () => copyLiveCompCode(item)));
+  actions.append(item.jccCode
+    ? button('复制阵容码', () => copyLiveCompCode(item))
+    : button('暂无阵容码', () => {}, '', true));
 
   body.append(name, heroes);
   header.append(avatarWrap, body);
@@ -498,6 +500,10 @@ function renderLiveCompCard(item) {
 }
 
 async function copyLiveCompCode(item) {
+  if (!item.jccCode) {
+    showMessage('当前阵容暂无可复制的阵容码');
+    return;
+  }
   const copied = await writeClipboard(item.jccCode);
   if (!copied) {
     showMessage('复制失败，请长按阵容码手动复制');

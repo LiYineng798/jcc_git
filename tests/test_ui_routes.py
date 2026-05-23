@@ -283,6 +283,9 @@ def test_app_js_contains_live_comps_mode_and_copy_only_actions():
     assert "sort: 'live'" in js
     assert "view: 'live-comps'" in js
     assert '由 DataTFT 支持' in js
+    assert '暂无阵容码' in js
+    assert 'item.jccCode' in js
+    assert "button('暂无阵容码'" in js
     assert 'code.textContent = item.jccCode' not in js
 
 

@@ -13,14 +13,37 @@ from lineup_code import LINEUP_CODE_MESSAGE, extract_lineup_code
 from recommendation import recommended_scores
 from scoring import rising_map, score_map
 from visits import ensure_visitor_token, maybe_set_visitor_cookie
-from live_comps import load_live_comps_manifest, public_live_comps_manifest
+from live_comps import load_live_comps_manifest
 
 lineups_bp = Blueprint('lineups', __name__)
 LINEUP_VISIBLE_STATUSES = {'normal', 'hidden'}
 DEFAULT_LINEUP_SEASON_ID = 's17-star-god'
+LINEUP_SEASON_ALIASES = {'default': DEFAULT_LINEUP_SEASON_ID}
+
+
+def _canonical_lineup_season_id(season_id):
+    season_id = str(season_id or '').strip()
+    return LINEUP_SEASON_ALIASES.get(season_id, season_id)
+
+
+def _lineup_season_manifest():
+    return {
+        'default_season_id': DEFAULT_LINEUP_SEASON_ID,
+        'seasons': [
+            {
+                'id': DEFAULT_LINEUP_SEASON_ID,
+                'name': 'S17 · 星神',
+                'status': 'active',
+                'order': 1,
+                'description': '当前赛季',
+                'data_file': 'live-comps.json',
+            }
+        ],
+    }
 
 
 def _bucket_start():
+
     now = datetime.now()
     minute = (now.minute // 10) * 10
     return now.replace(minute=minute, second=0, microsecond=0).strftime('%Y-%m-%d %H:%M:%S')
@@ -32,18 +55,13 @@ def _normalize_lineup_status(raw_status, default='normal'):
 
 
 def _season_choice_map():
-    manifest = load_live_comps_manifest()
-    return {
-        season['id']: season
-        for season in manifest['seasons']
-        if season.get('status') in {'active', 'archived'}
-    }
+    manifest = _lineup_season_manifest()
+    return {season['id']: season for season in manifest['seasons']}
 
 
 @lineups_bp.get('/api/lineup-seasons')
 def lineup_seasons():
-    manifest = load_live_comps_manifest()
-    return jsonify(public_live_comps_manifest(manifest))
+    return jsonify(_lineup_season_manifest())
 
 
 def _validate_lineup(data, default_status='normal', default_season_id=None):
@@ -59,9 +77,9 @@ def _validate_lineup(data, default_status='normal', default_season_id=None):
     code = extract_lineup_code(raw_code)
     if not code:
         return None, LINEUP_CODE_MESSAGE
-    season_id = str(data.get('season_id') or '').strip()
+    season_id = _canonical_lineup_season_id(data.get('season_id'))
     if not season_id:
-        season_id = str(default_season_id or '').strip()
+        season_id = _canonical_lineup_season_id(default_season_id)
     if not season_id:
         return None, '请选择所属赛季'
     if season_id not in _season_choice_map():
@@ -124,7 +142,7 @@ def _list_clauses(user, view, query):
     visibility_clause, visibility_params = _visibility_clause(user, alias='l')
     clauses = [visibility_clause]
     params = list(visibility_params)
-    season_id = request.args.get('season', '').strip() or load_live_comps_manifest().get('default_season_id', '')
+    season_id = _canonical_lineup_season_id(request.args.get('season')) or _lineup_season_manifest().get('default_season_id', DEFAULT_LINEUP_SEASON_ID)
     if season_id:
         clauses.append('l.season_id = ?')
         params.append(season_id)
@@ -730,3 +748,5 @@ def report_lineup(lineup_id):
     )
     get_db().commit()
     return jsonify({'id': cursor.lastrowid, 'status': 'pending'}), 201
+
+

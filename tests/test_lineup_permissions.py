@@ -1,4 +1,6 @@
-﻿from test_auth import register_user
+﻿from pathlib import Path
+
+from test_auth import register_user
 
 
 def csrf(client):
@@ -24,7 +26,7 @@ def test_create_lineup_accepts_explicit_season_id(client):
     assert response.get_json()['season_id'] == 's17-star-god'
 
 
-def test_update_lineup_can_change_season_id(client):
+def test_update_lineup_rejects_unavailable_season_id(client):
     register_user(client)
     lineup = create_lineup(client, season_id='s17-star-god').get_json()
 
@@ -39,8 +41,7 @@ def test_update_lineup_can_change_season_id(client):
         headers=auth_headers(client),
     )
 
-    assert response.status_code == 200
-    assert response.get_json()['season_id'] == 's16-archive'
+    assert response.status_code == 400
 
 
 def test_lineup_list_filters_by_selected_season(client):
@@ -67,8 +68,23 @@ def test_lineup_seasons_endpoint_exposes_only_public_choices(client):
     payload = client.get('/api/lineup-seasons').get_json()
 
     assert payload['default_season_id'] == 's17-star-god'
-    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-archive']
-    assert all(season['status'] in {'active', 'archived'} for season in payload['seasons'])
+    assert [season['id'] for season in payload['seasons']] == ['s17-star-god']
+    assert payload['seasons'][0]['name'] == 'S17 · 星神'
+    assert all(season['status'] in {'active'} for season in payload['seasons'])
+
+
+def test_lineup_seasons_ignore_live_comps_default_season(client):
+    manifest_path = Path(client.application.config['LIVE_COMPS_SEASON_MANIFEST_PATH'])
+    manifest_path.write_text(
+        '{"default_season_id":"default","seasons":[{"id":"default","name":"S17 · 星神","status":"active","order":1,"description":"当前赛季","data_file":"live-comps.json"}]}',
+        encoding='utf-8',
+    )
+
+    payload = client.get('/api/lineup-seasons').get_json()
+
+    assert payload['default_season_id'] == 's17-star-god'
+    assert [season['id'] for season in payload['seasons']] == ['s17-star-god']
+    assert payload['seasons'][0]['name'] == 'S17 · 星神'
 
 
 def test_anonymous_can_list_search_and_copy_but_cannot_create_update_delete(client):
@@ -286,4 +302,5 @@ def test_paginated_logged_in_list_avoids_n_plus_one_queries(client, monkeypatch)
 
     select_statements = [sql for sql in statements if sql.lstrip().upper().startswith('SELECT')]
     assert len(select_statements) <= 6
+
 

@@ -19,10 +19,11 @@ def app():
     live_comps_asset_dir = ROOT / 'test-live-comps-assets'
     live_comps_manifest_path = ROOT / 'test-live-comps-seasons.json'
     live_comps_season_dir = ROOT / 'test-live-comps-seasons'
+    live_comps_manual_code_dir = ROOT / 'test-live-comps-manual-codes'
     for path in [db_path, live_comps_path, live_comps_backup_path, live_comps_manifest_path]:
         if path.exists():
             path.unlink()
-    for directory in [live_comps_asset_dir, live_comps_season_dir]:
+    for directory in [live_comps_asset_dir, live_comps_season_dir, live_comps_manual_code_dir]:
         import shutil
         if directory.exists():
             shutil.rmtree(directory)
@@ -41,6 +42,7 @@ def app():
         'LIVE_COMPS_BACKUP_PATH': str(live_comps_backup_path),
         'LIVE_COMPS_SEASON_MANIFEST_PATH': str(live_comps_manifest_path),
         'LIVE_COMPS_SEASON_DIR': str(live_comps_season_dir),
+        'LIVE_COMPS_MANUAL_CODE_DIR': str(live_comps_manual_code_dir),
         'LIVE_COMPS_DEFAULT_SEASON_ID': 's17-star-god',
         'LIVE_COMPS_PAGE_SIZE': 6,
         'LIVE_COMPS_UPLOAD_TOKEN': 'upload-secret',
@@ -50,7 +52,7 @@ def app():
     for path in [db_path, live_comps_path, live_comps_backup_path, live_comps_manifest_path]:
         if path.exists():
             path.unlink()
-    for directory in [live_comps_asset_dir, live_comps_season_dir]:
+    for directory in [live_comps_asset_dir, live_comps_season_dir, live_comps_manual_code_dir]:
         import shutil
         if directory.exists():
             shutil.rmtree(directory)

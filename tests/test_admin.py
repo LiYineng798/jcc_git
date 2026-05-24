@@ -76,6 +76,32 @@ def test_admin_lineups_api_includes_hidden_lineup_and_code(client):
     assert target['code'] == '#HIDECODE001'
 
 
+def test_admin_can_list_and_update_live_comps_seasons(client):
+    headers = login_admin(client)
+    manifest_path = client.application.config['LIVE_COMPS_SEASON_MANIFEST_PATH']
+    season_dir = client.application.config['LIVE_COMPS_SEASON_DIR']
+    Path = __import__('pathlib').Path
+    Path(season_dir).mkdir(parents=True, exist_ok=True)
+    Path(manifest_path).write_text(__import__('json').dumps({
+        'default_season_id': 's17-star-god',
+        'seasons': [{'id': 's17-star-god', 'name': 'S17 · 星神', 'status': 'active', 'order': 1, 'description': ''}],
+    }, ensure_ascii=False), encoding='utf-8')
+
+    listed = client.get('/api/admin/live-comps/seasons', headers=headers)
+    assert listed.status_code == 200
+    assert listed.get_json()['default_season_id'] == 's17-star-god'
+
+    updated = client.put(
+        '/api/admin/live-comps/seasons/s17-star-god',
+        json={'status': 'archived', 'description': '已归档'},
+        headers=headers,
+    )
+    assert updated.status_code == 200
+    payload = updated.get_json()
+    assert payload['seasons'][0]['status'] == 'archived'
+    assert payload['seasons'][0]['description'] == '已归档'
+
+
 def test_admin_can_adjust_like_and_copy_counts_and_recalculate_score(client):
     register_user(client)
     lineup = create_lineup(client).get_json()
@@ -309,3 +335,63 @@ def test_admin_can_view_global_live_comp_copy_counts(client):
     assert payload['today_copy_count'] == 3
     assert payload['total_copy_count'] == 3
     assert payload['items'] == []
+    assert payload['total'] == 0
+    assert payload['season']['id'] == 's17-star-god'
+
+
+def test_admin_live_comps_returns_selected_season_items_with_code_source(client):
+    headers = login_admin(client)
+    Path = __import__('pathlib').Path
+    json_module = __import__('json')
+    season_dir = Path(client.application.config['LIVE_COMPS_SEASON_DIR'])
+    season_dir.mkdir(parents=True, exist_ok=True)
+    payload = sample_live_comps_payload()
+    payload['tiers']['S'][0]['jccCode'] = ''
+    (season_dir / 's16-legends.json').write_text(json_module.dumps(payload, ensure_ascii=False), encoding='utf-8')
+
+    response = client.get('/api/admin/live-comps?season=s16-legends&page=1&page_size=10', headers=headers)
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['season']['id'] == 's16-legends'
+    assert data['total'] == 1
+    assert [item['id'] for item in data['items']] == ['s-01']
+    assert data['items'][0]['codeSource'] == 'none'
+
+
+def test_admin_can_add_manual_code_for_missing_live_comp(client):
+    headers = login_admin(client)
+    Path = __import__('pathlib').Path
+    json_module = __import__('json')
+    season_dir = Path(client.application.config['LIVE_COMPS_SEASON_DIR'])
+    season_dir.mkdir(parents=True, exist_ok=True)
+    payload = sample_live_comps_payload()
+    payload['tiers']['S'][0]['jccCode'] = ''
+    (season_dir / 's16-legends.json').write_text(json_module.dumps(payload, ensure_ascii=False), encoding='utf-8')
+
+    created = client.post(
+        '/api/admin/live-comps/s16-legends/s-01/manual-code',
+        json={'code': '【阵容码】##ADMIN001'},
+        headers=headers,
+    )
+    listed = client.get('/api/admin/live-comps?season=s16-legends&page=1&page_size=10', headers=headers)
+
+    assert created.status_code == 200
+    assert created.get_json()['resolvedJccCode'] == '#ADMIN001'
+    listed_payload = listed.get_json()
+    assert listed_payload['items'] == []
+    assert listed_payload['total'] == 0
+
+
+def test_admin_rejects_manual_code_for_live_comp_that_already_has_original_code(client):
+    headers = login_admin(client)
+    write_live_comps_seed(client, sample_live_comps_payload())
+
+    response = client.post(
+        '/api/admin/live-comps/s17-star-god/s-01/manual-code',
+        json={'code': '【阵容码】##SHOULDFAIL'},
+        headers=headers,
+    )
+
+    assert response.status_code == 400
+    assert response.get_json()['error'] == '当前条目已有原始阵容码，无需补码'

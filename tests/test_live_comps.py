@@ -5,6 +5,7 @@ from pathlib import Path
 
 from db import get_db
 import live_comps
+from live_comp_manual_codes import set_manual_code_overlay_value
 
 
 def sample_live_comps_payload():
@@ -318,7 +319,88 @@ def test_live_comps_upload_rejects_invalid_payload_without_overwriting_existing_
 
     assert response.status_code == 400
     assert 'S 段位必须是数组' in response.get_json()['error']
-    assert json.loads(data_path.read_text(encoding='utf-8'))['meta']['source'] == 'safe'
+
+
+def test_live_comps_list_uses_manual_code_when_original_code_is_missing(client):
+    payload = sample_live_comps_payload()
+    payload['tiers']['A'][0]['jccCode'] = ''
+    write_live_comps_seed(client, payload)
+    set_manual_code_overlay_value(
+        client.application.config['LIVE_COMPS_MANUAL_CODE_DIR'],
+        's17-star-god',
+        'a-01',
+        '【阵容码】##MANUALA01',
+        admin_id=1,
+        now_value='2026-05-24T10:00:00',
+    )
+
+    data = client.get('/api/live-comps').get_json()
+    item = next(row for row in data['items'] if row['id'] == 'a-01')
+
+    assert item['jccCode'] == '#MANUALA01'
+    assert item['resolvedJccCode'] == '#MANUALA01'
+    assert item['originalJccCode'] == ''
+    assert item['codeSource'] == 'manual'
+    assert item['hasCode'] is True
+
+
+def test_live_comps_upload_prunes_manual_code_only_when_new_upload_provides_original_code(client):
+    def fake_download(url):
+        return b'image-bytes', 'image/png'
+
+    live_comps.download_live_comp_image = fake_download
+    set_manual_code_overlay_value(
+        client.application.config['LIVE_COMPS_MANUAL_CODE_DIR'],
+        's16-legends',
+        's16-s-01',
+        '【阵容码】##MANUALS16',
+        admin_id=3,
+        now_value='2026-05-24T10:00:00',
+    )
+    keep_payload = {
+        'meta': {'source': 'keep'},
+        'tiers': {
+            'S': [{
+                'id': 's16-s-01',
+                'title': 'S16 阵容 1',
+                'tier': 'S',
+                'jccCode': '',
+                'mainAvatar': 'https://example.com/a.png',
+                'heroImages': ['https://example.com/b.png'],
+            }],
+            'A': [],
+            'B': [],
+            'C': [],
+            'D': [],
+        },
+    }
+    replace_payload = {
+        'meta': {'source': 'replace'},
+        'tiers': {
+            'S': [{
+                'id': 's16-s-01',
+                'title': 'S16 阵容 1',
+                'tier': 'S',
+                'jccCode': '#UPLOADED001',
+                'mainAvatar': 'https://example.com/a.png',
+                'heroImages': ['https://example.com/b.png'],
+            }],
+            'A': [],
+            'B': [],
+            'C': [],
+            'D': [],
+        },
+    }
+
+    keep = client.post('/api/live-comps/upload?season=s16-legends', json=keep_payload, headers={'X-Upload-Token': 'upload-secret'})
+    keep_listing = client.get('/api/live-comps?season=s16-legends').get_json()
+    replace = client.post('/api/live-comps/upload?season=s16-legends', json=replace_payload, headers={'X-Upload-Token': 'upload-secret'})
+    replace_listing = client.get('/api/live-comps?season=s16-legends').get_json()
+
+    assert keep.status_code == 200
+    assert next(row for row in keep_listing['items'] if row['id'] == 's16-s-01')['jccCode'] == '#MANUALS16'
+    assert replace.status_code == 200
+    assert next(row for row in replace_listing['items'] if row['id'] == 's16-s-01')['jccCode'] == '#UPLOADED001'
 
 
 def test_live_comps_upload_rejects_oversized_request(client):

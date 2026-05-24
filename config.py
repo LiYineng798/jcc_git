@@ -11,6 +11,7 @@ def apply_config(app, test_config=None):
         LIVE_COMPS_ASSET_DIR=os.path.join(app.instance_path, 'live-comps-assets'),
         LIVE_COMPS_SEASON_MANIFEST_PATH=os.path.join(app.instance_path, 'live-comps-seasons.json'),
         LIVE_COMPS_SEASON_DIR=os.path.join(app.instance_path, 'live-comps-seasons'),
+        LIVE_COMPS_MANUAL_CODE_DIR=os.path.join(app.instance_path, 'live-comps-manual-codes'),
         LIVE_COMPS_DEFAULT_SEASON_ID=os.environ.get('JCC_LIVE_COMPS_DEFAULT_SEASON_ID', 's17-star-god'),
         LIVE_COMPS_PAGE_SIZE=6,
         LIVE_COMPS_MAX_UPLOAD_BYTES=5 * 1024 * 1024,

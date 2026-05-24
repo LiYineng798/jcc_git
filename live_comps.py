@@ -10,6 +10,11 @@ from pathlib import Path
 
 from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from db import get_db, now_text
+from live_comp_manual_codes import (
+    load_manual_code_overlay,
+    merge_manual_codes_into_payload,
+    prune_manual_codes_for_payload,
+)
 from lineup_code import extract_lineup_code
 from seasons import DEFAULT_SEASON_ID, canonical_season_id, season_catalog, season_manifest
 
@@ -82,6 +87,10 @@ def manifest_path():
 
 def season_dir():
     return Path(current_app.config['LIVE_COMPS_SEASON_DIR'])
+
+
+def manual_code_dir():
+    return Path(current_app.config['LIVE_COMPS_MANUAL_CODE_DIR'])
 
 
 def season_data_filename(season_id):
@@ -205,7 +214,7 @@ def default_season_file_exists():
     return Path(current_app.config['LIVE_COMPS_DATA_PATH']).exists()
 
 
-def read_live_comps_payload_for_season(season_id=None):
+def read_raw_live_comps_payload_for_season(season_id=None):
     manifest = load_live_comps_manifest()
     selected_id = canonical_season_id(season_id) or manifest['default_season_id']
     season = next((item for item in manifest['seasons'] if item['id'] == selected_id), None)
@@ -225,6 +234,13 @@ def read_live_comps_payload_for_season(season_id=None):
         return normalize_live_comps_payload(payload), updated_at, True, manifest, season
     except Exception:
         return empty_live_comps_payload(), updated_at, False, manifest, season
+
+
+def read_live_comps_payload_for_season(season_id=None):
+    payload, updated_at, is_valid, manifest, season = read_raw_live_comps_payload_for_season(season_id)
+    overlay = load_manual_code_overlay(manual_code_dir(), season['id'])
+    merged_payload = merge_manual_codes_into_payload(payload, overlay)
+    return merged_payload, updated_at, is_valid, manifest, season
 
 
 def read_live_comps_payload():
@@ -405,14 +421,20 @@ def increment_live_comp_global_copy_count():
     return load_live_comp_global_stats()
 
 
-def build_admin_live_comp_stats_payload(payload, updated_at, is_valid):
+def build_admin_live_comp_stats_payload(payload, updated_at, is_valid, season=None, manifest=None, page=1, page_size=20):
+    listing = get_missing_live_comps_page(payload, page, page_size)
     return {
-        'items': [],
-        'total': 0,
-        'page': 1,
-        'page_size': 20,
-        'total_pages': 1,
+        'items': listing['items'],
+        'total': listing['total'],
+        'page': listing['page'],
+        'page_size': listing['page_size'],
+        'total_pages': listing['total_pages'],
         'updated_at': updated_at,
+        'season': {
+            'id': (season or {}).get('id'),
+            'name': (season or {}).get('name'),
+            'status': (season or {}).get('status'),
+        },
         'source_meta': {
             **payload.get('meta', {}),
             'is_valid': is_valid,
@@ -423,6 +445,22 @@ def build_admin_live_comp_stats_payload(payload, updated_at, is_valid):
 
 def get_combined_live_comps_page(payload, page, page_size):
     items = flatten_live_comps(payload)
+    total = len(items)
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    safe_page = min(max(page, 1), total_pages)
+    start = (safe_page - 1) * page_size
+    end = start + page_size
+    return {
+        'items': items[start:end],
+        'total': total,
+        'page': safe_page,
+        'page_size': page_size,
+        'total_pages': total_pages,
+    }
+
+
+def get_missing_live_comps_page(payload, page, page_size):
+    items = [item for item in flatten_live_comps(payload) if not item.get('hasCode')]
     total = len(items)
     total_pages = max(1, (total + page_size - 1) // page_size)
     safe_page = min(max(page, 1), total_pages)
@@ -459,8 +497,9 @@ def write_live_comps_payload(payload):
 def write_live_comps_payload_for_season(season_id, payload):
     validate_live_comps_payload(payload)
     payload = cache_live_comps_payload_images(payload)
-    ensure_live_comps_season(season_id)
-    data_path = season_data_path(season_id)
+    safe_season_id = canonical_season_id(season_id) or DEFAULT_LIVE_COMPS_SEASON_ID
+    ensure_live_comps_season(safe_season_id)
+    data_path = season_data_path(safe_season_id)
     backup_path = Path(current_app.config['LIVE_COMPS_BACKUP_PATH'])
     data_path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = data_path.with_suffix('.tmp')
@@ -469,6 +508,7 @@ def write_live_comps_payload_for_season(season_id, payload):
     if data_path.exists():
         shutil.copyfile(data_path, backup_path)
     os.replace(temp_path, data_path)
+    prune_manual_codes_for_payload(manual_code_dir(), safe_season_id, payload)
 
 
 @live_comps_bp.get(f'{LIVE_COMP_ASSET_ROUTE}/<path:filename>')

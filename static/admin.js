@@ -1,4 +1,4 @@
-(async function () {
+﻿(async function () {
   const root = document.querySelector('#adminApp');
   const dialogRoot = document.querySelector('#adminDialogRoot');
   const elements = {
@@ -20,7 +20,8 @@
     growthDate: todayInputValue(),
     reports: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, status: 'pending', loadedAt: 0 },
     lineups: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
-    liveComps: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', updated_at: null, source_meta: null, loadedAt: 0 },
+    liveComps: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', updated_at: null, source_meta: null, selectedSeasonId: '', loadedAt: 0 },
+    liveCompsSeasons: { seasons: [], default_season_id: '', loadedAt: 0 },
     users: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
     audit: { items: [], total: 0, page: 1, page_size: 30, total_pages: 1, loadedAt: 0 },
     controllers: {},
@@ -28,6 +29,8 @@
     notice: '',
     passwordUser: null,
     passwordError: '',
+    liveCompManualCodeTarget: null,
+    liveCompManualCodeError: '',
   };
   const statusText = {
     pending: '待处理',
@@ -37,8 +40,15 @@
     hidden: '已隐藏',
     deleted: '已删除',
     active: '正常',
+    archived: '已归档',
     disabled: '已禁用',
   };
+  const liveSeasonStatusOptions = [
+    ['active', '启用展示'],
+    ['archived', '归档展示'],
+    ['hidden', '后台隐藏'],
+    ['disabled', '停用'],
+  ];
 
   initTheme();
   elements.themeToggle?.addEventListener('click', () => {
@@ -79,6 +89,7 @@
     state.me = me.user;
     state.csrfToken = me.csrf_token;
     await loadOverview({ force: true });
+    await loadAdminLiveCompsSeasons({ force: true });
     render();
   }
 
@@ -154,16 +165,25 @@
   }
 
   async function loadAdminLiveComps({ force = false } = {}) {
+    if (!state.liveComps.selectedSeasonId) {
+      state.liveComps.selectedSeasonId = state.liveCompsSeasons.default_season_id || (state.liveCompsSeasons.seasons[0] || {}).id || '';
+    }
     if (!force && isFresh(state.liveComps.loadedAt)) return;
     abortRequest('liveComps');
     state.controllers.liveComps = new AbortController();
     const query = new URLSearchParams({
-      q: state.liveComps.query,
+      season: state.liveComps.selectedSeasonId,
       page: String(state.liveComps.page),
       page_size: String(state.liveComps.page_size),
     });
     const payload = await api(`/api/admin/live-comps?${query.toString()}`, { signal: state.controllers.liveComps.signal });
     state.liveComps = { ...state.liveComps, ...payload, loadedAt: Date.now() };
+  }
+
+  async function loadAdminLiveCompsSeasons({ force = false } = {}) {
+    if (!force && isFresh(state.liveCompsSeasons.loadedAt)) return;
+    const payload = await api('/api/admin/live-comps/seasons');
+    state.liveCompsSeasons = { ...payload, loadedAt: Date.now() };
   }
 
   async function loadUsers({ force = false } = {}) {
@@ -208,7 +228,7 @@
     if (state.activeTab === 'users') root.append(renderUsersWorkspace());
     if (state.activeTab === 'analytics') root.append(renderAnalyticsWorkspace());
     if (state.activeTab === 'audit') root.append(renderAuditWorkspace());
-    renderPasswordDialog();
+    renderDialogs();
   }
 
   function syncHeader() {
@@ -437,16 +457,108 @@
   }
 
   function renderLiveCompsWorkspace() {
-    const panel = workbenchPanel('实时阵容', '按实时阵容专区整体统计复制次数，不再按单个阵容码拆分');
+    const panel = workbenchPanel('实时阵容', '按实时阵容专区整体统计与赛季管理，支持按赛季查看并给缺少阵容码的条目补码');
     const body = panel.querySelector('.admin-workspace-body');
+    body.append(renderLiveCompSeasonPicker());
     body.append(el('p', 'admin-meta', state.liveComps.updated_at ? `实时阵容数据更新时间：${state.liveComps.updated_at}` : '实时阵容数据更新时间：暂无'));
+    body.append(renderLiveCompMetrics(), el('p', 'admin-meta', `最近统计更新：${state.liveComps.copy_updated_at || '未复制'}`));
+    body.append(renderLiveCompItemList(), renderPagination('liveComps'));
+    body.append(renderLiveCompSeasonManager());
+    return panel;
+  }
+
+  function renderLiveCompSeasonPicker() {
+    const wrap = el('div', 'admin-filter-pills');
+    (state.liveCompsSeasons.seasons || []).forEach((season) => {
+      wrap.append(button(season.name || season.id, async () => {
+        state.liveComps.selectedSeasonId = season.id;
+        state.liveComps.page = 1;
+        await loadAdminLiveComps({ force: true });
+        render();
+      }, `small-button ${state.liveComps.selectedSeasonId === season.id ? 'is-active' : ''}`.trim()));
+    });
+    return wrap;
+  }
+
+  function renderLiveCompMetrics() {
     const metrics = el('div', 'traffic-grid');
     metrics.append(
       trafficMetric('今日复制', state.liveComps.today_copy_count || 0, '今天实时阵容专区所有复制点击'),
       trafficMetric('累计复制', state.liveComps.total_copy_count || 0, '从统计开始至今的所有复制点击'),
     );
-    body.append(metrics, el('p', 'admin-meta', `最近统计更新：${state.liveComps.copy_updated_at || '未复制'}`));
-    return panel;
+    return metrics;
+  }
+
+  function renderLiveCompItemList() {
+    const list = el('div', 'admin-list compact');
+    if (!state.liveComps.items.length) {
+      list.append(empty('当前赛季暂无实时阵容'));
+      return list;
+    }
+    state.liveComps.items.forEach((item) => {
+      const card = el('article', 'admin-row-card');
+      const info = el('div');
+      info.append(
+        el('strong', '', `${item.tier} · ${item.title}`),
+        el('p', 'admin-meta', `ID：${item.id} · 阵容码状态：${item.hasCode ? '有' : '无'} · 来源：${item.codeSource === 'manual' ? '管理员补码' : item.codeSource === 'original' ? '原始阵容码' : '暂无阵容码'}`),
+      );
+      if (item.hasCode) {
+        info.append(el('pre', 'admin-code', item.resolvedJccCode || item.jccCode || ''));
+      }
+      const actions = el('div', 'card-actions');
+      if (!item.hasCode && !item.originalJccCode) {
+        actions.append(button('补码', async () => openLiveCompManualCodeDialog(item)));
+      }
+      card.append(info, actions);
+      list.append(card);
+    });
+    return list;
+  }
+
+  function renderLiveCompSeasonManager() {
+    const seasonPanel = el('div', 'admin-subpanel');
+    const seasonHeader = el('div', 'admin-subpanel-head');
+    seasonHeader.append(el('h3', '', '赛季管理'));
+    seasonHeader.append(button('刷新赛季', async () => {
+      await loadAdminLiveCompsSeasons({ force: true });
+      render();
+    }));
+    seasonPanel.append(seasonHeader);
+
+    const seasonList = el('div', 'admin-season-list');
+    (state.liveCompsSeasons.seasons || []).forEach((season) => {
+      const card = el('article', 'admin-season-card');
+      const info = el('div', 'admin-season-info');
+      info.append(
+        el('strong', '', season.name || season.id),
+        el('p', 'admin-meta', `${season.id} · ${statusText[season.status] || season.status || '正常'} · ${season.description || '无说明'}`),
+      );
+      const controls = el('div', 'admin-season-controls');
+      liveSeasonStatusOptions.forEach(([status, label]) => {
+        controls.append(button(label, async () => {
+          await api(`/api/admin/live-comps/seasons/${encodeURIComponent(season.id)}`, {
+            method: 'PUT',
+            body: JSON.stringify({ status }),
+          });
+          await loadAdminLiveCompsSeasons({ force: true });
+          render();
+        }, `small-button${season.status === status ? ' is-active' : ''}`));
+      });
+      if (season.id !== state.liveCompsSeasons.default_season_id) {
+        controls.append(button('设为默认', async () => {
+          await api(`/api/admin/live-comps/seasons/${encodeURIComponent(season.id)}`, {
+            method: 'PUT',
+            body: JSON.stringify({ default_season_id: season.id }),
+          });
+          await loadAdminLiveCompsSeasons({ force: true });
+          render();
+        }));
+      }
+      card.append(info, controls);
+      seasonList.append(card);
+    });
+    seasonPanel.append(seasonList);
+    return seasonPanel;
   }
 
   function lineupSearchControls() {
@@ -779,18 +891,41 @@
   function openPasswordDialog(user) {
     state.passwordUser = user;
     state.passwordError = '';
-    renderPasswordDialog();
+    renderDialogs();
   }
 
   function closePasswordDialog() {
     state.passwordUser = null;
     state.passwordError = '';
-    renderPasswordDialog();
+    renderDialogs();
+  }
+
+  function openLiveCompManualCodeDialog(item) {
+    state.liveCompManualCodeTarget = item;
+    state.liveCompManualCodeError = '';
+    renderDialogs();
+  }
+
+  function closeLiveCompManualCodeDialog() {
+    state.liveCompManualCodeTarget = null;
+    state.liveCompManualCodeError = '';
+    renderDialogs();
+  }
+
+  function renderDialogs() {
+    if (!dialogRoot) return;
+    dialogRoot.replaceChildren();
+    if (state.passwordUser) {
+      renderPasswordDialog();
+      return;
+    }
+    if (state.liveCompManualCodeTarget) {
+      renderLiveCompManualCodeDialog();
+    }
   }
 
   function renderPasswordDialog() {
     if (!dialogRoot) return;
-    dialogRoot.replaceChildren();
     if (!state.passwordUser) return;
 
     const overlay = el('div', 'modal-backdrop');
@@ -840,12 +975,12 @@
     const confirmPassword = form.querySelector('#confirmPasswordInput').value;
     if (!isValidPassword(password)) {
       state.passwordError = '密码需大于5位且包含字母和数字';
-      renderPasswordDialog();
+      renderDialogs();
       return;
     }
     if (password !== confirmPassword) {
       state.passwordError = '两次输入的密码不一致';
-      renderPasswordDialog();
+      renderDialogs();
       return;
     }
     await api(`/api/admin/users/${state.passwordUser.id}`, {
@@ -856,6 +991,64 @@
     closePasswordDialog();
     if (state.users.searched) await loadUsers({ force: true });
     setNotice(`已更新 ${passwordUser.nickname} 的密码`);
+  }
+
+  function renderLiveCompManualCodeDialog() {
+    if (!dialogRoot || !state.liveCompManualCodeTarget) return;
+    const target = state.liveCompManualCodeTarget;
+    const overlay = el('div', 'modal-backdrop');
+    const card = el('section', 'modal-card admin-live-code-dialog');
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-labelledby', 'liveCompManualCodeTitle');
+
+    const header = el('div', 'modal-header');
+    const titleWrap = el('div');
+    const title = el('h2', '', '补录实时阵容码');
+    title.id = 'liveCompManualCodeTitle';
+    titleWrap.append(title, el('p', 'admin-meta', `${target.tier} · ${target.title} · ${target.id}`));
+    header.append(titleWrap, button('取消', async () => closeLiveCompManualCodeDialog()));
+
+    const form = el('form', 'modal-form');
+    form.innerHTML = `
+      <label class="field">
+        <span>阵容码</span>
+        <textarea id="liveCompManualCodeInput" name="code" rows="4" placeholder="粘贴阵容码"></textarea>
+      </label>
+      <div class="message" id="liveCompManualCodeMessage">${state.liveCompManualCodeError || ''}</div>
+      <div class="editor-actions">
+        <button class="primary-button" type="submit">保存</button>
+        <button class="ghost-button" type="button" id="cancelLiveCompManualCodeButton">取消</button>
+      </div>
+    `;
+    form.addEventListener('submit', submitLiveCompManualCode);
+    form.querySelector('#cancelLiveCompManualCodeButton').addEventListener('click', closeLiveCompManualCodeDialog);
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closeLiveCompManualCodeDialog();
+    });
+
+    card.append(header, form);
+    overlay.append(card);
+    dialogRoot.append(overlay);
+  }
+
+  async function submitLiveCompManualCode(event) {
+    event.preventDefault();
+    const target = state.liveCompManualCodeTarget;
+    const code = event.currentTarget.querySelector('#liveCompManualCodeInput').value;
+    try {
+      await api(`/api/admin/live-comps/${encodeURIComponent(state.liveComps.selectedSeasonId)}/${encodeURIComponent(target.id)}/manual-code`, {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      });
+    } catch (error) {
+      state.liveCompManualCodeError = error.message || '保存失败';
+      renderDialogs();
+      return;
+    }
+    closeLiveCompManualCodeDialog();
+    await loadAdminLiveComps({ force: true });
+    setNotice('实时阵容补码已保存');
   }
 
   function isValidPassword(password) {

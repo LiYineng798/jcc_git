@@ -1,4 +1,4 @@
-﻿from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 
@@ -6,7 +6,15 @@ from analytics import growth_summary
 from audit import write_audit
 from auth import admin_required, validate_password
 from db import get_db, now_text
-from live_comps import build_admin_live_comp_stats_payload, load_live_comps_manifest, read_live_comps_payload, save_live_comps_manifest
+from live_comp_manual_codes import set_manual_code_overlay_value
+from live_comps import (
+    build_admin_live_comp_stats_payload,
+    find_live_comp,
+    load_live_comps_manifest,
+    read_live_comps_payload_for_season,
+    read_raw_live_comps_payload_for_season,
+    save_live_comps_manifest,
+)
 from lineups import _lineup_row, _serialize
 from scoring import score_map
 from visits import daily_new_returning_visitors, daily_uv_count, last_7_days_uv, tracked_template_response
@@ -196,8 +204,53 @@ def admin_live_comps():
     admin, error = admin_required()
     if error:
         return error
-    payload, updated_at, is_valid = read_live_comps_payload()
-    return jsonify(build_admin_live_comp_stats_payload(payload, updated_at, is_valid))
+    season_id = request.args.get('season')
+    payload, updated_at, is_valid, manifest, season = read_live_comps_payload_for_season(season_id)
+    return jsonify(build_admin_live_comp_stats_payload(
+        payload,
+        updated_at,
+        is_valid,
+        season=season,
+        manifest=manifest,
+        page=_parse_page(),
+        page_size=_parse_page_size(default=20, maximum=100),
+    ))
+
+
+@admin_bp.post('/api/admin/live-comps/<season_id>/<live_comp_id>/manual-code')
+def admin_add_live_comp_manual_code(season_id, live_comp_id):
+    admin, error = admin_required()
+    if error:
+        return error
+    payload, _, _, _, season = read_raw_live_comps_payload_for_season(season_id)
+    target = find_live_comp(payload, live_comp_id)
+    if not target:
+        return jsonify({'error': '实时阵容不存在'}), 404
+    if str(target.get('jccCode') or '').strip():
+        return jsonify({'error': '当前条目已有原始阵容码，无需补码'}), 400
+    data = request.get_json(silent=True) or {}
+    set_manual_code_overlay_value(
+        current_app.config['LIVE_COMPS_MANUAL_CODE_DIR'],
+        season['id'],
+        live_comp_id,
+        str(data.get('code') or ''),
+        admin_id=admin['id'],
+        now_value=now_text(),
+    )
+    merged_payload, _, _, _, _ = read_live_comps_payload_for_season(season['id'])
+    merged_item = find_live_comp(merged_payload, live_comp_id)
+    write_audit(
+        admin['id'],
+        'admin_add_live_comp_manual_code',
+        'live_comp',
+        f'{season["id"]}:{live_comp_id}',
+        before={'jccCode': '', 'resolvedJccCode': ''},
+        after={
+            'season_id': season['id'],
+            'resolvedJccCode': merged_item.get('resolvedJccCode'),
+        },
+    )
+    return jsonify(merged_item)
 
 
 @admin_bp.get('/api/admin/live-comps/seasons')

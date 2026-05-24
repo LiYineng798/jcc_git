@@ -1,4 +1,4 @@
-# 部署说明
+﻿# 部署说明
 
 ## 服务器信息
 
@@ -51,6 +51,8 @@ deploy/nginx.conf.example
 /usr/local/bin/jcc-update
 ```
 
+仓库内模板为 `deploy/update.sh`。服务器上的 `/usr/local/bin/jcc-update` 应保持与该模板一致，或只修改路径变量。
+
 标准流程：
 
 1. 自动备份数据库。
@@ -61,6 +63,8 @@ deploy/nginx.conf.example
 6. 调用健康检查接口。
 
 ## 数据库备份
+
+部署更新脚本会先调用 `scripts/maintenance/backup_database.py` 自动备份线上数据库，再拉取 GitHub 最新代码。
 
 手工备份命令：
 
@@ -113,3 +117,4 @@ journalctl -u jcc -f
 ```json
 {"ok": true}
 ```
+

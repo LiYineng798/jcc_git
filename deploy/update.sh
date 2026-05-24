@@ -1,17 +1,20 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -euo pipefail
 
 PROJECT_DIR="/opt/jcc/jcc_git"
 BACKUP_DIR="/opt/jcc/backups"
 SERVICE_NAME="jcc"
 HEALTH_URL="https://jcc.np5.top/api/health"
+PYTHON_BIN="$PROJECT_DIR/.venv/bin/python"
+if [ ! -x "$PYTHON_BIN" ]; then
+  PYTHON_BIN="python3"
+fi
 
 cd "$PROJECT_DIR"
 
-mkdir -p "$BACKUP_DIR"
-if [ -f "instance/lineups.sqlite3" ]; then
-  cp "instance/lineups.sqlite3" "$BACKUP_DIR/lineups.$(date +%Y%m%d-%H%M%S).sqlite3"
-fi
+"$PYTHON_BIN" scripts/maintenance/backup_database.py \
+  --database "instance/lineups.sqlite3" \
+  --backup-dir "$BACKUP_DIR"
 
 git fetch origin main
 git reset --hard origin/main

@@ -180,7 +180,7 @@ def test_account_js_contains_copy_action_for_recent_history():
 
 
 def test_app_js_contains_hide_action_for_admin_lineups():
-    with open(r'D:\1\\codex\\jcc\\claude_project\\static\\app.js', 'r', encoding='utf-8') as file:
+    with open(r'D:\1\\codex\\jcc\\jcc_git\\.worktrees\\refactor-phase-1\\static\\app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'lineup.can_hide' in js

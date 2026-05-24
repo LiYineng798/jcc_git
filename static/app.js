@@ -342,8 +342,8 @@ function renderLineups() {
     code.textContent = lineup.code;
     const actions = document.createElement('div');
     actions.className = 'card-actions';
-    actions.append(button('查看', () => openLineupDetail(lineup.id)));
     actions.append(button('复制阵容码', () => copyLineup(lineup)));
+    actions.append(button('查看', () => openLineupDetail(lineup.id)));
     actions.append(button(lineup.is_liked_today ? '今日已赞' : '点赞', () => likeLineup(lineup), '', Boolean(state.user && lineup.is_liked_today)));
     actions.append(button(lineup.is_favorited ? '取消收藏' : '收藏', () => favoriteLineup(lineup)));
     actions.append(button('举报', () => reportLineup(lineup)));

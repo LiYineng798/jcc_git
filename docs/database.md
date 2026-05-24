@@ -1,4 +1,4 @@
-# 数据库说明
+﻿# 数据库说明
 
 ## 数据库位置
 
@@ -71,7 +71,13 @@ db.py
 
 ## 备份
 
-生产环境更新前必须备份：
+生产环境更新前必须备份；标准更新脚本会自动执行以下维护脚本：
+
+```bash
+python scripts/maintenance/backup_database.py --database instance/lineups.sqlite3 --backup-dir /opt/jcc/backups
+```
+
+也可以手工备份：
 
 ```bash
 mkdir -p /opt/jcc/backups
@@ -90,3 +96,4 @@ tar -czf /opt/jcc/backups/live-comps-assets.$(date +%Y%m%d-%H%M%S).tar.gz /opt/j
 - 不要在部署时覆盖服务器 `instance/`。
 - 修改 `db.py`、`migrate.py` 后必须运行相关测试。
 - 如果未来数据库变更变多，应引入 `schema_migrations` 版本表。
+

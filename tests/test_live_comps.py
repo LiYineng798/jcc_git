@@ -5,6 +5,7 @@ from pathlib import Path
 
 from db import get_db
 import live_comps
+import live_comps_helpers
 from live_comp_manual_codes import set_manual_code_overlay_value
 
 
@@ -131,7 +132,7 @@ def test_upload_live_comps_registers_missing_season(client):
     import live_comps
     def fake_download(url):
         return b'image-bytes', 'image/jpeg'
-    live_comps.download_live_comp_image = fake_download
+    live_comps_helpers.download_live_comp_image = fake_download
     response = client.post(
         '/api/live-comps/upload?season=s18-new-season',
         json=payload,
@@ -248,7 +249,7 @@ def test_live_comps_upload_allows_items_without_jcc_code(client):
     def fake_download(url):
         return b'image-bytes', 'image/png'
 
-    live_comps.download_live_comp_image = fake_download
+    live_comps_helpers.download_live_comp_image = fake_download
     response = client.post(
         '/api/live-comps/upload?season=s16-legends',
         json=payload,
@@ -348,7 +349,7 @@ def test_live_comps_upload_prunes_manual_code_only_when_new_upload_provides_orig
     def fake_download(url):
         return b'image-bytes', 'image/png'
 
-    live_comps.download_live_comp_image = fake_download
+    live_comps_helpers.download_live_comp_image = fake_download
     set_manual_code_overlay_value(
         client.application.config['LIVE_COMPS_MANUAL_CODE_DIR'],
         's16-legends',
@@ -455,7 +456,7 @@ def test_live_comps_upload_caches_remote_images_and_rewrites_urls(client, monkey
     def fake_download(url):
         return b'image-bytes', 'image/jpeg'
 
-    monkeypatch.setattr(live_comps, 'download_live_comp_image', fake_download)
+    monkeypatch.setattr(live_comps_helpers, 'download_live_comp_image', fake_download)
 
     response = client.post(
         '/api/live-comps/upload',

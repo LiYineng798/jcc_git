@@ -1,4 +1,4 @@
-# 项目结构说明
+﻿# 项目结构说明
 
 ## 唯一主仓库
 
@@ -21,11 +21,28 @@
 ```text
 jcc_git/
 ├─ app.py                    # Flask 入口和页面路由
+├─ app_pages.py              # 页面路由注册与测试辅助挂载
 ├─ admin.py                  # 管理员页面和管理员 API
+├─ admin_audit_service.py    # 管理员审计日志分页逻辑
+├─ admin_dashboard_service.py# 管理员仪表盘、概览、增长统计逻辑
+├─ admin_live_comp_service.py# 管理员实时阵容管理与赛季配置逻辑
+├─ admin_lineup_service.py   # 管理员阵容管理逻辑
+├─ admin_report_service.py   # 管理员举报处理逻辑
+├─ admin_user_service.py     # 管理员用户管理逻辑
 ├─ auth.py                   # 注册、登录、退出、当前用户 API
 ├─ lineups.py                # 阵容列表、详情、创建、编辑、互动 API
+├─ lineup_account_service.py # 作者页和个人中心读取逻辑
+├─ lineup_bridge_service.py  # 最近记录与增长事件桥接逻辑
+├─ lineup_interaction_service.py # 点赞、复制、收藏、举报逻辑
+├─ lineup_read_service.py    # 阵容列表和详情读取逻辑
+├─ lineup_write_service.py   # 阵容创建、编辑、删除、隐藏逻辑
+├─ lineups_query.py          # 阵容列表查询和 SQL 组装
+├─ lineups_serialization.py  # 阵容输出结构和交互状态组装
+├─ route_response.py         # 通用 service 结果转 HTTP 响应助手
 ├─ live_comps.py             # 实时阵容 API、图片缓存、复制统计
 ├─ db.py                     # SQLite 连接、建表、迁移、索引
+├─ db_migrations.py          # SQLite 迁移与索引补齐逻辑
+├─ db_schema.py              # SQLite 基础 schema、字段迁移常量、表辅助函数
 ├─ static/                   # 前端静态资源
 ├─ templates/                # Jinja 页面模板
 ├─ tests/                    # 自动化测试
@@ -40,12 +57,12 @@ jcc_git/
 
 | 类型 | 示例 | 说明 |
 |---|---|---|
-| 服务端代码 | `app.py`、`lineups.py`、`live_comps.py` | 线上运行需要 |
+| 服务端代码 | `app.py`、`app_pages.py`、`admin.py`、`admin_audit_service.py`、`admin_dashboard_service.py`、`admin_live_comp_service.py`、`admin_lineup_service.py`、`admin_report_service.py`、`admin_user_service.py`、`lineups.py`、`lineup_account_service.py`、`lineup_bridge_service.py`、`lineup_interaction_service.py`、`lineup_read_service.py`、`lineup_write_service.py`、`lineups_query.py`、`lineups_serialization.py`、`route_response.py`、`live_comps.py`、`db.py`、`db_migrations.py`、`db_schema.py` | 线上运行需要 |
 | 前端资源 | `static/`、`templates/` | 线上运行需要 |
 | 测试 | `tests/` | 保障迭代质量 |
 | 文档 | `docs/`、`README.md` | 交接和维护 |
 | 部署模板 | `deploy/*.example`、`deploy/update.sh` | 不包含真实密码和私钥 |
-| 维护脚本 | `scripts/maintenance/` | 可在开发或服务器安全运行 |
+| 维护脚本 | `scripts/maintenance/` | 可在开发或服务器安全运行，例如部署安全检查、数据库备份、交付包导出 |
 | 本地脚本 | `scripts/local/` | 允许进入 Git，但默认不进入服务器交付包 |
 
 ## 禁止提交的内容
@@ -102,3 +119,4 @@ src/jcc/
 - 数据库迁移保持兼容。
 - 每次只拆一个模块。
 - 每次拆分前后都运行相关测试。
+

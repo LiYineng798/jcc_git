@@ -56,12 +56,13 @@ def test_lineup_list_filters_by_selected_season(client):
     assert payload['items'][0]['name'] == 'S17 阵容'
 
 
-def test_create_lineup_rejects_missing_or_hidden_season(client):
+def test_create_lineup_defaults_to_public_default_season_and_rejects_invalid_season(client):
     register_user(client)
     missing = client.post('/api/lineups', json={'name': '无赛季', 'code': '#NOSEASON'}, headers=auth_headers(client))
     invalid = client.post('/api/lineups', json={'name': '无效赛季', 'code': '#BADSEASON', 'season_id': 'unknown'}, headers=auth_headers(client))
 
-    assert missing.status_code == 400
+    assert missing.status_code == 201
+    assert missing.get_json()['season_id'] == 's17-star-god'
     assert invalid.status_code == 400
 
 

@@ -1,11 +1,10 @@
-﻿import os
+import os
 
-from flask import Flask, jsonify, render_template, send_from_directory
+from flask import Flask
 
-from auth import login_required
+from app_pages import register_page_routes, register_test_helpers
 from config import apply_config
 from db import close_db, init_db, table_names
-from visits import tracked_template_response
 
 
 def create_app(test_config=None):
@@ -27,52 +26,7 @@ def create_app(test_config=None):
     app.register_blueprint(admin_bp)
     app.register_blueprint(live_comps_bp)
 
-    @app.get('/')
-    def index():
-        return tracked_template_response('index.html', 'home')
-
-    @app.get('/auth')
-    def auth_page():
-        return tracked_template_response('auth.html', 'auth')
-
-    @app.get('/favicon.ico')
-    def favicon():
-        return send_from_directory(
-            os.path.join(app.root_path, 'static'),
-            'favicon.ico',
-            mimetype='image/vnd.microsoft.icon',
-        )
-
-    @app.get('/lineup/new')
-    def lineup_create_page():
-        return tracked_template_response('lineup_form.html', 'lineup_editor', lineup_id='', page_mode='create')
-
-    @app.get('/lineup/<int:lineup_id>/edit')
-    def lineup_edit_page(lineup_id):
-        return tracked_template_response('lineup_form.html', 'lineup_editor', lineup_id=lineup_id, page_mode='edit')
-
-    @app.get('/lineup/<int:lineup_id>')
-    def lineup_detail_page(lineup_id):
-        return tracked_template_response('lineup_detail.html', 'lineup_detail', lineup_id=lineup_id)
-
-    @app.get('/author/<username>')
-    def author_page(username):
-        return tracked_template_response('author.html', 'author', username=username)
-
-    @app.get('/tools/lineup-simulator')
-    def lineup_simulator_page():
-        return tracked_template_response('lineup_simulator.html', 'lineup_simulator')
-
-    @app.get('/me')
-    def account_page():
-        user, error = login_required()
-        if error:
-            return error
-        return tracked_template_response('account.html', 'account')
-
-    @app.get('/api/health')
-    def health():
-        return jsonify({'ok': True})
+    register_page_routes(app)
 
     with app.app_context():
         init_db()
@@ -81,12 +35,11 @@ def create_app(test_config=None):
         with app.app_context():
             return table_names()
 
-    app.get_table_names = get_table_names_for_tests
     def lookup_captcha_answer_for_tests_wrapper(token):
         with app.app_context():
             return lookup_answer_for_tests(token)
 
-    app.lookup_captcha_answer_for_tests = lookup_captcha_answer_for_tests_wrapper
+    register_test_helpers(app, get_table_names_for_tests, lookup_captcha_answer_for_tests_wrapper)
     return app
 
 
@@ -95,6 +48,3 @@ app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-

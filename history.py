@@ -1,5 +1,6 @@
 from db import get_db, now_text
 from scoring import score_map
+from lineups_serialization import serialize_lineup_row
 
 
 def _upsert_history(table_name, user_id, lineup_id, created_at=None):
@@ -49,10 +50,8 @@ def _history_rows(table_name, user_id, limit=20, user=None):
         ''',
         (user_id, *visibility_params, limit),
     ).fetchall()
-    from lineups import _serialize
-
     scores = score_map()
-    return [{**_serialize(row, scores, user=user), 'history_at': row['history_at']} for row in rows]
+    return [{**serialize_lineup_row(row, scores, user=user), 'history_at': row['history_at']} for row in rows]
 
 
 def list_recent_views(user_id, limit=20, user=None):

@@ -1,3 +1,5 @@
+const HOME_VIEW_CACHE_TTL = 60000;
+
 const state = {
   lineups: [],
   liveCompsSummary: null,
@@ -5,6 +7,14 @@ const state = {
   lineupSeasons: [],
   selectedLineupSeasonId: null,
   imageMode: localStorage.getItem('homeImageMode') || 'text',
+  requestControllers: {
+    lineups: null,
+    liveComps: null,
+  },
+  homeViewCache: {
+    lineups: new Map(),
+    liveComps: new Map(),
+  },
   query: '',
   sort: 'live',
   view: 'live-comps',
@@ -153,6 +163,52 @@ async function trackGrowth(eventName, payload = {}) {
   }).catch(() => {});
 }
 
+function abortHomeRequest(kind) {
+  const controller = state.requestControllers[kind];
+  if (controller) controller.abort();
+}
+
+function homeCacheKey(kind, keyParts) {
+  return `${kind}:${keyParts.map((part) => String(part ?? '')).join('|')}`;
+}
+
+function readHomeCache(kind, key) {
+  const cached = state.homeViewCache[kind].get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.loadedAt > HOME_VIEW_CACHE_TTL) {
+    state.homeViewCache[kind].delete(key);
+    return null;
+  }
+  return cached.value;
+}
+
+function writeHomeCache(kind, key, value) {
+  state.homeViewCache[kind].set(key, {
+    loadedAt: Date.now(),
+    value,
+  });
+}
+
+function invalidateHomeViewCache(kind = null) {
+  if (kind) {
+    state.homeViewCache[kind]?.clear();
+    return;
+  }
+  Object.values(state.homeViewCache).forEach((cache) => cache.clear());
+}
+
+async function fetchCachedJson(kind, key, url, signal) {
+  const cached = readHomeCache(kind, key);
+  if (cached) return cached;
+  const data = await fetch(url, { signal }).then((response) => response.json());
+  writeHomeCache(kind, key, data);
+  return data;
+}
+
+function isAbortError(error) {
+  return error?.name === 'AbortError';
+}
+
 async function loadMe() {
   const data = await fetch('/api/me').then((response) => response.json());
   state.user = data.user;
@@ -253,6 +309,7 @@ function closeAccountMenuOnEscape(event) {
 }
 async function logout() {
   await api('/api/logout', { method: 'POST' });
+  invalidateHomeViewCache('lineups');
   state.user = null;
   state.sort = 'live';
   state.view = 'live-comps';
@@ -273,14 +330,33 @@ async function loadLineups() {
   });
   if (state.query) params.set('q', state.query);
   if (state.selectedLineupSeasonId) params.set('season', state.selectedLineupSeasonId);
-  const response = await fetch(`/api/lineups?${params}`).then((result) => result.json());
-  state.lineups = response.items || [];
-  state.total = response.total ?? state.lineups.length;
-  state.page = response.page ?? 1;
-  state.pageSize = response.page_size ?? state.pageSize;
-  state.totalPages = response.total_pages ?? 1;
-  renderLineups();
-  renderPagination();
+  const requestKey = homeCacheKey('lineups', [
+    state.user?.id || 'guest',
+    state.view,
+    state.sort,
+    state.query,
+    state.selectedLineupSeasonId || '',
+    state.page,
+    LINEUP_PAGE_SIZE,
+  ]);
+  abortHomeRequest('lineups');
+  const controller = new AbortController();
+  state.requestControllers.lineups = controller;
+  try {
+    const response = await fetchCachedJson('lineups', requestKey, `/api/lineups?${params}`, controller.signal);
+    state.lineups = response.items || [];
+    state.total = response.total ?? state.lineups.length;
+    state.page = response.page ?? 1;
+    state.pageSize = response.page_size ?? state.pageSize;
+    state.totalPages = response.total_pages ?? 1;
+    renderLineups();
+    renderPagination();
+  } catch (error) {
+    if (isAbortError(error)) return;
+    throw error;
+  } finally {
+    if (state.requestControllers.lineups === controller) state.requestControllers.lineups = null;
+  }
 }
 
 function syncSearchInputState(isLiveComps) {
@@ -292,9 +368,11 @@ function syncSearchInputState(isLiveComps) {
 }
 
 async function loadCurrentView() {
-  syncSearchInputState(state.view === 'live-comps');
-  elements.listTitle.textContent = state.view === 'live-comps' ? '实时阵容排行' : '阵容列表';
-  if (state.view === 'live-comps') {
+  const isLiveComps = state.view === 'live-comps';
+  abortHomeRequest(isLiveComps ? 'lineups' : 'liveComps');
+  syncSearchInputState(isLiveComps);
+  elements.listTitle.textContent = isLiveComps ? '实时阵容排行' : '阵容列表';
+  if (isLiveComps) {
     await loadLiveComps();
     return;
   }
@@ -305,16 +383,29 @@ async function loadLiveComps() {
   await loadLineupSeasons();
   const seasonQuery = state.selectedLineupSeasonId ? `&season=${encodeURIComponent(state.selectedLineupSeasonId)}` : '';
   const summarySeasonQuery = state.selectedLineupSeasonId ? `?season=${encodeURIComponent(state.selectedLineupSeasonId)}` : '';
-  const summary = await fetch(`/api/live-comps/summary${summarySeasonQuery}`).then((response) => response.json());
-  const pagePayload = await fetch(`/api/live-comps?page=${state.page}${seasonQuery}`).then((response) => response.json());
-  state.liveCompsSummary = summary;
-  state.liveCompsPage = pagePayload;
-  state.total = pagePayload.total ?? 0;
-  state.page = pagePayload.page ?? 1;
-  state.pageSize = pagePayload.page_size ?? state.pageSize;
-  state.totalPages = pagePayload.total_pages ?? 1;
-  renderLiveComps();
-  renderPagination();
+  const seasonKey = state.selectedLineupSeasonId || 'default';
+  abortHomeRequest('liveComps');
+  const controller = new AbortController();
+  state.requestControllers.liveComps = controller;
+  try {
+    const [summary, pagePayload] = await Promise.all([
+      fetchCachedJson('liveComps', homeCacheKey('liveSummary', [seasonKey]), `/api/live-comps/summary${summarySeasonQuery}`, controller.signal),
+      fetchCachedJson('liveComps', homeCacheKey('livePage', [seasonKey, state.page]), `/api/live-comps?page=${state.page}${seasonQuery}`, controller.signal),
+    ]);
+    state.liveCompsSummary = summary;
+    state.liveCompsPage = pagePayload;
+    state.total = pagePayload.total ?? 0;
+    state.page = pagePayload.page ?? 1;
+    state.pageSize = pagePayload.page_size ?? state.pageSize;
+    state.totalPages = pagePayload.total_pages ?? 1;
+    renderLiveComps();
+    renderPagination();
+  } catch (error) {
+    if (isAbortError(error)) return;
+    throw error;
+  } finally {
+    if (state.requestControllers.liveComps === controller) state.requestControllers.liveComps = null;
+  }
 }
 
 function renderLineupSeasonFilter() {
@@ -621,6 +712,7 @@ async function copyLineup(lineup) {
   if (!state.user) {
     window.jccHistoryStore?.pushLocalCopy(lineup);
   }
+  invalidateHomeViewCache('lineups');
   showToast('复制成功！祝你把把吃鸡！');
   loadLineups();
 }
@@ -713,6 +805,7 @@ async function likeLineup(lineup) {
   if (requireAuthIntent({ type: 'like_lineup', lineupId: lineup.id }, '登录后可点赞并保留个人记录')) return;
   try {
     await api(`/api/lineups/${lineup.id}/like`, { method: 'POST' });
+    invalidateHomeViewCache('lineups');
     showMessage('点赞成功');
     await loadLineups();
   } catch (error) {
@@ -731,6 +824,7 @@ async function favoriteLineup(lineup) {
       await api(`/api/lineups/${lineup.id}/favorite`, { method: 'POST' });
       showMessage('收藏成功');
     }
+    invalidateHomeViewCache('lineups');
     await loadLineups();
   } catch (error) {
     showMessage(error.message);
@@ -819,6 +913,7 @@ function showReportDialog(lineup) {
 async function hideLineup(lineup) {
   if (!confirm(`确定隐藏“${lineup.name}”吗？`)) return;
   await api(`/api/lineups/${lineup.id}/hide`, { method: 'POST' });
+  invalidateHomeViewCache('lineups');
   showMessage('阵容已隐藏');
   await loadLineups();
 }
@@ -842,6 +937,7 @@ async function consumePendingIntent() {
   if (intent.type === 'favorite_lineup') {
     try {
       await api(`/api/lineups/${intent.lineupId}/favorite`, { method: 'POST' });
+      invalidateHomeViewCache('lineups');
       showMessage('已自动完成收藏');
     } catch (error) {
       showMessage(error.message);
@@ -851,6 +947,7 @@ async function consumePendingIntent() {
   if (intent.type === 'like_lineup') {
     try {
       await api(`/api/lineups/${intent.lineupId}/like`, { method: 'POST' });
+      invalidateHomeViewCache('lineups');
       showMessage('已自动完成点赞');
     } catch (error) {
       showMessage(error.message);
@@ -872,6 +969,7 @@ async function consumePendingIntent() {
 async function deleteLineup(lineup) {
   if (!confirm('确定删除这个阵容吗？')) return;
   await api(`/api/lineups/${lineup.id}`, { method: 'DELETE' });
+  invalidateHomeViewCache('lineups');
   showMessage('删除成功');
   if (state.page > 1 && state.lineups.length === 1) state.page -= 1;
   loadLineups();

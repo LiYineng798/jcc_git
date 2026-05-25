@@ -98,6 +98,19 @@ def test_app_js_defaults_home_image_mode_to_text_only():
     assert 'toggleHomeImageMode' in js
 
 
+def test_app_js_uses_home_view_cache_and_abortable_fetches():
+    with open(r'D:\1\codex\jcc\jcc_git\static\app.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert 'const HOME_VIEW_CACHE_TTL = 60000;' in js
+    assert 'state.requestControllers' in js
+    assert 'AbortController' in js
+    assert 'fetchCachedJson(' in js
+    assert 'state.user?.id || \'guest\'' in js
+    assert 'invalidateHomeViewCache(' in js
+    assert 'Promise.all([' in js
+
+
 def test_auth_page_contains_account_benefits_copy(client):
     html = client.get('/auth').get_data(as_text=True)
     assert '登录后可收藏阵容并跨设备同步' in html

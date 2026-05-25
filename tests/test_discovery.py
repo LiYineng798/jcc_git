@@ -60,3 +60,22 @@ def test_logged_in_recommended_sort_deprioritizes_own_lineups(client):
 
     payload = client.get('/api/lineups?sort=recommended&page=1&page_size=10').get_json()
     assert payload['items'][0]['id'] != own['id']
+
+
+def test_recommended_scores_reuses_supplied_scores_without_recomputing(client, monkeypatch):
+    assert register_user(client, username='rec_cache_owner', email='rec_cache_owner@example.com').status_code == 201
+    response = create_lineup(client, name='推荐缓存阵容', code='#RECCACHE')
+    assert response.status_code == 201
+    lineup = response.get_json()
+
+    import recommendation
+
+    def fail_score_map():
+        raise AssertionError('score_map should not be called when scores are supplied')
+
+    monkeypatch.setattr(recommendation, 'score_map', fail_score_map)
+
+    with client.application.app_context():
+        result = recommendation.recommended_scores(scores={lineup['id']: {'score': 7}})
+
+    assert result[lineup['id']] == 19

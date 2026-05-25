@@ -1,4 +1,9 @@
 from db import get_db
+from lineup_cache import (
+    get_home_view_cache,
+    home_view_cache_key,
+    set_home_view_cache,
+)
 from lineups_query import (
     build_list_clauses,
     count_lineups,
@@ -24,21 +29,38 @@ def build_lineups_list_payload(user, view, sort, query, season_id, wants_page, p
             return {'items': [], 'total': 0, 'page': 1, 'page_size': page_size, 'total_pages': 1}
         return []
 
+    db = get_db()
+    cache_key = home_view_cache_key(
+        db,
+        user['id'] if user else None,
+        user['role'] if user else None,
+        view,
+        sort,
+        query,
+        season_id,
+        wants_page,
+        page,
+        page_size,
+    )
+    cached = get_home_view_cache(cache_key)
+    if cached is not None:
+        return cached
+
     season_id = canonical_lineup_season_id(season_id)
     default_season_id = lineup_season_manifest().get('default_season_id', DEFAULT_LINEUP_SEASON_ID)
     clauses, params = build_list_clauses(user, view, query, season_id, default_season_id)
-    scores = score_map()
+    scores = score_map(db=db)
 
     if sort in {'hot', 'ss', 'rising', 'recommended'}:
-        lineup_ids = matching_lineup_ids(get_db(), clauses, params)
+        lineup_ids = matching_lineup_ids(db, clauses, params)
         if sort == 'ss':
             lineup_ids = [lineup_id for lineup_id in lineup_ids if scores.get(lineup_id, {}).get('rank_level') == 'SS']
             lineup_ids.sort(key=lambda lineup_id: (-scores.get(lineup_id, {}).get('score', 0), lineup_id))
         elif sort == 'rising':
-            trend_scores = rising_map()
+            trend_scores = rising_map(db=db)
             lineup_ids.sort(key=lambda lineup_id: (-trend_scores.get(lineup_id, 0), -scores.get(lineup_id, {}).get('score', 0), lineup_id))
         elif sort == 'recommended':
-            rec_scores = recommended_scores(user=user)
+            rec_scores = recommended_scores(user=user, scores=scores, db=db)
             lineup_ids.sort(key=lambda lineup_id: (-rec_scores.get(lineup_id, 0), -scores.get(lineup_id, {}).get('score', 0), lineup_id))
         else:
             lineup_ids.sort(key=lambda lineup_id: (-scores.get(lineup_id, {}).get('score', 0), lineup_id))
@@ -52,7 +74,7 @@ def build_lineups_list_payload(user, view, sort, query, season_id, wants_page, p
         else:
             page_ids = lineup_ids
         rows = fetch_lineup_rows(
-            get_db(),
+            db,
             clauses,
             params,
             user=user,
@@ -62,39 +84,45 @@ def build_lineups_list_payload(user, view, sort, query, season_id, wants_page, p
         rows_by_id = {row['id']: row for row in rows}
         payload = [serialize_lineup_row(rows_by_id[lineup_id], scores, user=user) for lineup_id in page_ids if lineup_id in rows_by_id]
         if wants_page:
-            return {
+            result = {
                 'items': payload,
                 'total': total,
                 'page': page,
                 'page_size': page_size,
                 'total_pages': total_pages,
             }
-        return payload
+        else:
+            result = payload
+        set_home_view_cache(cache_key, result)
+        return result
 
     if wants_page:
-        total = count_lineups(get_db(), clauses, params)
+        total = count_lineups(db, clauses, params)
         total_pages = max(1, (total + page_size - 1) // page_size)
         page = min(page, total_pages)
         start = (page - 1) * page_size
         rows = fetch_lineup_rows(
-            get_db(),
+            db,
             clauses,
             params,
             user=user,
             limit=page_size,
             offset=start,
         )
-        payload = [serialize_lineup_row(row, scores, user=user) for row in rows]
-        return {
-            'items': payload,
+        result = {
+            'items': [serialize_lineup_row(row, scores, user=user) for row in rows],
             'total': total,
             'page': page,
             'page_size': page_size,
             'total_pages': total_pages,
         }
+        set_home_view_cache(cache_key, result)
+        return result
 
-    rows = fetch_lineup_rows(get_db(), clauses, params, user=user)
-    return [serialize_lineup_row(row, scores, user=user) for row in rows]
+    rows = fetch_lineup_rows(db, clauses, params, user=user)
+    result = [serialize_lineup_row(row, scores, user=user) for row in rows]
+    set_home_view_cache(cache_key, result)
+    return result
 
 
 def build_lineup_detail_payload(lineup_id, user):

@@ -1,3 +1,5 @@
+import sqlite3
+
 from db_schema import EXTRA_INDEX_STATEMENTS, LINEUP_COLUMN_MIGRATIONS, table_columns
 
 
@@ -41,4 +43,8 @@ def migrate_lineups_table(db, admin_id):
 
 def ensure_indexes(db):
     for statement in EXTRA_INDEX_STATEMENTS:
-        db.execute(statement)
+        try:
+            db.execute(statement)
+        except sqlite3.OperationalError as exc:
+            if 'no such table' not in str(exc):
+                raise

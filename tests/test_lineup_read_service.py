@@ -57,3 +57,62 @@ def test_build_lineup_detail_payload_rejects_hidden_lineup_for_other_user(client
     assert payload is None
     assert status_code == 404
     assert error == '阵容不存在'
+
+
+def test_build_lineups_list_payload_reuses_cached_home_tab_until_data_changes(client, monkeypatch):
+    assert register_user(client, username='cache_owner', email='cache_owner@example.com').status_code == 201
+    assert create_lineup(client, name='缓存阵容A', code='#CACHE001').status_code == 201
+    user = client.get('/api/me').get_json()['user']
+
+    import lineup_read_service
+
+    original_fetch = lineup_read_service.fetch_lineup_rows
+    calls = {'count': 0}
+
+    def counting_fetch(*args, **kwargs):
+        calls['count'] += 1
+        return original_fetch(*args, **kwargs)
+
+    monkeypatch.setattr(lineup_read_service, 'fetch_lineup_rows', counting_fetch)
+
+    with client.application.app_context():
+        first = build_lineups_list_payload(
+            user=user,
+            view='all',
+            sort='latest',
+            query='',
+            season_id=None,
+            wants_page=True,
+            page=1,
+            page_size=10,
+        )
+        second = build_lineups_list_payload(
+            user=user,
+            view='all',
+            sort='latest',
+            query='',
+            season_id=None,
+            wants_page=True,
+            page=1,
+            page_size=10,
+        )
+
+    assert first == second
+    assert calls['count'] == 1
+
+    assert create_lineup(client, name='缓存阵容B', code='#CACHE002').status_code == 201
+
+    with client.application.app_context():
+        refreshed = build_lineups_list_payload(
+            user=user,
+            view='all',
+            sort='latest',
+            query='',
+            season_id=None,
+            wants_page=True,
+            page=1,
+            page_size=10,
+        )
+
+    assert refreshed['total'] == 2
+    assert calls['count'] == 2

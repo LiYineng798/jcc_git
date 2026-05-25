@@ -64,3 +64,22 @@ def test_score_uses_recent_seven_days_only(client):
     client.post('/api/login', json={'account': 'adminxlx', 'password': 'Admin1234'})
     admin = client.get('/api/admin/lineups', headers=auth_headers(client)).get_json()['items'][0]
     assert admin['score'] == 0
+
+
+def test_score_map_cache_refreshes_after_copy_event(client):
+    register_user(client)
+    lineup = create_lineup(client).get_json()
+    with client.application.app_context():
+        from scoring import score_map
+
+        assert score_map()[lineup['id']]['score'] == 0
+
+    client.post('/api/logout')
+    response = client.post(f"/api/lineups/{lineup['id']}/copy", headers={'X-Forwarded-For': '8.8.8.8'})
+    assert response.status_code == 200
+    assert response.get_json()['counted'] is True
+
+    with client.application.app_context():
+        from scoring import score_map
+
+        assert score_map()[lineup['id']]['score'] == 1

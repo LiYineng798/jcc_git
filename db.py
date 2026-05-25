@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import current_app, g
 from werkzeug.security import generate_password_hash
 
+from lineup_cache import clear_lineup_query_caches
 from db_migrations import ensure_indexes, migrate_schema
 from db_schema import (
     SCHEMA,
@@ -39,6 +40,7 @@ def init_db():
     admin_id = bootstrap_admin(db)
     migrate_schema(db, admin_id, now_text)
     ensure_indexes(db)
+    clear_lineup_query_caches()
     db.commit()
 
 

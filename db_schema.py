@@ -66,6 +66,17 @@ CREATE TABLE IF NOT EXISTS live_comp_global_daily_stats (
     updated_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS cache_state (
+    cache_key TEXT PRIMARY KEY,
+    revision INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+INSERT OR IGNORE INTO cache_state (cache_key, revision, created_at, updated_at) VALUES
+('home', 0, strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+('score', 0, strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'));
+
 CREATE TABLE IF NOT EXISTS favorites (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -181,6 +192,114 @@ ON likes (lineup_id, created_at);
 
 CREATE INDEX IF NOT EXISTS idx_copy_events_lineup_created_at
 ON copy_events (lineup_id, created_at);
+
+CREATE TRIGGER IF NOT EXISTS trg_lineups_cache_state_insert
+AFTER INSERT ON lineups
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_lineups_cache_state_update
+AFTER UPDATE ON lineups
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_lineups_cache_state_delete
+AFTER DELETE ON lineups
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_likes_cache_state_insert
+AFTER INSERT ON likes
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_likes_cache_state_update
+AFTER UPDATE ON likes
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_likes_cache_state_delete
+AFTER DELETE ON likes
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_copy_events_cache_state_insert
+AFTER INSERT ON copy_events
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_copy_events_cache_state_update
+AFTER UPDATE ON copy_events
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_copy_events_cache_state_delete
+AFTER DELETE ON copy_events
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key IN ('home', 'score');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_favorites_cache_state_insert
+AFTER INSERT ON favorites
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key = 'home';
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_favorites_cache_state_update
+AFTER UPDATE ON favorites
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key = 'home';
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_favorites_cache_state_delete
+AFTER DELETE ON favorites
+BEGIN
+    UPDATE cache_state
+    SET revision = revision + 1,
+        updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
+    WHERE cache_key = 'home';
+END;
 '''
 
 
@@ -197,6 +316,9 @@ LINEUP_COLUMN_MIGRATIONS = {
 EXTRA_INDEX_STATEMENTS = (
     'CREATE INDEX IF NOT EXISTS idx_lineups_user_status_updated_at ON lineups (user_id, status, updated_at)',
     'CREATE INDEX IF NOT EXISTS idx_lineups_season_status_updated_at ON lineups (season_id, status, updated_at)',
+    'CREATE INDEX IF NOT EXISTS idx_lineups_status_updated_id ON lineups (status, updated_at DESC, id DESC)',
+    'CREATE INDEX IF NOT EXISTS idx_likes_created_lineup ON likes (created_at, lineup_id)',
+    'CREATE INDEX IF NOT EXISTS idx_copy_events_counted_created_lineup ON copy_events (counted, created_at, lineup_id)',
 )
 
 

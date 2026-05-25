@@ -38,3 +38,5 @@ webApplication/
 test-tmp/
 test-lineups.sqlite3
 smoke.sqlite3
+
+.worktrees/

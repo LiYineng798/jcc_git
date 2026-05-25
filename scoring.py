@@ -1,7 +1,15 @@
-﻿from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 from math import ceil
 
 from db import get_db
+from lineup_cache import (
+    get_rising_cache,
+    get_score_cache,
+    rising_cache_key,
+    score_cache_key,
+    set_rising_cache,
+    set_score_cache,
+)
 
 
 def score_cutoff(now=None):
@@ -72,8 +80,14 @@ def assign_levels(scores):
     return levels
 
 
-def score_map(include_counts=True):
-    scores = compute_lineup_scores()
+def score_map(include_counts=True, db=None, refresh=False):
+    db = db or get_db()
+    cache_key = score_cache_key(db)
+    if not refresh:
+        cached = get_score_cache(cache_key)
+        if cached is not None:
+            return cached
+    scores = compute_lineup_scores(db=db)
     levels = assign_levels(scores)
     data = {}
     for item in scores:
@@ -83,12 +97,19 @@ def score_map(include_counts=True):
             'like_count': item['like_count'],
             'copy_count': item['copy_count'],
         }
+    set_score_cache(cache_key, data)
     return data
 
 
-def rising_map(db=None, now=None):
+def rising_map(db=None, now=None, refresh=False):
     db = db or get_db()
+    requested_now = now
     now = now or datetime.now()
+    cache_key = rising_cache_key(db)
+    if not refresh and requested_now is None:
+        cached = get_rising_cache(cache_key)
+        if cached is not None:
+            return cached
     recent_cutoff = (now - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
     previous_cutoff = (now - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')
     rows = db.execute(
@@ -133,4 +154,6 @@ def rising_map(db=None, now=None):
         recent_score = row['recent_likes'] * 5 + row['recent_copies']
         previous_score = row['previous_likes'] * 5 + row['previous_copies']
         data[row['lineup_id']] = recent_score - previous_score
+    if requested_now is None:
+        set_rising_cache(cache_key, data)
     return data

@@ -1605,11 +1605,15 @@ textarea:focus {
 }
 
 .admin-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface-solid);
   color: var(--muted);
   padding: 10px 16px;
+  white-space: nowrap;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
 }
 
@@ -1853,9 +1857,16 @@ textarea:focus {
   }
 
   .admin-tab-bar {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 4px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .admin-tab {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 14px;
+    padding: 10px 8px;
   }
 
   .admin-search {

@@ -66,6 +66,16 @@ def test_admin_mobile_styles_do_not_force_fixed_height_on_wide_traffic_module():
     assert '.admin-module:not(.admin-module-wide)' in css
 
 
+def test_admin_mobile_tab_bar_uses_readable_grid_layout():
+    with open(r'D:\1\codex\jcc\jcc_git\static\styles.css', 'r', encoding='utf-8') as file:
+        css = file.read()
+
+    assert '.admin-tab-bar {' in css
+    assert 'grid-template-columns: repeat(2, minmax(0, 1fr));' in css
+    assert 'white-space: nowrap;' in css
+    assert 'overflow-x: auto;' not in css[css.index('@media (max-width: 560px)'):]
+
+
 def test_index_page_contains_account_value_copy_and_favorites_tab(client):
     html = client.get('/').get_data(as_text=True)
     assert 'id="favoritesTab"' in html

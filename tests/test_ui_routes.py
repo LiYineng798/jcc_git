@@ -73,6 +73,21 @@ def test_index_page_contains_account_value_copy_and_favorites_tab(client):
     assert '登录后可查看我的收藏和我的阵容' in html
 
 
+def test_index_page_contains_home_image_mode_toggle(client):
+    html = client.get('/').get_data(as_text=True)
+    assert 'id="imageModeToggle"' in html
+    assert 'id="imageModeText"' in html
+
+
+def test_app_js_defaults_home_image_mode_to_text_only():
+    with open(r'D:\1\codex\jcc\jcc_git\static\app.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert "imageMode: localStorage.getItem('homeImageMode') || 'text'" in js
+    assert 'live-comp-card-text-only' in js
+    assert 'toggleHomeImageMode' in js
+
+
 def test_auth_page_contains_account_benefits_copy(client):
     html = client.get('/auth').get_data(as_text=True)
     assert '登录后可收藏阵容并跨设备同步' in html

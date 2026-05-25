@@ -100,6 +100,7 @@ button {
   justify-content: flex-end;
   gap: 10px;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .nav-tool-link {
@@ -115,6 +116,38 @@ button {
 
 .nav-icon-button #themeText {
   display: none;
+}
+
+.image-mode-toggle {
+  width: auto;
+  min-width: 76px;
+  padding: 0 12px;
+  gap: 7px;
+}
+
+.image-mode-toggle[aria-pressed="true"] {
+  border-color: rgba(201, 100, 66, 0.42);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.image-mode-icon {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent-soft) 76%, transparent);
+  color: var(--accent-strong);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+#imageModeText {
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .account-menu-wrap {
@@ -644,6 +677,51 @@ textarea:focus {
   gap: 8px;
 }
 
+.live-comp-card-text-only {
+  border-left: 4px solid var(--tier-color);
+  padding: 15px 16px;
+}
+
+.live-comp-text-header {
+  display: grid;
+  grid-template-areas:
+    "tier title"
+    "tier caption";
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.live-comp-tier-badge {
+  grid-area: tier;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--tier-color);
+  color: var(--tier-contrast);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.live-comp-text-header .live-comp-name {
+  grid-area: title;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.live-comp-text-caption {
+  grid-area: caption;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
 .live-comp-pagination {
   display: flex;
   justify-content: center;
@@ -843,17 +921,32 @@ textarea:focus {
     width: min(100% - 18px, 460px);
   }
 
+  .nav-bar {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
   .nav-actions {
     gap: 8px;
   }
 
   .nav-tool-link {
-    padding-inline: 13px;
+    padding-inline: 11px;
+    font-size: 0.92rem;
   }
 
   .account-toggle {
-    max-width: 150px;
-    padding-inline: 13px;
+    max-width: 140px;
+    padding-inline: 11px;
+  }
+
+  .image-mode-toggle {
+    min-width: 58px;
+    padding-inline: 9px;
+  }
+
+  #imageModeText {
+    font-size: 0.84rem;
   }
 
   .account-menu {

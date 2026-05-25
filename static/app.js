@@ -4,6 +4,7 @@ const state = {
   liveCompsPage: null,
   lineupSeasons: [],
   selectedLineupSeasonId: null,
+  imageMode: localStorage.getItem('homeImageMode') || 'text',
   query: '',
   sort: 'live',
   view: 'live-comps',
@@ -28,6 +29,9 @@ const elements = {
   menuAdminLink: $('#menuAdminLink'),
   menuLogoutButton: $('#menuLogoutButton'),
   createLineupLink: $('#createLineupLink'),
+  imageModeToggle: $('#imageModeToggle'),
+  imageModeIcon: $('#imageModeIcon'),
+  imageModeText: $('#imageModeText'),
   searchInput: $('#searchInput'),
   lineupList: $('#lineupList'),
   emptyState: $('#emptyState'),
@@ -51,8 +55,10 @@ const elements = {
 };
 
 setTheme(localStorage.getItem('theme') || 'light');
+renderHomeImageModeToggle();
 boot();
 
+elements.imageModeToggle?.addEventListener('click', toggleHomeImageMode);
 elements.themeToggle.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
 elements.accountToggle.addEventListener('click', handleAccountToggle);
 elements.menuLogoutButton.addEventListener('click', logout);
@@ -103,6 +109,24 @@ async function boot() {
   applySavedMessage();
   await consumePendingIntent();
   await loadCurrentView();
+}
+
+function renderHomeImageModeToggle() {
+  if (!elements.imageModeToggle || !elements.imageModeText) return;
+  const isImageMode = state.imageMode === 'image';
+  if (elements.imageModeIcon) elements.imageModeIcon.textContent = isImageMode ? '有' : '无';
+  elements.imageModeText.textContent = isImageMode ? '有图' : '无图';
+  elements.imageModeToggle.setAttribute('aria-pressed', String(isImageMode));
+  elements.imageModeToggle.setAttribute('aria-label', isImageMode ? '切换为首页无图片模式' : '切换为首页有图片模式');
+}
+
+function toggleHomeImageMode() {
+  state.imageMode = state.imageMode === 'image' ? 'text' : 'image';
+  localStorage.setItem('homeImageMode', state.imageMode);
+  renderHomeImageModeToggle();
+  if (state.view === 'live-comps') {
+    renderLiveComps();
+  }
 }
 
 async function api(url, options = {}) {
@@ -452,40 +476,9 @@ function renderLiveCompsGrid() {
 
 function renderLiveCompCard(item) {
   const card = document.createElement('article');
-  card.className = `live-comp-card tier-${String(item.tier || '').toLowerCase()}`;
-
-  const header = document.createElement('div');
-  header.className = 'live-comp-header';
-
-  const avatarWrap = document.createElement('div');
-  avatarWrap.className = 'live-comp-avatar-wrap';
-  const avatar = document.createElement('img');
-  avatar.className = 'live-comp-avatar';
-  avatar.src = item.mainAvatar;
-  avatar.alt = item.title;
-  avatar.loading = 'lazy';
-  const badge = document.createElement('span');
-  badge.className = 'live-comp-avatar-badge';
-  badge.textContent = item.tier;
-  avatarWrap.append(avatar, badge);
-
-  const body = document.createElement('div');
-  body.className = 'live-comp-body';
-
-  const name = document.createElement('h3');
-  name.className = 'live-comp-name';
-  name.textContent = item.title;
-
-  const heroes = document.createElement('div');
-  heroes.className = 'live-comp-hero-strip';
-  (item.heroImages || []).forEach((src, index) => {
-    const hero = document.createElement('img');
-    hero.className = 'live-comp-hero';
-    hero.src = src;
-    hero.alt = `${item.title}-${index + 1}`;
-    hero.loading = 'lazy';
-    heroes.append(hero);
-  });
+  card.className = state.imageMode === 'image'
+    ? `live-comp-card tier-${String(item.tier || '').toLowerCase()}`
+    : `live-comp-card live-comp-card-text-only tier-${String(item.tier || '').toLowerCase()}`;
 
   const actions = document.createElement('div');
   actions.className = 'live-comp-actions';
@@ -493,8 +486,64 @@ function renderLiveCompCard(item) {
     ? button('复制阵容码', () => copyLiveCompCode(item))
     : button('暂无阵容码', () => {}, '', true));
 
-  body.append(name, heroes);
-  header.append(avatarWrap, body);
+  if (state.imageMode === 'image') {
+    const header = document.createElement('div');
+    header.className = 'live-comp-header';
+
+    const avatarWrap = document.createElement('div');
+    avatarWrap.className = 'live-comp-avatar-wrap';
+    const avatar = document.createElement('img');
+    avatar.className = 'live-comp-avatar';
+    avatar.src = item.mainAvatar;
+    avatar.alt = item.title;
+    avatar.loading = 'lazy';
+    avatar.decoding = 'async';
+    const badge = document.createElement('span');
+    badge.className = 'live-comp-avatar-badge';
+    badge.textContent = item.tier;
+    avatarWrap.append(avatar, badge);
+
+    const body = document.createElement('div');
+    body.className = 'live-comp-body';
+
+    const name = document.createElement('h3');
+    name.className = 'live-comp-name';
+    name.textContent = item.title;
+
+    const heroes = document.createElement('div');
+    heroes.className = 'live-comp-hero-strip';
+    (item.heroImages || []).forEach((src, index) => {
+      const hero = document.createElement('img');
+      hero.className = 'live-comp-hero';
+      hero.src = src;
+      hero.alt = `${item.title}-${index + 1}`;
+      hero.loading = 'lazy';
+      hero.decoding = 'async';
+      heroes.append(hero);
+    });
+
+    body.append(name, heroes);
+    header.append(avatarWrap, body);
+    card.append(header, actions);
+    return card;
+  }
+
+  const header = document.createElement('div');
+  header.className = 'live-comp-text-header';
+
+  const tierBadge = document.createElement('span');
+  tierBadge.className = 'live-comp-tier-badge';
+  tierBadge.textContent = item.tier || '—';
+
+  const name = document.createElement('h3');
+  name.className = 'live-comp-name';
+  name.textContent = item.title;
+
+  const caption = document.createElement('p');
+  caption.className = 'live-comp-text-caption';
+  caption.textContent = item.jccCode ? '实时阵容 · 可复制' : '实时阵容 · 暂无阵容码';
+
+  header.append(tierBadge, name, caption);
   card.append(header, actions);
   return card;
 }

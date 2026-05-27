@@ -2,7 +2,7 @@ import importlib.util
 from pathlib import Path
 
 
-SCRIPT_PATH = Path(r'D:\1\codex\jcc\jcc_git\scripts\convert_s16_datatft_raw_to_live_comps.py')
+SCRIPT_PATH = Path('scripts/convert_s16_datatft_raw_to_live_comps.py')
 
 
 def load_module():

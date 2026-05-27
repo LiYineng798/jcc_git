@@ -60,14 +60,14 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
 
 
 def test_admin_mobile_styles_do_not_force_fixed_height_on_wide_traffic_module():
-    with open(r'D:\1\codex\jcc\claude_project\static\styles.css', 'r', encoding='utf-8') as file:
+    with open('static/styles.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '.admin-module:not(.admin-module-wide)' in css
 
 
 def test_admin_mobile_tab_bar_uses_readable_grid_layout():
-    with open(r'D:\1\codex\jcc\jcc_git\static\styles.css', 'r', encoding='utf-8') as file:
+    with open('static/styles.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '.admin-tab-bar {' in css
@@ -90,7 +90,7 @@ def test_index_page_contains_home_image_mode_toggle(client):
 
 
 def test_app_js_defaults_home_image_mode_to_text_only():
-    with open(r'D:\1\codex\jcc\jcc_git\static\app.js', 'r', encoding='utf-8') as file:
+    with open('static/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert "imageMode: localStorage.getItem('homeImageMode') || 'text'" in js
@@ -99,7 +99,7 @@ def test_app_js_defaults_home_image_mode_to_text_only():
 
 
 def test_app_js_uses_home_view_cache_and_abortable_fetches():
-    with open(r'D:\1\codex\jcc\jcc_git\static\app.js', 'r', encoding='utf-8') as file:
+    with open('static/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'const HOME_VIEW_CACHE_TTL = 60000;' in js
@@ -144,7 +144,7 @@ def test_index_page_contains_favorites_empty_state_copy(client):
 
 
 def test_app_js_supports_favorite_toggle():
-    with open(r'D:\1\codex\jcc\claude_project\static\app.js', 'r', encoding='utf-8') as file:
+    with open('static/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '取消收藏' in js
@@ -155,7 +155,7 @@ def test_app_js_supports_favorite_toggle():
 
 
 def test_app_js_auth_prompt_copy_is_trimmed():
-    with open(r'D:\1\codex\jcc\claude_project\static\app.js', 'r', encoding='utf-8') as file:
+    with open('static/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '登录后可收藏阵容、查看我的收藏。' in js
@@ -189,7 +189,7 @@ def test_account_page_requires_login_and_contains_shell(client):
 
 
 def test_account_js_contains_dashboard_and_history_sections():
-    with open(r'D:\1\codex\jcc\claude_project\static\account.js', 'r', encoding='utf-8') as file:
+    with open('static/account.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '最近浏览' in js
@@ -199,7 +199,7 @@ def test_account_js_contains_dashboard_and_history_sections():
 
 
 def test_account_js_contains_report_and_lineup_status_mappings():
-    with open(r'D:\1\codex\jcc\claude_project\static\account.js', 'r', encoding='utf-8') as file:
+    with open('static/account.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert "pending: '待处理'" in js
@@ -209,7 +209,7 @@ def test_account_js_contains_report_and_lineup_status_mappings():
 
 
 def test_account_js_contains_copy_action_for_recent_history():
-    with open(r'D:\1\codex\jcc\claude_project\static\account.js', 'r', encoding='utf-8') as file:
+    with open('static/account.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '复制阵容码' in js
@@ -218,7 +218,7 @@ def test_account_js_contains_copy_action_for_recent_history():
 
 
 def test_app_js_contains_hide_action_for_admin_lineups():
-    with open(r'D:\1\\codex\\jcc\\jcc_git\\.worktrees\\refactor-phase-1\\static\\app.js', 'r', encoding='utf-8') as file:
+    with open('static/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'lineup.can_hide' in js
@@ -229,7 +229,7 @@ def test_app_js_contains_hide_action_for_admin_lineups():
 
 
 def test_lineup_editor_js_submits_status_field():
-    with open(r'D:\1\codex\jcc\claude_project\static\lineup-editor.js', 'r', encoding='utf-8') as file:
+    with open('static/lineup-editor.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'statusToggle' in js
@@ -237,7 +237,7 @@ def test_lineup_editor_js_submits_status_field():
 
 
 def test_auth_js_tracks_auth_page_open_growth_event():
-    with open(r'D:\1\codex\jcc\claude_project\static\auth.js', 'r', encoding='utf-8') as file:
+    with open('static/auth.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'open_auth_page' in js
@@ -245,7 +245,7 @@ def test_auth_js_tracks_auth_page_open_growth_event():
 
 
 def test_author_js_contains_copy_view_like_favorite_and_report_actions():
-    with open(r'D:\1\codex\jcc\claude_project\static\author.js', 'r', encoding='utf-8') as file:
+    with open('static/author.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '复制阵容码' in js
@@ -258,7 +258,7 @@ def test_author_js_contains_copy_view_like_favorite_and_report_actions():
 
 
 def test_admin_js_supports_daily_growth_filter_and_clear_labels():
-    with open(r'D:\1\codex\jcc\claude_project\static\admin.js', 'r', encoding='utf-8') as file:
+    with open('static/admin.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '/api/admin/overview' in js
@@ -280,7 +280,7 @@ def test_admin_js_supports_daily_growth_filter_and_clear_labels():
 
 
 def test_styles_support_history_scroll_and_visibility_toggle():
-    with open(r'D:\1\codex\jcc\claude_project\static\styles.css', 'r', encoding='utf-8') as file:
+    with open('static/styles.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '.account-list.is-scrollable-history' in css
@@ -288,7 +288,7 @@ def test_styles_support_history_scroll_and_visibility_toggle():
 
 
 def test_admin_js_renders_lineup_code_in_lineup_management():
-    with open(r'D:\1\codex\jcc\claude_project\static\admin.js', 'r', encoding='utf-8') as file:
+    with open('static/admin.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'lineup.code' in js
@@ -309,7 +309,7 @@ def test_index_contains_live_comps_mount_points(client):
 
 
 def test_app_js_contains_live_comps_mode_and_copy_only_actions():
-    with open(r'D:\1\codex\jcc\claude_project\static\app.js', 'r', encoding='utf-8') as file:
+    with open('static/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'live-comps' in js
@@ -328,7 +328,7 @@ def test_app_js_contains_live_comps_mode_and_copy_only_actions():
 
 
 def test_styles_include_live_comps_sections_and_cards():
-    with open(r'D:\1\codex\jcc\claude_project\static\styles.css', 'r', encoding='utf-8') as file:
+    with open('static/styles.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '.live-comps-summary-source' in css
@@ -375,9 +375,9 @@ def test_lineup_simulator_page_exists_and_index_links_to_it(client):
 
 
 def test_lineup_simulator_uses_jcc_light_theme_and_no_upload_script():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'JCC integrated light theme overrides' in css
@@ -410,7 +410,7 @@ def test_lineup_simulator_has_no_background_modification_ui(client):
 
 def test_lineup_simulator_responsive_ux_structure(client):
     html = client.get('/tools/lineup-simulator').get_data(as_text=True)
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert 'simulator-topbar' in html
@@ -430,7 +430,7 @@ def test_lineup_simulator_responsive_ux_structure(client):
 
 
 def test_lineup_simulator_click_equip_interaction_support():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'selectedEquipId' in js
@@ -443,7 +443,7 @@ def test_lineup_simulator_click_equip_interaction_support():
 
 
 def test_lineup_simulator_tool_panel_keeps_actions_visible():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '.panel-shell {' in css
@@ -459,7 +459,7 @@ def test_lineup_simulator_tool_panel_keeps_actions_visible():
 
 def test_lineup_simulator_uses_three_column_workspace(client):
     html = client.get('/tools/lineup-simulator').get_data(as_text=True)
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert 'simulator-shell--three-column' in html
@@ -477,7 +477,7 @@ def test_lineup_simulator_uses_three_column_workspace(client):
 
 
 def test_lineup_simulator_mobile_orders_board_before_side_panels():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '@media (max-width: 760px)' in css
@@ -488,7 +488,7 @@ def test_lineup_simulator_mobile_orders_board_before_side_panels():
 
 
 def test_lineup_simulator_supports_direct_delete_and_equip_removal():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'removeEquipFromHero' in js
@@ -500,23 +500,23 @@ def test_lineup_simulator_supports_direct_delete_and_equip_removal():
 
 
 def test_lineup_simulator_enlarges_board_without_enlarging_card():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'grid-template-columns: minmax(250px, 300px) minmax(560px, 1fr) minmax(250px, 300px)' in css
     assert 'width: min(1380px, calc(100vw - 28px))' in css
     assert 'min-height: 560px' in css
     assert 'max-width: 1120px' not in css
-    assert 'const BOARD_SCALE_MAX = 1.16;' in js
+    assert 'const BOARD_SCALE_MAX = 1.32;' in js
     assert '.simulator-shell--three-column .battle-card-board-panel' in css
     assert 'padding: 0.02rem 0 0.04rem' in css
 
 
 
 def test_lineup_simulator_board_has_no_scroll_interaction():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '.battle-card-board-area {' in css
@@ -543,7 +543,7 @@ def test_lineup_simulator_mobile_uses_board_first_layout_from_repo():
 
 
 def test_lineup_simulator_cost_borders_use_requested_rgb_colors():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '--cost-1-border: rgb(175, 175, 175)' in css
@@ -559,7 +559,7 @@ def test_lineup_simulator_cost_borders_use_requested_rgb_colors():
 
 
 def test_lineup_simulator_board_units_show_cost_borders():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert '.cost-1.board-unit .board-unit-frame' in css
@@ -578,7 +578,7 @@ def test_lineup_simulator_board_units_show_cost_borders():
 
 def test_lineup_simulator_loads_versioned_json_data_files(client):
     html = client.get('/tools/lineup-simulator').get_data(as_text=True)
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert './local-data.js' not in html
@@ -605,7 +605,7 @@ def test_lineup_simulator_loads_versioned_json_data_files(client):
 
 
 def test_lineup_simulator_pool_images_use_lazy_loading():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '<img class="pool-card-pic ${getProgressiveImageClass(hero.image)}" src="${hero.image}" alt="${hero.name}" loading="lazy" decoding="async" fetchpriority="low" data-progressive-image draggable="false" />' in js
@@ -614,9 +614,9 @@ def test_lineup_simulator_pool_images_use_lazy_loading():
 
 
 def test_lineup_simulator_uses_blur_placeholders_for_progressive_images():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
         css = file.read()
 
     assert 'function getBlurImagePath' in js
@@ -631,7 +631,7 @@ def test_lineup_simulator_uses_blur_placeholders_for_progressive_images():
 
 
 def test_lineup_simulator_remembers_loaded_progressive_images():
-    with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\app.js', 'r', encoding='utf-8') as file:
+    with open('static/tools/lineup-simulator/app.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert 'const loadedProgressiveImagePaths = new Set();' in js
@@ -644,7 +644,7 @@ def test_lineup_simulator_remembers_loaded_progressive_images():
 
 
 def test_admin_dashboard_clarifies_uv_labels_and_new_returning_visitors():
-    with open(r'D:\\1\\codex\\jcc\\claude_project\\static\\admin.js', 'r', encoding='utf-8') as file:
+    with open('static/admin.js', 'r', encoding='utf-8') as file:
         js = file.read()
 
     assert '\u4eca\u65e5\u5168\u7ad9 UV' in js

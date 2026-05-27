@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 
-SCRIPT_PATH = Path(r'D:\1\codex\jcc\jcc_git\scripts\convert_and_upload_s16_live_comps.py')
+SCRIPT_PATH = Path('scripts/convert_and_upload_s16_live_comps.py')
 
 
 def load_module():

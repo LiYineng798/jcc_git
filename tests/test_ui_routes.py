@@ -529,6 +529,18 @@ def test_lineup_simulator_board_has_no_scroll_interaction():
     assert 'overflow: visible' in css
 
 
+def test_lineup_simulator_mobile_uses_board_first_layout_from_repo():
+    with open('static/tools/lineup-simulator/style.css', 'r', encoding='utf-8') as file:
+        css = file.read()
+
+    assert '/* JCC mobile simulator board-first UX */' in css
+    assert 'min-height: clamp(410px, 128vw, 520px)' in css
+    assert 'grid-template-rows: minmax(235px, 1fr) auto' in css
+    assert 'width: 5.32rem' in css
+    assert 'width: 0.7rem' in css
+    assert 'max-height: 118px' in css
+
+
 
 def test_lineup_simulator_cost_borders_use_requested_rgb_colors():
     with open(r'D:\1\codex\jcc\claude_project\static\tools\lineup-simulator\style.css', 'r', encoding='utf-8') as file:

@@ -1216,12 +1216,12 @@ input {
   }
 
   .battle-card-content {
-    --battle-card-trait-title-font-size: 0.12rem;
-    --battle-card-trait-title-gap: 0.06rem;
-    --battle-card-trait-row-height: 0.98rem;
-    --battle-card-trait-row-gap: 0.06rem;
-    --battle-card-trait-panel-padding-top: 0.08rem;
-    --battle-card-trait-panel-padding-bottom: 0.1rem;
+    --battle-card-trait-title-font-size: 0.11rem;
+    --battle-card-trait-title-gap: 0.04rem;
+    --battle-card-trait-row-height: 0.84rem;
+    --battle-card-trait-row-gap: 0.04rem;
+    --battle-card-trait-panel-padding-top: 0.05rem;
+    --battle-card-trait-panel-padding-bottom: 0.06rem;
     --battle-card-trait-panel-height:
       calc(
         var(--battle-card-trait-panel-padding-top) +
@@ -1230,8 +1230,9 @@ input {
         (var(--battle-card-trait-row-height) * 2 + var(--battle-card-trait-row-gap)) +
         var(--battle-card-trait-panel-padding-bottom)
       );
-    gap: 0.08rem;
-    padding: 0.12rem;
+    grid-template-rows: minmax(0, 1.18fr) var(--battle-card-trait-panel-height);
+    gap: 0.04rem;
+    padding: 0.08rem;
   }
 
   .panel-shell {
@@ -1272,7 +1273,7 @@ input {
   }
 
   .board-panel {
-    padding: 0.18rem 0.14rem 0.22rem;
+    padding: 0.08rem 0.05rem 0.08rem;
   }
 
   .lineup-list {
@@ -2214,4 +2215,114 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+
+/* JCC mobile simulator board-first UX */
+@media (max-width: 760px) {
+  .simulator-shell--three-column {
+    width: min(100% - 4px, 440px);
+    gap: 12px;
+    padding-top: 50px;
+  }
+
+  .simulator-topbar {
+    gap: 8px;
+  }
+
+  .simulator-topbar h1 {
+    font-size: clamp(28px, 8.4vw, 36px);
+  }
+
+  .simulator-quick-guide {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .simulator-shell--three-column .battle-card {
+    aspect-ratio: auto;
+    min-height: clamp(410px, 128vw, 520px);
+    border-radius: 22px;
+  }
+
+  .simulator-shell--three-column .battle-card-content {
+    grid-template-rows: minmax(235px, 1fr) auto;
+    gap: 6px;
+    padding: 5px;
+  }
+
+  .simulator-shell--three-column .battle-card-board-area {
+    min-height: clamp(235px, 72vw, 340px);
+  }
+
+  .simulator-shell--three-column .battle-card-board-panel {
+    padding: 0;
+  }
+
+  .simulator-shell--three-column .lineup-list {
+    width: 5.32rem;
+    min-width: 5.32rem;
+    margin-right: 0;
+  }
+
+  .simulator-shell--three-column .lineup-item {
+    width: 0.7rem;
+    height: 0.82rem;
+    margin: 0 0.004rem;
+  }
+
+  .simulator-shell--three-column .lineup-item:nth-child(8),
+  .simulator-shell--three-column .lineup-item:nth-child(22) {
+    margin-left: 0.35rem;
+  }
+
+  .simulator-shell--three-column .lineup-item::before {
+    inset: 0.02rem 0.01rem 0.018rem;
+  }
+
+  .simulator-shell--three-column .lineup-item::after {
+    inset: 0.08rem 0.055rem 0.1rem;
+  }
+
+  .simulator-shell--three-column .battle-card-trait-panel {
+    height: auto;
+    min-height: 82px;
+    max-height: 118px;
+    padding: 7px 9px;
+    overflow: auto;
+    border-radius: 14px;
+  }
+
+  .simulator-shell--three-column .battle-card-trait-panel .trait-panel-title {
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+
+  .simulator-shell--three-column .battle-card-trait-panel .trait-list {
+    max-height: none;
+    gap: 6px;
+  }
+
+  .simulator-shell--three-column .battle-card-trait-panel .trait-empty-state {
+    min-height: 54px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .simulator-shell--three-column .lineup-list {
+    width: 5.18rem;
+    min-width: 5.18rem;
+  }
+
+  .simulator-shell--three-column .lineup-item {
+    width: 0.68rem;
+    height: 0.8rem;
+    margin: 0 0.002rem;
+  }
+
+  .simulator-shell--three-column .lineup-item:nth-child(8),
+  .simulator-shell--three-column .lineup-item:nth-child(22) {
+    margin-left: 0.34rem;
+  }
 }

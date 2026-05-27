@@ -1,5 +1,5 @@
 const BOARD_SLOT_COUNT = 28;
-const BOARD_SCALE_MAX = 1.16;
+const BOARD_SCALE_MAX = 1.32;
 const DRAG_MIME = "application/x-board-repro";
 const COST_CLASS_BY_VALUE = {
   1: "cost-1",

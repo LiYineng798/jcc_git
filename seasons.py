@@ -32,6 +32,14 @@ SEASON_CATALOG = (
         'description': '返场赛季',
         'data_file': 'lucky-lantern.json',
     },
+    {
+        'id': 's8-monsters-attack',
+        'name': 'S8·怪兽入侵',
+        'status': 'active',
+        'order': 4,
+        'description': '返场赛季',
+        'data_file': 's8-monsters-attack.json',
+    },
 )
 
 

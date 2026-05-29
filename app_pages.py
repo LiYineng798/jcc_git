@@ -1,15 +1,19 @@
 import os
 
-from flask import jsonify, send_from_directory
+from flask import abort, jsonify, send_from_directory
 
 from auth import login_required
+from db import get_db
+from settings_service import get_setting
 from visits import tracked_template_response
 
 
 def register_page_routes(app):
     @app.get('/')
     def index():
-        return tracked_template_response('index.html', 'home')
+        db = get_db()
+        simulator_enabled = get_setting(db, 'simulator_enabled', 'true') == 'true'
+        return tracked_template_response('index.html', 'home', simulator_enabled=simulator_enabled)
 
     @app.get('/auth')
     def auth_page():
@@ -41,6 +45,8 @@ def register_page_routes(app):
 
     @app.get('/tools/lineup-simulator')
     def lineup_simulator_page():
+        if get_setting(get_db(), 'simulator_enabled', 'true') != 'true':
+            abort(404)
         return tracked_template_response('lineup_simulator.html', 'lineup_simulator')
 
     @app.get('/me')
@@ -49,6 +55,13 @@ def register_page_routes(app):
         if error:
             return error
         return tracked_template_response('account.html', 'account')
+
+    @app.get('/api/site-config')
+    def site_config():
+        db = get_db()
+        return jsonify({
+            'simulator_enabled': get_setting(db, 'simulator_enabled', 'true') == 'true',
+        })
 
     @app.get('/api/health')
     def health():

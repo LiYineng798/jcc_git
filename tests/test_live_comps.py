@@ -90,7 +90,7 @@ def test_live_comps_seasons_falls_back_to_default_manifest(client):
     data = client.get('/api/live-comps/seasons').get_json()
 
     assert data['default_season_id'] == 's17-star-god'
-    assert [season['id'] for season in data['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
+    assert [season['id'] for season in data['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern', 's8-monsters-attack']
     assert data['seasons'][0]['id'] == 's17-star-god'
     assert data['seasons'][0]['status'] == 'active'
 
@@ -108,7 +108,7 @@ def test_live_comps_seasons_hides_private_entries_from_public(client):
 
     data = client.get('/api/live-comps/seasons').get_json()
 
-    assert [season['id'] for season in data['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
+    assert [season['id'] for season in data['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern', 's8-monsters-attack']
 
 
 def test_live_comps_summary_returns_empty_for_public_season_without_payload(client):

@@ -53,6 +53,7 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
     assert 'data-admin-tab="users"' in admin_html
     assert 'data-admin-tab="analytics"' in admin_html
     assert 'data-admin-tab="audit"' in admin_html
+    assert 'data-admin-tab="settings"' in admin_html
 
     favicon_response = client.get('/favicon.ico')
     assert favicon_response.status_code == 200
@@ -372,6 +373,24 @@ def test_lineup_simulator_page_exists_and_index_links_to_it(client):
     assert client.get('/static/tools/lineup-simulator/data/heroes.json').status_code == 200
     assert client.get('/static/tools/lineup-simulator/app.js').status_code == 200
 
+
+def test_lineup_simulator_hidden_when_disabled(client):
+    from test_admin import login_admin
+
+    headers = login_admin(client)
+
+    resp = client.put('/api/admin/settings', json={'simulator_enabled': 'false'}, headers=headers)
+    assert resp.status_code == 200
+
+    index_html = client.get('/').get_data(as_text=True)
+    assert 'href="/tools/lineup-simulator"' not in index_html
+
+    assert client.get('/tools/lineup-simulator').status_code == 404
+
+    config = client.get('/api/site-config').get_json()
+    assert config['simulator_enabled'] is False
+
+    client.put('/api/admin/settings', json={'simulator_enabled': 'true'}, headers=headers)
 
 
 def test_lineup_simulator_uses_jcc_light_theme_and_no_upload_script():

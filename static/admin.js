@@ -24,6 +24,7 @@
     liveCompsSeasons: { seasons: [], default_season_id: '', loadedAt: 0 },
     users: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
     audit: { items: [], total: 0, page: 1, page_size: 30, total_pages: 1, loadedAt: 0 },
+    settings: { data: {}, loadedAt: 0 },
     controllers: {},
     cacheTtlMs: 30000,
     notice: '',
@@ -130,6 +131,7 @@
     if (tabKey === 'live-comps') await loadAdminLiveComps();
     if (tabKey === 'analytics') await loadGrowth();
     if (tabKey === 'audit') await loadAudit();
+    if (tabKey === 'settings') await loadSettings();
     render();
   }
 
@@ -216,6 +218,12 @@
     state.growth = { ...payload, loadedAt: Date.now() };
   }
 
+  async function loadSettings({ force = false } = {}) {
+    if (!force && isFresh(state.settings.loadedAt)) return;
+    const payload = await api('/api/admin/settings');
+    state.settings = { data: payload, loadedAt: Date.now() };
+  }
+
   function render() {
     syncHeader();
     syncTabs();
@@ -228,6 +236,7 @@
     if (state.activeTab === 'users') root.append(renderUsersWorkspace());
     if (state.activeTab === 'analytics') root.append(renderAnalyticsWorkspace());
     if (state.activeTab === 'audit') root.append(renderAuditWorkspace());
+    if (state.activeTab === 'settings') root.append(renderSettingsWorkspace());
     renderDialogs();
   }
 
@@ -823,6 +832,44 @@
       });
     }
     body.append(list, renderPagination('audit'));
+    return panel;
+  }
+
+  async function toggleSimulator(enabled, actionsPanel) {
+    try {
+      await api('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify({ simulator_enabled: enabled ? 'true' : 'false' }),
+      });
+      await loadSettings({ force: true });
+      setNotice(enabled ? '阵容模拟器已开启' : '阵容模拟器已关闭');
+      render();
+    } catch (error) {
+      alert(error.message || '保存失败');
+    }
+  }
+
+  function renderSettingsWorkspace() {
+    const panel = workbenchPanel('站点设置', '控制前台功能的开关状态');
+    const body = panel.querySelector('.admin-workspace-body');
+
+    const card = el('article', 'admin-row-card');
+    const info = el('div');
+    info.append(
+      el('strong', '', '阵容模拟器'),
+      el('p', 'admin-meta', '控制前台导航栏中阵容模拟器入口的显示与隐藏'),
+    );
+
+    const enabled = (state.settings.data || {}).simulator_enabled === 'true';
+
+    const actions = el('div', 'card-actions');
+    actions.append(
+      button('开启', () => toggleSimulator(true), `small-button${enabled ? ' is-active' : ''}`),
+      button('关闭', () => toggleSimulator(false), `small-button${!enabled ? ' is-active' : ''}`),
+    );
+
+    card.append(info, actions);
+    body.append(card);
     return panel;
   }
 

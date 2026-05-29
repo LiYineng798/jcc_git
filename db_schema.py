@@ -77,6 +77,15 @@ INSERT OR IGNORE INTO cache_state (cache_key, revision, created_at, updated_at) 
 ('home', 0, strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
 ('score', 0, strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'));
 
+CREATE TABLE IF NOT EXISTS app_settings (
+    setting_key TEXT PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+INSERT OR IGNORE INTO app_settings (setting_key, setting_value, updated_at) VALUES
+('simulator_enabled', 'true', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'));
+
 CREATE TABLE IF NOT EXISTS favorites (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,

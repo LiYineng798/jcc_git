@@ -17,6 +17,7 @@ from db import get_db
 from lineups_serialization import serialize_lineup_row
 from route_response import respond_service_result
 from scoring import score_map
+from settings_service import get_settings, save_settings
 from visits import tracked_template_response
 
 admin_bp = Blueprint('admin', __name__)
@@ -206,4 +207,21 @@ def admin_resolve_report(report_id):
     if error:
         return error
     result, service_error, status_code = resolve_report(get_db(), admin['id'], report_id, request.get_json(silent=True) or {})
+    return respond_service_result(result, service_error, status_code)
+
+
+@admin_bp.get('/api/admin/settings')
+def admin_settings():
+    admin, error = admin_required()
+    if error:
+        return error
+    return jsonify(get_settings(get_db()))
+
+
+@admin_bp.put('/api/admin/settings')
+def admin_update_settings():
+    admin, error = admin_required()
+    if error:
+        return error
+    result, service_error, status_code = save_settings(get_db(), admin['id'], request.get_json(silent=True) or {})
     return respond_service_result(result, service_error, status_code)

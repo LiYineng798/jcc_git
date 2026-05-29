@@ -16,7 +16,9 @@
         <nav class="nav-bar" aria-label="页面工具">
           <div class="brand-mark" aria-hidden="true">阵</div>
           <div class="nav-actions">
+{% if simulator_enabled %}
             <a class="ghost-link nav-tool-link" href="/tools/lineup-simulator">阵容模拟器</a>
+{% endif %}
             <button class="theme-toggle nav-icon-button image-mode-toggle" id="imageModeToggle" type="button" aria-pressed="false" aria-label="切换为首页有图片模式">
               <span class="image-mode-icon" id="imageModeIcon" aria-hidden="true">无</span>
               <span id="imageModeText">无图</span>

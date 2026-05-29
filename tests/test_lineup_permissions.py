@@ -70,7 +70,7 @@ def test_lineup_seasons_endpoint_exposes_only_public_choices(client):
     payload = client.get('/api/lineup-seasons').get_json()
 
     assert payload['default_season_id'] == 's17-star-god'
-    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
+    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern', 's8-monsters-attack']
     assert payload['seasons'][0]['name'] == 'S17 · 星神'
     assert payload['seasons'][1]['name'] == 'S16 · 英雄联盟传奇'
     assert payload['seasons'][2]['name'] == '天选福星'
@@ -87,7 +87,7 @@ def test_lineup_seasons_ignore_live_comps_default_season(client):
     payload = client.get('/api/lineup-seasons').get_json()
 
     assert payload['default_season_id'] == 's17-star-god'
-    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern']
+    assert [season['id'] for season in payload['seasons']] == ['s17-star-god', 's16-legends', 'lucky-lantern', 's8-monsters-attack']
     assert payload['seasons'][0]['name'] == 'S17 · 星神'
 
 

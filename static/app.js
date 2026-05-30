@@ -1028,3 +1028,20 @@ function debounce(callback, delay) {
     timer = setTimeout(() => callback(...args), delay);
   };
 }
+
+(function initSiteNotice() {
+  const banner = document.querySelector('#siteNotice');
+  const closeButton = document.querySelector('#siteNoticeClose');
+  if (!banner || !closeButton) return;
+
+  if (document.cookie.split(';').some(function (item) { return item.trim().indexOf('notice_dismissed=1') === 0; })) {
+    banner.remove();
+    return;
+  }
+
+  closeButton.addEventListener('click', function () {
+    var expires = new Date(Date.now() + 86400000).toUTCString();
+    document.cookie = 'notice_dismissed=1; expires=' + expires + '; path=/; SameSite=Lax';
+    banner.remove();
+  });
+})();

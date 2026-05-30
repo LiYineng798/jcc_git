@@ -25,6 +25,7 @@
     users: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
     audit: { items: [], total: 0, page: 1, page_size: 30, total_pages: 1, loadedAt: 0 },
     settings: { data: {}, loadedAt: 0 },
+    noticeData: { data: null, loadedAt: 0 },
     controllers: {},
     cacheTtlMs: 30000,
     notice: '',
@@ -131,7 +132,7 @@
     if (tabKey === 'live-comps') await loadAdminLiveComps();
     if (tabKey === 'analytics') await loadGrowth();
     if (tabKey === 'audit') await loadAudit();
-    if (tabKey === 'settings') await loadSettings();
+    if (tabKey === 'settings') { await loadSettings(); await loadNotice(); }
     render();
   }
 
@@ -222,6 +223,12 @@
     if (!force && isFresh(state.settings.loadedAt)) return;
     const payload = await api('/api/admin/settings');
     state.settings = { data: payload, loadedAt: Date.now() };
+  }
+
+  async function loadNotice({ force = false } = {}) {
+    if (!force && isFresh(state.noticeData.loadedAt)) return;
+    const payload = await api('/api/admin/notice');
+    state.noticeData = { data: payload, loadedAt: Date.now() };
   }
 
   function render() {
@@ -849,6 +856,34 @@
     }
   }
 
+  async function toggleNotice(enabled) {
+    await api('/api/admin/notice', {
+      method: 'PUT',
+      body: JSON.stringify({ enabled }),
+    });
+    await loadNotice({ force: true });
+    setNotice(enabled ? '通知已开启' : '通知已关闭');
+    render();
+  }
+
+  async function saveNoticeContent() {
+    const title = document.querySelector('#noticeTitle')?.value?.trim() || '';
+    const message = document.querySelector('#noticeMessage')?.value?.trim() || '';
+    const linkUrl = document.querySelector('#noticeLinkUrl')?.value?.trim() || '';
+    const linkText = document.querySelector('#noticeLinkText')?.value?.trim() || '';
+
+    if (!title) { alert('标题不能为空'); return; }
+    if (!message) { alert('内容不能为空'); return; }
+
+    await api('/api/admin/notice', {
+      method: 'PUT',
+      body: JSON.stringify({ title, message, link_url: linkUrl, link_text: linkText }),
+    });
+    await loadNotice({ force: true });
+    setNotice('通知内容已保存');
+    render();
+  }
+
   function renderSettingsWorkspace() {
     const panel = workbenchPanel('站点设置', '控制前台功能的开关状态');
     const body = panel.querySelector('.admin-workspace-body');
@@ -870,6 +905,71 @@
 
     card.append(info, actions);
     body.append(card);
+
+    const noticeData = state.noticeData.data || {};
+    const noticeEnabled = noticeData.enabled ?? false;
+
+    const noticePanel = workbenchPanel('全站通知', '编辑首页通知横幅的内容和状态');
+    const noticeBody = noticePanel.querySelector('.admin-workspace-body');
+
+    const toggleRow = el('article', 'admin-row-card');
+    const toggleInfo = el('div');
+    toggleInfo.append(
+      el('strong', '', '启用通知'),
+      el('p', 'admin-meta', '开启后首页将展示通知横幅'),
+    );
+    const toggleActions = el('div', 'card-actions');
+    toggleActions.append(
+      button('开启', () => toggleNotice(true), `small-button${noticeEnabled ? ' is-active' : ''}`),
+      button('关闭', () => toggleNotice(false), `small-button${!noticeEnabled ? ' is-active' : ''}`),
+    );
+    toggleRow.append(toggleInfo, toggleActions);
+    noticeBody.append(toggleRow);
+
+    const form = el('div', 'admin-row-card');
+    const fields = el('div');
+    fields.style.cssText = 'display:flex;flex-direction:column;gap:12px;width:100%';
+
+    const titleInput = el('input');
+    titleInput.id = 'noticeTitle';
+    titleInput.type = 'text';
+    titleInput.placeholder = '通知标题';
+    titleInput.value = noticeData.title || '';
+    titleInput.style.cssText = 'padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);color:var(--text);font-size:14px;width:100%;box-sizing:border-box';
+
+    const messageInput = el('textarea');
+    messageInput.id = 'noticeMessage';
+    messageInput.placeholder = '通知内容';
+    messageInput.value = noticeData.message || '';
+    messageInput.rows = 3;
+    messageInput.style.cssText = 'padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);color:var(--text);font-size:14px;width:100%;box-sizing:border-box;resize:vertical;font-family:inherit';
+
+    const linkRow = el('div');
+    linkRow.style.cssText = 'display:flex;gap:8px';
+
+    const linkUrlInput = el('input');
+    linkUrlInput.id = 'noticeLinkUrl';
+    linkUrlInput.type = 'text';
+    linkUrlInput.placeholder = '链接地址（可选）';
+    linkUrlInput.value = noticeData.link_url || '';
+    linkUrlInput.style.cssText = 'padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);color:var(--text);font-size:14px;flex:1;box-sizing:border-box';
+
+    const linkTextInput = el('input');
+    linkTextInput.id = 'noticeLinkText';
+    linkTextInput.type = 'text';
+    linkTextInput.placeholder = '链接文字';
+    linkTextInput.value = noticeData.link_text || '';
+    linkTextInput.style.cssText = 'padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--bg);color:var(--text);font-size:14px;width:140px;box-sizing:border-box';
+
+    linkRow.append(linkUrlInput, linkTextInput);
+    fields.append(titleInput, messageInput, linkRow);
+
+    const saveActions = el('div', 'card-actions');
+    saveActions.append(button('保存内容', saveNoticeContent, 'small-button'));
+
+    form.append(fields, saveActions);
+    noticeBody.append(form);
+    body.append(noticePanel);
     return panel;
   }
 

@@ -57,6 +57,19 @@
         </div>
       </header>
 
+{% if notice %}
+      <div class="site-notice" id="siteNotice">
+        <div class="site-notice-body">
+          <strong class="site-notice-title">{{ notice.title }}</strong>
+          <p class="site-notice-text">{{ notice.message }}</p>
+{% if notice.link_url and notice.link_text %}
+          <a class="site-notice-link" href="{{ notice.link_url }}" target="_blank" rel="noopener">{{ notice.link_text }} &rarr;</a>
+{% endif %}
+        </div>
+        <button class="site-notice-close" id="siteNoticeClose" aria-label="关闭通知">&times;</button>
+      </div>
+{% endif %}
+
       <main class="content-grid">
         <section class="panel list-panel list-panel-full" aria-labelledby="listTitle">
           <div class="panel-heading list-heading">

@@ -4,6 +4,7 @@ from flask import abort, jsonify, send_from_directory
 
 from auth import login_required
 from db import get_db
+from notice_service import get_active_notice
 from settings_service import get_setting
 from visits import tracked_template_response
 
@@ -13,7 +14,8 @@ def register_page_routes(app):
     def index():
         db = get_db()
         simulator_enabled = get_setting(db, 'simulator_enabled', 'true') == 'true'
-        return tracked_template_response('index.html', 'home', simulator_enabled=simulator_enabled)
+        notice = get_active_notice(db)
+        return tracked_template_response('index.html', 'home', simulator_enabled=simulator_enabled, notice=notice)
 
     @app.get('/auth')
     def auth_page():
@@ -61,6 +63,7 @@ def register_page_routes(app):
         db = get_db()
         return jsonify({
             'simulator_enabled': get_setting(db, 'simulator_enabled', 'true') == 'true',
+            'notice': get_active_notice(db),
         })
 
     @app.get('/api/health')

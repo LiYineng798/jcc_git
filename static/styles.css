@@ -844,6 +844,106 @@ textarea:focus {
   display: none !important;
 }
 
+/* ---------- 全站通知横幅 ---------- */
+.site-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 20px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent, #c96442);
+  border-radius: var(--radius-lg, 20px);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 8px 28px rgba(55, 45, 31, 0.06);
+  animation: site-notice-in 0.3s ease;
+}
+@keyframes site-notice-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+:root[data-theme="dark"] .site-notice {
+  background: rgba(30, 28, 26, 0.65);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+}
+.site-notice-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
+  line-height: 1.45;
+}
+.site-notice-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+.site-notice-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.site-notice-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent, #c96442);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-notice-link:hover {
+  text-decoration: underline;
+}
+.site-notice-close {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.site-notice-close:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--text);
+}
+:root[data-theme="dark"] .site-notice-close {
+  background: rgba(255, 255, 255, 0.08);
+}
+:root[data-theme="dark"] .site-notice-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+@media (max-width: 640px) {
+  .site-notice {
+    padding: 8px 12px;
+    gap: 8px;
+    border-radius: var(--radius-md, 14px);
+  }
+  .site-notice-body {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .site-notice-title { font-size: 13px; }
+  .site-notice-text { font-size: 12px; }
+  .site-notice-link { font-size: 12px; }
+  .site-notice-close {
+    width: 20px;
+    height: 20px;
+    font-size: 13px;
+  }
+}
+
 .toast {
   position: fixed;
   right: 24px;

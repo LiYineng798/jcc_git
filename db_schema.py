@@ -84,7 +84,9 @@ CREATE TABLE IF NOT EXISTS app_settings (
 );
 
 INSERT OR IGNORE INTO app_settings (setting_key, setting_value, updated_at) VALUES
-('simulator_enabled', 'true', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'));
+('simulator_enabled', 'true', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+('notice_enabled', 'false', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+('notice_data', '{}', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'));
 
 CREATE TABLE IF NOT EXISTS favorites (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

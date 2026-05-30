@@ -16,6 +16,7 @@ from auth import admin_required
 from db import get_db
 from lineups_serialization import serialize_lineup_row
 from route_response import respond_service_result
+from notice_service import _is_notice_enabled, get_notice, save_notice
 from scoring import score_map
 from settings_service import get_settings, save_settings
 from visits import tracked_template_response
@@ -224,4 +225,29 @@ def admin_update_settings():
     if error:
         return error
     result, service_error, status_code = save_settings(get_db(), admin['id'], request.get_json(silent=True) or {})
+    return respond_service_result(result, service_error, status_code)
+
+
+@admin_bp.get('/api/admin/notice')
+def admin_get_notice():
+    admin, error = admin_required()
+    if error:
+        return error
+    db = get_db()
+    notice = get_notice(db)
+    return jsonify({
+        'enabled': _is_notice_enabled(db),
+        'title': notice['title'],
+        'message': notice['message'],
+        'link_url': notice['link_url'],
+        'link_text': notice['link_text'],
+    })
+
+
+@admin_bp.put('/api/admin/notice')
+def admin_update_notice():
+    admin, error = admin_required()
+    if error:
+        return error
+    result, service_error, status_code = save_notice(get_db(), admin['id'], request.get_json(silent=True) or {})
     return respond_service_result(result, service_error, status_code)

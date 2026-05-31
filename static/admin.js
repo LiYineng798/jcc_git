@@ -26,6 +26,7 @@
     audit: { items: [], total: 0, page: 1, page_size: 30, total_pages: 1, loadedAt: 0 },
     settings: { data: {}, loadedAt: 0 },
     noticeData: { data: null, loadedAt: 0 },
+    guestbook: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, loadedAt: 0 },
     controllers: {},
     cacheTtlMs: 30000,
     notice: '',
@@ -132,6 +133,7 @@
     if (tabKey === 'live-comps') await loadAdminLiveComps();
     if (tabKey === 'analytics') await loadGrowth();
     if (tabKey === 'audit') await loadAudit();
+    if (tabKey === 'guestbook') await loadGuestbook();
     if (tabKey === 'settings') { await loadSettings(); await loadNotice(); }
     render();
   }
@@ -231,6 +233,16 @@
     state.noticeData = { data: payload, loadedAt: Date.now() };
   }
 
+  async function loadGuestbook({ force = false } = {}) {
+    if (!force && isFresh(state.guestbook.loadedAt)) return;
+    const query = new URLSearchParams({
+      page: String(state.guestbook.page),
+      page_size: String(state.guestbook.page_size),
+    });
+    const payload = await api(`/api/guestbook?${query.toString()}`);
+    state.guestbook = { ...state.guestbook, ...payload, loadedAt: Date.now() };
+  }
+
   function render() {
     syncHeader();
     syncTabs();
@@ -243,6 +255,7 @@
     if (state.activeTab === 'users') root.append(renderUsersWorkspace());
     if (state.activeTab === 'analytics') root.append(renderAnalyticsWorkspace());
     if (state.activeTab === 'audit') root.append(renderAuditWorkspace());
+    if (state.activeTab === 'guestbook') root.append(renderGuestbookWorkspace());
     if (state.activeTab === 'settings') root.append(renderSettingsWorkspace());
     renderDialogs();
   }
@@ -973,6 +986,38 @@
     return panel;
   }
 
+  function renderGuestbookWorkspace() {
+    const panel = workbenchPanel('留言管理', '访客提交的意见和建议');
+    const body = panel.querySelector('.admin-workspace-body');
+    const list = el('div', 'admin-list');
+    if (!state.guestbook.items.length) {
+      list.append(empty('暂无留言'));
+    } else {
+      state.guestbook.items.forEach((msg) => list.append(guestbookCard(msg)));
+    }
+    body.append(list, renderPagination('guestbook'));
+    return panel;
+  }
+
+  function guestbookCard(msg) {
+    const card = el('article', 'admin-card');
+    const head = el('div', 'admin-card-head');
+    head.append(el('h3', '', `#${msg.id} ${msg.nickname}`));
+    const meta = el('p', 'admin-meta', `${msg.created_at} · IP: ${msg.ip_address}`);
+    const content = el('p', 'admin-reason', msg.content);
+    const actions = el('div', 'card-actions');
+    const delBtn = button('删除留言', async () => {
+      if (!confirm('确定要删除这条留言吗？')) return;
+      await api(`/api/guestbook/${msg.id}`, { method: 'DELETE' });
+      await loadGuestbook({ force: true });
+      render();
+      setNotice('留言已删除');
+    }, 'small-button danger-button');
+    actions.append(delBtn);
+    card.append(head, meta, content, actions);
+    return card;
+  }
+
   function renderPagination(kind) {
     const source = state[kind];
     if (!source || (source.total_pages || 1) <= 1) return el('div');
@@ -1003,6 +1048,7 @@
     if (kind === 'liveComps') await loadAdminLiveComps({ force: true });
     if (kind === 'users') await loadUsers({ force: true });
     if (kind === 'audit') await loadAudit({ force: true });
+    if (kind === 'guestbook') await loadGuestbook({ force: true });
   }
 
   function workbenchPanel(title, subtitle, controls = null) {

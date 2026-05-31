@@ -119,6 +119,7 @@ async function boot() {
   applySavedMessage();
   await consumePendingIntent();
   await loadCurrentView();
+  renderGuestbookForm();
 }
 
 function renderHomeImageModeToggle() {
@@ -1045,3 +1046,64 @@ function debounce(callback, delay) {
     banner.remove();
   });
 })();
+
+function el(tag, className = '', text = '') {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text) node.textContent = text;
+  return node;
+}
+
+function renderGuestbookForm() {
+  const container = document.getElementById('guestbookForm');
+  if (!container) return;
+  container.replaceChildren();
+
+  const nicknameField = el('div', 'field');
+  const nicknameLabel = el('label', '', '昵称');
+  const nicknameInput = el('input');
+  nicknameInput.type = 'text';
+  nicknameInput.maxLength = 20;
+  nicknameInput.placeholder = '如何称呼你';
+  nicknameInput.required = true;
+
+  if (state.user) {
+    nicknameInput.value = state.user.nickname || '';
+    nicknameInput.readOnly = true;
+    nicknameLabel.textContent = '昵称（已登录）';
+  }
+  nicknameField.append(nicknameLabel, nicknameInput);
+
+  const contentField = el('div', 'field');
+  const contentLabel = el('label', '', '留言内容');
+  const contentInput = el('textarea');
+  contentInput.placeholder = '写下你想对站长说的话...';
+  contentInput.maxLength = 500;
+  contentInput.required = true;
+  contentInput.rows = 4;
+  contentField.append(contentLabel, contentInput);
+
+  const submitBtn = el('button', 'guestbook-submit');
+  submitBtn.textContent = '提交留言';
+  submitBtn.addEventListener('click', async () => {
+    const nickname = nicknameInput.value.trim();
+    const content = contentInput.value.trim();
+    if (!nickname) { showToast('请填写昵称'); return; }
+    if (!content) { showToast('请填写留言内容'); return; }
+    submitBtn.disabled = true;
+    try {
+      const body = { content };
+      if (!state.user) body.nickname = nickname;
+      await api('/api/guestbook', { method: 'POST', body: JSON.stringify(body) });
+      showToast('感谢留言，站长会尽快查看');
+      contentInput.value = '';
+      if (!state.user) nicknameInput.value = '';
+    } catch (err) {
+      showToast(err.message || '留言失败，请稍后再试');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  container.append(nicknameField, contentField, submitBtn);
+}

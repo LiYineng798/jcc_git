@@ -19,12 +19,14 @@ def create_app(test_config=None):
     from lineups import lineups_bp
     from admin import admin_bp
     from live_comps import live_comps_bp
+    from guestbook import guestbook_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(captcha_bp)
     app.register_blueprint(lineups_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(live_comps_bp)
+    app.register_blueprint(guestbook_bp)
 
     register_page_routes(app)
 

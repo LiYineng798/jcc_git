@@ -311,6 +311,16 @@ BEGIN
         updated_at = strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')
     WHERE cache_key = 'home';
 END;
+
+CREATE TABLE IF NOT EXISTS guestbook_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    nickname TEXT NOT NULL,
+    content TEXT NOT NULL,
+    ip_address TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
 '''
 
 

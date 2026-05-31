@@ -119,7 +119,7 @@ async function boot() {
   applySavedMessage();
   await consumePendingIntent();
   await loadCurrentView();
-  renderGuestbookForm();
+  renderGuestbookTrigger();
 }
 
 function renderHomeImageModeToggle() {
@@ -1054,10 +1054,38 @@ function el(tag, className = '', text = '') {
   return node;
 }
 
-function renderGuestbookForm() {
-  const container = document.getElementById('guestbookForm');
-  if (!container) return;
-  container.replaceChildren();
+function renderGuestbookTrigger() {
+  const trigger = document.getElementById('guestbookTrigger');
+  if (!trigger) return;
+  trigger.querySelector('button').addEventListener('click', showGuestbookDialog);
+}
+
+function showGuestbookDialog() {
+  closeGuestbookDialog();
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) closeGuestbookDialog();
+  });
+
+  const card = document.createElement('section');
+  card.className = 'modal-card guestbook-dialog';
+
+  const header = document.createElement('div');
+  header.className = 'modal-header';
+  const headerCopy = document.createElement('div');
+  const title = document.createElement('h2');
+  title.textContent = '给站长留言';
+  const desc = document.createElement('p');
+  desc.className = 'auth-prompt-copy';
+  desc.textContent = '有任何建议或想法？欢迎留言，站长会尽快查看。';
+  headerCopy.append(title, desc);
+  const closeBtn = button('关闭', closeGuestbookDialog);
+  header.append(headerCopy, closeBtn);
+
+  const form = document.createElement('form');
+  form.className = 'modal-form';
 
   const nicknameField = el('div', 'field');
   const nicknameLabel = el('label', '', '昵称');
@@ -1066,7 +1094,6 @@ function renderGuestbookForm() {
   nicknameInput.maxLength = 20;
   nicknameInput.placeholder = '如何称呼你';
   nicknameInput.required = true;
-
   if (state.user) {
     nicknameInput.value = state.user.nickname || '';
     nicknameInput.readOnly = true;
@@ -1083,27 +1110,48 @@ function renderGuestbookForm() {
   contentInput.rows = 4;
   contentField.append(contentLabel, contentInput);
 
-  const submitBtn = el('button', 'guestbook-submit');
+  const inlineMessage = document.createElement('div');
+  inlineMessage.className = 'message';
+
+  const actions = document.createElement('div');
+  actions.className = 'auth-prompt-actions';
+  const cancelBtn = button('取消', closeGuestbookDialog);
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'submit';
+  submitBtn.className = 'primary-button auth-prompt-confirm';
   submitBtn.textContent = '提交留言';
-  submitBtn.addEventListener('click', async () => {
+  actions.append(cancelBtn, submitBtn);
+
+  form.append(nicknameField, contentField, inlineMessage, actions);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
     const nickname = nicknameInput.value.trim();
     const content = contentInput.value.trim();
-    if (!nickname) { showToast('请填写昵称'); return; }
-    if (!content) { showToast('请填写留言内容'); return; }
+    if (!nickname) { inlineMessage.textContent = '请填写昵称'; return; }
+    if (!content) { inlineMessage.textContent = '请填写留言内容'; return; }
     submitBtn.disabled = true;
+    inlineMessage.textContent = '';
     try {
       const body = { content };
       if (!state.user) body.nickname = nickname;
       await api('/api/guestbook', { method: 'POST', body: JSON.stringify(body) });
+      closeGuestbookDialog();
       showToast('感谢留言，站长会尽快查看');
-      contentInput.value = '';
-      if (!state.user) nicknameInput.value = '';
     } catch (err) {
-      showToast(err.message || '留言失败，请稍后再试');
+      inlineMessage.textContent = err.message || '留言失败，请稍后再试';
     } finally {
       submitBtn.disabled = false;
     }
   });
 
-  container.append(nicknameField, contentField, submitBtn);
+  card.append(header, form);
+  backdrop.append(card);
+  document.getElementById('authPromptRoot').append(backdrop);
+}
+
+function closeGuestbookDialog() {
+  const root = document.getElementById('authPromptRoot');
+  if (!root) return;
+  const existing = root.querySelector('.modal-backdrop');
+  if (existing) existing.remove();
 }

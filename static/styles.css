@@ -1581,6 +1581,10 @@ textarea:focus {
   padding: 16px;
 }
 
+.admin-card.admin-card-tight {
+  padding: 10px 14px;
+}
+
 .admin-card.is-alert {
   border-color: rgba(201, 100, 66, 0.45);
   box-shadow: 0 18px 42px rgba(201, 100, 66, 0.09);
@@ -1599,6 +1603,12 @@ textarea:focus {
 .admin-meta,
 .admin-reason {
   margin-bottom: 8px;
+}
+
+.admin-card-tight .admin-card-head h3,
+.admin-card-tight .admin-meta,
+.admin-card-tight .admin-reason {
+  margin-bottom: 3px;
 }
 
 .admin-pill {
@@ -2038,32 +2048,33 @@ textarea:focus {
 }
 
 /* ---------- 留言板 ---------- */
-.guestbook-section {
-  max-width: 660px;
-  margin: 48px auto 0;
-  padding: 28px 32px;
-  border-radius: var(--radius-xl);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+/* ---- guestbook trigger ---- */
+
+.guestbook-trigger {
+  text-align: center;
+  padding: 24px 16px 32px;
 }
 
-.guestbook-title {
-  margin: 0 0 4px;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.guestbook-subtitle {
-  margin: 0 0 18px;
+.guestbook-trigger button {
+  background: none;
+  border: 0;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 160ms;
 }
 
-.guestbook-form .field {
+.guestbook-trigger button:hover {
+  color: var(--accent);
+}
+
+/* ---- guestbook dialog ---- */
+
+.guestbook-dialog .field {
   margin-bottom: 14px;
 }
 
-.guestbook-form label {
+.guestbook-dialog label {
   display: block;
   margin-bottom: 5px;
   color: var(--muted);
@@ -2071,8 +2082,8 @@ textarea:focus {
   font-weight: 600;
 }
 
-.guestbook-form input,
-.guestbook-form textarea {
+.guestbook-dialog input,
+.guestbook-dialog textarea {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -2082,25 +2093,25 @@ textarea:focus {
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
-.guestbook-form input {
+.guestbook-dialog input {
   height: 44px;
   padding: 0 14px;
 }
 
-.guestbook-form textarea {
+.guestbook-dialog textarea {
   resize: vertical;
   min-height: 100px;
   padding: 12px 14px;
   line-height: 1.6;
 }
 
-.guestbook-form input:focus,
-.guestbook-form textarea:focus {
+.guestbook-dialog input:focus,
+.guestbook-dialog textarea:focus {
   border-color: rgba(201, 100, 66, 0.78);
   box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
-.guestbook-submit {
+.guestbook-dialog .guestbook-submit {
   width: 100%;
   border: 0;
   border-radius: var(--radius-md);
@@ -2112,12 +2123,12 @@ textarea:focus {
   transition: transform 160ms ease, background 160ms ease;
 }
 
-.guestbook-submit:hover {
+.guestbook-dialog .guestbook-submit:hover {
   background: var(--accent-strong);
   transform: translateY(-1px);
 }
 
-.guestbook-submit:disabled {
+.guestbook-dialog .guestbook-submit:disabled {
   opacity: 0.5;
   pointer-events: none;
 }

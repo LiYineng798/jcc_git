@@ -987,7 +987,7 @@
   }
 
   function renderGuestbookWorkspace() {
-    const panel = workbenchPanel('留言管理', '访客提交的意见和建议');
+    const panel = workbenchPanel('留言管理', '');
     const body = panel.querySelector('.admin-workspace-body');
     const list = el('div', 'admin-list');
     if (!state.guestbook.items.length) {
@@ -1000,9 +1000,9 @@
   }
 
   function guestbookCard(msg) {
-    const card = el('article', 'admin-card');
+    const card = el('article', 'admin-card admin-card-tight');
     const head = el('div', 'admin-card-head');
-    head.append(el('h3', '', `#${msg.id} ${msg.nickname}`));
+    head.append(el('h3', '', msg.nickname));
     const meta = el('p', 'admin-meta', `${msg.created_at} · IP: ${msg.ip_address}`);
     const content = el('p', 'admin-reason', msg.content);
     const actions = el('div', 'card-actions');

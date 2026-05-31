@@ -6,7 +6,7 @@ const state = {
   liveCompsPage: null,
   lineupSeasons: [],
   selectedLineupSeasonId: null,
-  imageMode: localStorage.getItem('homeImageMode') || 'text',
+  imageMode: localStorage.getItem('homeImageMode') || 'image',
   requestControllers: {
     lineups: null,
     liveComps: null,

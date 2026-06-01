@@ -42,7 +42,7 @@ function renderPatchNoteList(items) {
       const card = el('article', 'patch-note-card');
       const title = el('h2', '', item.title);
       const meta = el('p', 'admin-meta', `${item.version || '版本公告'} · ${item.published_at}`);
-      const link = el('a', 'primary-link', '查看公告');
+      const link = el('a', 'primary-link patch-note-card-action', '查看公告');
       link.href = `/patch-notes/${item.id}`;
       card.append(title, meta, link);
       list.append(card);

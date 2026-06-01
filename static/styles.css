@@ -2153,6 +2153,14 @@ textarea:focus {
   padding: 18px;
 }
 
+.patch-note-card-action {
+  justify-self: end;
+  align-self: end;
+  padding: 8px 12px;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
 .patch-note-card h2 {
   margin-bottom: 0;
   font-size: 1.12rem;

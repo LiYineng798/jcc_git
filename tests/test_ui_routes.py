@@ -86,6 +86,14 @@ def test_patch_note_styles_exist():
     assert '.change-tag-buff' in css
     assert '.change-tag-nerf' in css
     assert '.patch-note-original' in css
+    assert '.patch-note-card-action' in css
+
+
+def test_patch_notes_js_uses_small_card_action_class():
+    with open('static/patch-notes.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert 'patch-note-card-action' in js
 
 
 def test_admin_js_contains_patch_notes_workbench():

@@ -54,6 +54,7 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
     assert 'data-admin-tab="analytics"' in admin_html
     assert 'data-admin-tab="audit"' in admin_html
     assert 'data-admin-tab="settings"' in admin_html
+    assert 'data-admin-tab="patch-notes"' in admin_html
 
     favicon_response = client.get('/favicon.ico')
     assert favicon_response.status_code == 200
@@ -85,6 +86,16 @@ def test_patch_note_styles_exist():
     assert '.change-tag-buff' in css
     assert '.change-tag-nerf' in css
     assert '.patch-note-original' in css
+
+
+def test_admin_js_contains_patch_notes_workbench():
+    with open('static/admin.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert 'patchNotes' in js
+    assert 'loadPatchNotes' in js
+    assert 'renderPatchNotesWorkspace' in js
+    assert 'PATCH_NOTE_TEMPLATE' in js
 
 
 def test_index_page_contains_account_value_copy_and_favorites_tab(client):

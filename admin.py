@@ -17,6 +17,7 @@ from db import get_db
 from lineups_serialization import serialize_lineup_row
 from route_response import respond_service_result
 from notice_service import _is_notice_enabled, get_notice, save_notice
+from patch_note_service import create_patch_note, hide_patch_note, list_admin_patch_notes, update_patch_note
 from scoring import score_map
 from settings_service import get_settings, save_settings
 from visits import tracked_template_response
@@ -94,6 +95,41 @@ def admin_lineups():
         serializer=lambda row: serialize_lineup_row(row, scores, user=admin, admin=True),
         default_page_size=20,
     ))
+
+
+@admin_bp.get('/api/admin/patch-notes')
+def admin_patch_notes():
+    admin, error = admin_required()
+    if error:
+        return error
+    return jsonify(list_admin_patch_notes())
+
+
+@admin_bp.post('/api/admin/patch-notes')
+def admin_create_patch_note():
+    admin, error = admin_required()
+    if error:
+        return error
+    result, service_error, status_code = create_patch_note(admin['id'], request.get_json(silent=True) or {})
+    return respond_service_result(result, service_error, status_code)
+
+
+@admin_bp.put('/api/admin/patch-notes/<int:patch_note_id>')
+def admin_update_patch_note(patch_note_id):
+    admin, error = admin_required()
+    if error:
+        return error
+    result, service_error, status_code = update_patch_note(admin['id'], patch_note_id, request.get_json(silent=True) or {})
+    return respond_service_result(result, service_error, status_code)
+
+
+@admin_bp.delete('/api/admin/patch-notes/<int:patch_note_id>')
+def admin_delete_patch_note(patch_note_id):
+    admin, error = admin_required()
+    if error:
+        return error
+    result, service_error, status_code = hide_patch_note(admin['id'], patch_note_id)
+    return respond_service_result(result, service_error, status_code)
 
 
 @admin_bp.get('/api/admin/live-comps')

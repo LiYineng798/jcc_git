@@ -127,6 +127,20 @@ def test_index_and_auth_pages_include_auth_intent_script(client):
     assert 'auth-intent.js' in auth_html
 
 
+def test_patch_note_pages_exist_and_homepage_links_to_patch_notes(client):
+    index_html = client.get('/').get_data(as_text=True)
+    assert 'href="/patch-notes"' in index_html
+    assert '更新公告' in index_html
+
+    list_response = client.get('/patch-notes')
+    detail_response = client.get('/patch-notes/1')
+
+    assert list_response.status_code == 200
+    assert detail_response.status_code == 200
+    assert 'id="patchNotesApp"' in list_response.get_data(as_text=True)
+    assert 'id="patchNoteDetailApp"' in detail_response.get_data(as_text=True)
+
+
 def test_index_page_contains_rising_recommended_and_author_link_shell(client):
     html = client.get('/').get_data(as_text=True)
     assert 'data-sort="rising"' in html

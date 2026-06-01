@@ -20,6 +20,7 @@ def create_app(test_config=None):
     from admin import admin_bp
     from live_comps import live_comps_bp
     from guestbook import guestbook_bp
+    from patch_notes import patch_notes_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(captcha_bp)
@@ -27,6 +28,7 @@ def create_app(test_config=None):
     app.register_blueprint(admin_bp)
     app.register_blueprint(live_comps_bp)
     app.register_blueprint(guestbook_bp)
+    app.register_blueprint(patch_notes_bp)
 
     register_page_routes(app)
 

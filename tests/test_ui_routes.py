@@ -54,6 +54,7 @@ def test_pages_include_favicon_and_favicon_route_exists(client):
     assert 'data-admin-tab="analytics"' in admin_html
     assert 'data-admin-tab="audit"' in admin_html
     assert 'data-admin-tab="settings"' in admin_html
+    assert 'data-admin-tab="patch-notes"' in admin_html
 
     favicon_response = client.get('/favicon.ico')
     assert favicon_response.status_code == 200
@@ -75,6 +76,36 @@ def test_admin_mobile_tab_bar_uses_readable_grid_layout():
     assert 'grid-template-columns: repeat(2, minmax(0, 1fr));' in css
     assert 'white-space: nowrap;' in css
     assert 'overflow-x: auto;' not in css[css.index('@media (max-width: 560px)'):]
+
+
+def test_patch_note_styles_exist():
+    with open('static/styles.css', 'r', encoding='utf-8') as file:
+        css = file.read()
+
+    assert '.patch-note-list' in css
+    assert '.change-tag-buff' in css
+    assert '.change-tag-nerf' in css
+    assert '.patch-note-original' in css
+    assert '.patch-note-card-action' in css
+    assert '.patch-note-change-body span' in css
+    assert '.patch-note-mobile-meta' in css
+
+
+def test_patch_notes_js_uses_small_card_action_class():
+    with open('static/patch-notes.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert 'patch-note-card-action' in js
+
+
+def test_admin_js_contains_patch_notes_workbench():
+    with open('static/admin.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert 'patchNotes' in js
+    assert 'loadPatchNotes' in js
+    assert 'renderPatchNotesWorkspace' in js
+    assert 'PATCH_NOTE_TEMPLATE' in js
 
 
 def test_index_page_contains_account_value_copy_and_favorites_tab(client):
@@ -125,6 +156,20 @@ def test_index_and_auth_pages_include_auth_intent_script(client):
 
     assert 'auth-intent.js' in index_html
     assert 'auth-intent.js' in auth_html
+
+
+def test_patch_note_pages_exist_and_homepage_links_to_patch_notes(client):
+    index_html = client.get('/').get_data(as_text=True)
+    assert 'href="/patch-notes"' in index_html
+    assert '更新公告' in index_html
+
+    list_response = client.get('/patch-notes')
+    detail_response = client.get('/patch-notes/1')
+
+    assert list_response.status_code == 200
+    assert detail_response.status_code == 200
+    assert 'id="patchNotesApp"' in list_response.get_data(as_text=True)
+    assert 'id="patchNoteDetailApp"' in detail_response.get_data(as_text=True)
 
 
 def test_index_page_contains_rising_recommended_and_author_link_shell(client):

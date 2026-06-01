@@ -22,6 +22,7 @@
     lineups: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
     liveComps: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', updated_at: null, source_meta: null, selectedSeasonId: '', loadedAt: 0 },
     liveCompsSeasons: { seasons: [], default_season_id: '', loadedAt: 0 },
+    patchNotes: { items: [], loadedAt: 0 },
     users: { items: [], total: 0, page: 1, page_size: 20, total_pages: 1, query: '', searched: false, loadedAt: 0 },
     audit: { items: [], total: 0, page: 1, page_size: 30, total_pages: 1, loadedAt: 0 },
     settings: { data: {}, loadedAt: 0 },
@@ -34,6 +35,7 @@
     passwordError: '',
     liveCompManualCodeTarget: null,
     liveCompManualCodeError: '',
+    patchNoteEditing: null,
   };
   const statusText = {
     pending: '待处理',
@@ -52,6 +54,19 @@
     ['hidden', '后台隐藏'],
     ['disabled', '停用'],
   ];
+  const PATCH_NOTE_TEMPLATE = `## 英雄调整
+
+- [buff] 名称：旧值 => 新值
+- [nerf] 名称：旧值 => 新值
+- [adjust] 名称：机制说明
+
+## 羁绊调整
+
+- [buff] 名称：旧值 => 新值
+
+## 装备调整
+
+- [nerf] 名称：旧值 => 新值`;
 
   initTheme();
   elements.themeToggle?.addEventListener('click', () => {
@@ -131,6 +146,7 @@
     if (tabKey === 'overview') await loadOverview();
     if (tabKey === 'reports') await loadReports();
     if (tabKey === 'live-comps') await loadAdminLiveComps();
+    if (tabKey === 'patch-notes') await loadPatchNotes();
     if (tabKey === 'analytics') await loadGrowth();
     if (tabKey === 'audit') await loadAudit();
     if (tabKey === 'guestbook') await loadGuestbook();
@@ -189,6 +205,12 @@
     if (!force && isFresh(state.liveCompsSeasons.loadedAt)) return;
     const payload = await api('/api/admin/live-comps/seasons');
     state.liveCompsSeasons = { ...payload, loadedAt: Date.now() };
+  }
+
+  async function loadPatchNotes({ force = false } = {}) {
+    if (!force && isFresh(state.patchNotes.loadedAt)) return;
+    const payload = await api('/api/admin/patch-notes');
+    state.patchNotes = { items: payload.items || [], loadedAt: Date.now() };
   }
 
   async function loadUsers({ force = false } = {}) {
@@ -252,6 +274,7 @@
     if (state.activeTab === 'reports') root.append(renderReportsWorkspace());
     if (state.activeTab === 'lineups') root.append(renderLineupsWorkspace());
     if (state.activeTab === 'live-comps') root.append(renderLiveCompsWorkspace());
+    if (state.activeTab === 'patch-notes') root.append(renderPatchNotesWorkspace());
     if (state.activeTab === 'users') root.append(renderUsersWorkspace());
     if (state.activeTab === 'analytics') root.append(renderAnalyticsWorkspace());
     if (state.activeTab === 'audit') root.append(renderAuditWorkspace());
@@ -853,6 +876,165 @@
     }
     body.append(list, renderPagination('audit'));
     return panel;
+  }
+
+  function renderPatchNotesWorkspace() {
+    const panel = workbenchPanel('更新公告', '维护游戏官网更新公告、精简版和原文归档');
+    const body = panel.querySelector('.admin-workspace-body');
+    const actions = el('div', 'card-actions');
+    actions.append(button('新增公告', () => {
+      state.patchNoteEditing = emptyPatchNoteDraft();
+      render();
+    }, 'small-button'));
+    body.append(actions);
+
+    if (state.patchNoteEditing) {
+      body.append(renderPatchNoteForm(state.patchNoteEditing));
+    }
+
+    const list = el('div', 'admin-list');
+    if (!state.patchNotes.items.length) {
+      list.append(empty('暂无更新公告'));
+    } else {
+      state.patchNotes.items.forEach((item) => list.append(patchNoteAdminCard(item)));
+    }
+    body.append(list);
+    return panel;
+  }
+
+  function emptyPatchNoteDraft() {
+    return {
+      id: null,
+      title: '',
+      version: '',
+      source_url: '',
+      summary_markdown: PATCH_NOTE_TEMPLATE,
+      original_text: '',
+      status: 'draft',
+      published_at: todayInputValue(),
+    };
+  }
+
+  function patchNoteAdminCard(item) {
+    const card = el('article', 'admin-card admin-card-tight');
+    const head = el('div', 'admin-card-head');
+    head.append(el('h3', '', item.title), el('span', 'admin-pill', item.status));
+    const meta = el('p', 'admin-meta', `${item.version || '版本公告'} · ${item.published_at} · 更新 ${item.updated_at}`);
+    const actions = el('div', 'card-actions');
+    actions.append(
+      button('编辑', () => {
+        state.patchNoteEditing = { ...item };
+        render();
+      }, 'small-button'),
+      button(item.status === 'published' ? '下线' : '发布', async () => {
+        await savePatchNote({ ...item, status: item.status === 'published' ? 'hidden' : 'published' });
+      }, 'small-button'),
+      button('隐藏', async () => {
+        if (!confirm('确定隐藏这条公告吗？')) return;
+        await api(`/api/admin/patch-notes/${item.id}`, { method: 'DELETE' });
+        await loadPatchNotes({ force: true });
+        setNotice('公告已隐藏');
+        state.patchNoteEditing = null;
+        render();
+      }, 'small-button danger-button'),
+    );
+    card.append(head, meta, actions);
+    return card;
+  }
+
+  function renderPatchNoteForm(item) {
+    const form = el('form', 'admin-card');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const payload = readPatchNoteForm();
+      await savePatchNote(payload);
+    });
+
+    const fields = el('div');
+    fields.style.cssText = 'display:grid;gap:12px;width:100%';
+    fields.append(
+      adminInput('patchNoteTitle', '标题', item.title),
+      adminInput('patchNoteVersion', '版本号，例如 17.4', item.version),
+      adminInput('patchNotePublishedAt', '发布日期，例如 2026-05-28', item.published_at),
+      adminInput('patchNoteSourceUrl', '来源链接（可选）', item.source_url),
+      adminTextarea('patchNoteSummary', '精简版 Markdown', item.summary_markdown, 10),
+      adminTextarea('patchNoteOriginal', '原文（可选）', item.original_text, 10),
+    );
+
+    const statusRow = el('div', 'card-actions');
+    ['draft', 'published', 'hidden'].forEach((status) => {
+      statusRow.append(button(status, () => {
+        document.querySelector('#patchNoteStatus').value = status;
+        renderPatchNoteStatusButtons(statusRow, status);
+      }, `small-button${item.status === status ? ' is-active' : ''}`));
+    });
+    const hiddenStatus = el('input');
+    hiddenStatus.type = 'hidden';
+    hiddenStatus.id = 'patchNoteStatus';
+    hiddenStatus.value = item.status || 'draft';
+    fields.append(hiddenStatus, statusRow);
+
+    const actions = el('div', 'card-actions');
+    actions.append(
+      button('插入模板', () => {
+        document.querySelector('#patchNoteSummary').value = PATCH_NOTE_TEMPLATE;
+      }, 'small-button'),
+      button('取消', () => {
+        state.patchNoteEditing = null;
+        render();
+      }, 'small-button'),
+    );
+    const submit = el('button', 'small-button is-active', item.id ? '保存公告' : '创建公告');
+    submit.type = 'submit';
+    actions.append(submit);
+    form.append(fields, actions);
+    return form;
+  }
+
+  function renderPatchNoteStatusButtons(row, activeStatus) {
+    row.querySelectorAll('.small-button').forEach((buttonNode) => {
+      buttonNode.classList.toggle('is-active', buttonNode.textContent === activeStatus);
+    });
+  }
+
+  function adminInput(id, placeholder, value) {
+    const input = el('input');
+    input.id = id;
+    input.placeholder = placeholder;
+    input.value = value || '';
+    return input;
+  }
+
+  function adminTextarea(id, placeholder, value, rows) {
+    const textarea = el('textarea');
+    textarea.id = id;
+    textarea.placeholder = placeholder;
+    textarea.value = value || '';
+    textarea.rows = rows;
+    return textarea;
+  }
+
+  function readPatchNoteForm() {
+    return {
+      id: state.patchNoteEditing?.id || null,
+      title: document.querySelector('#patchNoteTitle')?.value?.trim() || '',
+      version: document.querySelector('#patchNoteVersion')?.value?.trim() || '',
+      published_at: document.querySelector('#patchNotePublishedAt')?.value?.trim() || '',
+      source_url: document.querySelector('#patchNoteSourceUrl')?.value?.trim() || '',
+      summary_markdown: document.querySelector('#patchNoteSummary')?.value?.trim() || '',
+      original_text: document.querySelector('#patchNoteOriginal')?.value?.trim() || '',
+      status: document.querySelector('#patchNoteStatus')?.value || 'draft',
+    };
+  }
+
+  async function savePatchNote(payload) {
+    const url = payload.id ? `/api/admin/patch-notes/${payload.id}` : '/api/admin/patch-notes';
+    const method = payload.id ? 'PUT' : 'POST';
+    await api(url, { method, body: JSON.stringify(payload) });
+    await loadPatchNotes({ force: true });
+    state.patchNoteEditing = null;
+    setNotice('公告已保存');
+    render();
   }
 
   async function toggleSimulator(enabled, actionsPanel) {

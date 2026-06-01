@@ -321,6 +321,22 @@ CREATE TABLE IF NOT EXISTS guestbook_messages (
     created_at TEXT NOT NULL,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS patch_notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    version TEXT NOT NULL DEFAULT '',
+    source_url TEXT NOT NULL DEFAULT '',
+    summary_markdown TEXT NOT NULL,
+    original_text TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'draft',
+    published_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_patch_notes_status_published_at
+ON patch_notes (status, published_at DESC, id DESC);
 '''
 
 

@@ -1,11 +1,12 @@
 import sqlite3
 
-from db_schema import EXTRA_INDEX_STATEMENTS, LINEUP_COLUMN_MIGRATIONS, table_columns
+from db_schema import EXTRA_INDEX_STATEMENTS, LINEUP_COLUMN_MIGRATIONS, table_columns, table_names
 
 
 def migrate_schema(db, admin_id, now_text_func):
     migrate_lineups_table(db, admin_id)
     migrate_legacy_live_comp_stats(db, now_text_func)
+    migrate_patch_notes_table(db)
 
 
 def migrate_legacy_live_comp_stats(db, now_text_func):
@@ -39,6 +40,33 @@ def migrate_lineups_table(db, admin_id):
     db.execute('UPDATE lineups SET user_id = ? WHERE user_id IS NULL', (admin_id,))
     db.execute("UPDATE lineups SET season_id = 's17-star-god' WHERE season_id IS NULL OR season_id = ''")
     db.execute("UPDATE lineups SET season_id = 's16-legends' WHERE season_id = 's16-archive'")
+
+
+def migrate_patch_notes_table(db):
+    tables = table_names(db)
+    if 'patch_notes' not in tables:
+        db.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS patch_notes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                version TEXT NOT NULL DEFAULT '',
+                source_url TEXT NOT NULL DEFAULT '',
+                summary_markdown TEXT NOT NULL,
+                original_text TEXT NOT NULL DEFAULT '',
+                status TEXT NOT NULL DEFAULT 'draft',
+                published_at TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            '''
+        )
+    db.execute(
+        '''
+        CREATE INDEX IF NOT EXISTS idx_patch_notes_status_published_at
+        ON patch_notes (status, published_at DESC, id DESC)
+        '''
+    )
 
 
 def ensure_indexes(db):

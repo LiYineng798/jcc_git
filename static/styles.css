@@ -2231,6 +2231,11 @@ textarea:focus {
   line-height: 1.7;
 }
 
+.patch-note-change-body span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .change-old-value {
   color: var(--muted);
   text-decoration: line-through;
@@ -2268,6 +2273,43 @@ textarea:focus {
   color: var(--accent-strong);
   cursor: pointer;
   font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .patch-note-mobile-meta,
+  .patch-note-card .admin-meta {
+    font-size: 0.84rem;
+    line-height: 1.55;
+  }
+
+  .patch-note-card {
+    gap: 7px 12px;
+    padding: 15px;
+  }
+
+  .patch-note-card h2 {
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .patch-note-summary {
+    gap: 10px;
+  }
+
+  .patch-note-change {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .patch-note-change-body {
+    display: grid;
+    gap: 4px;
+  }
+
+  .patch-note-original .code-preview {
+    max-height: 58vh;
+    font-size: 0.82rem;
+  }
 }
 
 @media (max-width: 560px) {

@@ -87,6 +87,8 @@ def test_patch_note_styles_exist():
     assert '.change-tag-nerf' in css
     assert '.patch-note-original' in css
     assert '.patch-note-card-action' in css
+    assert '.patch-note-change-body span' in css
+    assert '.patch-note-mobile-meta' in css
 
 
 def test_patch_notes_js_uses_small_card_action_class():

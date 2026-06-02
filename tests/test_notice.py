@@ -52,6 +52,9 @@ def test_notice_appears_on_index_when_enabled(client):
 
     html = client.get('/').get_data(as_text=True)
     assert 'site-notice' in html
+    assert 'site-notice-title' in html
+    assert 'site-notice-marquee' in html
+    assert 'site-notice-marquee-track' in html
     assert 'S8即将返场' in html
     assert '阵容码将在第一时间更新' in html
     assert 'siteNoticeClose' in html
@@ -63,6 +66,35 @@ def test_notice_appears_on_index_when_enabled(client):
     client.put('/api/admin/notice', json={
         'enabled': False, 'title': '', 'message': '',
     }, headers=headers)
+
+
+def test_notice_marquee_styles_bounce_between_visible_edges():
+    with open('static/styles.css', 'r', encoding='utf-8') as file:
+        css = file.read()
+
+    assert '.site-notice-marquee' in css
+    assert '.site-notice-marquee-track' in css
+    assert 'container-type: inline-size' in css
+    assert 'animation: site-notice-marquee-bounce' in css
+    assert 'alternate' in css
+    assert '@keyframes site-notice-marquee-bounce' in css
+    assert 'from { transform: translateX(0); }' in css
+    assert 'to { transform: translateX(max(0px, calc(100cqw - 100%))); }' in css
+
+
+def test_notice_marquee_is_static_and_wrapped_on_small_screens():
+    with open('static/styles.css', 'r', encoding='utf-8') as file:
+        css = file.read()
+
+    mobile_css = css[css.index('@media (max-width: 640px)'):]
+    assert '.site-notice-marquee {' in mobile_css
+    assert 'overflow: visible;' in mobile_css
+    assert 'white-space: normal;' in mobile_css
+    assert '.site-notice-marquee-track {' in mobile_css
+    assert 'animation: none;' in mobile_css
+    assert 'transform: none;' in mobile_css
+    assert 'min-width: 0;' in mobile_css
+    assert 'flex-wrap: wrap;' in mobile_css
 
 
 def test_notice_hidden_when_disabled(client):

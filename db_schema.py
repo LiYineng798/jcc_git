@@ -52,6 +52,24 @@ CREATE TABLE IF NOT EXISTS copy_events (
     FOREIGN KEY(lineup_id) REFERENCES lineups(id)
 );
 
+CREATE TABLE IF NOT EXISTS copy_action_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    target_type TEXT NOT NULL,
+    target_id TEXT NOT NULL,
+    season_id TEXT,
+    lineup_id INTEGER,
+    live_comp_id TEXT,
+    user_id INTEGER,
+    visitor_token TEXT,
+    ip_address TEXT,
+    source_page TEXT NOT NULL DEFAULT '',
+    success INTEGER NOT NULL DEFAULT 1,
+    counted INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(lineup_id) REFERENCES lineups(id)
+);
+
 CREATE TABLE IF NOT EXISTS live_comp_global_stats (
     stats_key TEXT PRIMARY KEY,
     total_copy_count INTEGER NOT NULL DEFAULT 0,
@@ -203,6 +221,12 @@ ON likes (lineup_id, created_at);
 
 CREATE INDEX IF NOT EXISTS idx_copy_events_lineup_created_at
 ON copy_events (lineup_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_copy_action_events_target_created_at
+ON copy_action_events (target_type, target_id, created_at);
+
+CREATE INDEX IF NOT EXISTS idx_copy_action_events_user_created_at
+ON copy_action_events (user_id, created_at);
 
 CREATE TRIGGER IF NOT EXISTS trg_lineups_cache_state_insert
 AFTER INSERT ON lineups
@@ -356,6 +380,8 @@ EXTRA_INDEX_STATEMENTS = (
     'CREATE INDEX IF NOT EXISTS idx_lineups_status_updated_id ON lineups (status, updated_at DESC, id DESC)',
     'CREATE INDEX IF NOT EXISTS idx_likes_created_lineup ON likes (created_at, lineup_id)',
     'CREATE INDEX IF NOT EXISTS idx_copy_events_counted_created_lineup ON copy_events (counted, created_at, lineup_id)',
+    'CREATE INDEX IF NOT EXISTS idx_copy_action_events_target_created_at ON copy_action_events (target_type, target_id, created_at)',
+    'CREATE INDEX IF NOT EXISTS idx_copy_action_events_user_created_at ON copy_action_events (user_id, created_at)',
 )
 
 

@@ -180,7 +180,7 @@ def like_lineup(lineup_id):
 @lineups_bp.post('/api/lineups/<int:lineup_id>/copy')
 def copy_lineup(lineup_id):
     user = current_user()
-    result, service_error, status_code = copy_lineup_record(user, lineup_id, get_client_ip())
+    result, service_error, status_code = copy_lineup_record(user, lineup_id, get_client_ip(), source_page=request.args.get('source', ''))
     if service_error:
         return respond_service_result(result, service_error, status_code)
     if user:

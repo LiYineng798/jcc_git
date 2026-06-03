@@ -313,6 +313,7 @@
     const cards = el('div', 'admin-stat-grid');
     [
       ['今日全站 UV', stats.today_uv || 0, '全站页面按自然日去重'],
+      ['今日总复制', stats.today_total_copy_count || 0, '实时阵容 + 普通阵容有效复制'],
       ['今日注册', stats.today_users || 0, '新增用户数'],
       ['今日登录', stats.today_logins || 0, '去重登录用户'],
       ['待处理举报', stats.pending_reports_count || 0, '优先处理'],

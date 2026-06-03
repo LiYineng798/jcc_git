@@ -503,6 +503,27 @@ def test_live_comp_copy_endpoint_increments_copy_count(client):
     assert second.get_json()['total_copy_count'] == 2
 
 
+def test_live_comp_copy_records_raw_copy_action_with_season(client):
+    write_live_comps_seed(client, sample_live_comps_payload())
+    csrf = client.get('/api/me').get_json()['csrf_token']
+
+    response = client.post('/api/live-comps/s-01/copy?season=s17-star-god&source=home', headers={'X-CSRF-Token': csrf})
+
+    assert response.status_code == 200
+    with client.application.app_context():
+        row = get_db().execute(
+            'SELECT target_type, target_id, season_id, source_page, success, counted FROM copy_action_events'
+        ).fetchone()
+    assert dict(row) == {
+        'target_type': 'live_comp',
+        'target_id': 's-01',
+        'season_id': 's17-star-god',
+        'source_page': 'home',
+        'success': 1,
+        'counted': 1,
+    }
+
+
 def test_live_comp_copy_endpoint_resets_today_count_but_keeps_total_count(client):
     write_live_comps_seed(client, sample_live_comps_payload())
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')

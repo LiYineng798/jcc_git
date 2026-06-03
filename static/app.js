@@ -652,7 +652,8 @@ async function copyLiveCompCode(item) {
   }
   try {
     const seasonQuery = state.selectedLineupSeasonId ? `?season=${encodeURIComponent(state.selectedLineupSeasonId)}` : '';
-    await api(`/api/live-comps/${encodeURIComponent(item.id)}/copy${seasonQuery}`, { method: 'POST' });
+    const separator = seasonQuery ? '&' : '?';
+    await api(`/api/live-comps/${encodeURIComponent(item.id)}/copy${seasonQuery}${separator}source=home`, { method: 'POST' });
   } catch (_) {
     showMessage('阵容码已复制，但次数统计失败');
     return;
@@ -709,7 +710,7 @@ async function copyLineup(lineup) {
     showMessage('复制失败，请长按阵容码手动复制');
     return;
   }
-  await api(`/api/lineups/${lineup.id}/copy`, { method: 'POST' });
+  await api(`/api/lineups/${lineup.id}/copy?source=home`, { method: 'POST' });
   if (!state.user) {
     window.jccHistoryStore?.pushLocalCopy(lineup);
   }

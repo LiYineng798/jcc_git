@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from copy_action_service import record_copy_action
 from db import get_db, now_text
 from lineups_serialization import serialize_lineup_row
 from lineups_utils import bucket_start, lineup_is_visible_to_user, lineup_row
@@ -27,7 +28,7 @@ def like_lineup_record(user, lineup_id):
     return {'ok': True, 'lineup': serialize_lineup_row(lineup_row(lineup_id), score_map(), user=user)}, None, 201
 
 
-def copy_lineup_record(user, lineup_id, ip):
+def copy_lineup_record(user, lineup_id, ip, source_page=''):
     row = lineup_row(lineup_id)
     if not lineup_is_visible_to_user(row, user):
         return None, '阵容不存在', 404
@@ -45,6 +46,17 @@ def copy_lineup_record(user, lineup_id, ip):
     except Exception:
         db.rollback()
         counted = False
+    record_copy_action(
+        target_type='lineup',
+        target_id=lineup_id,
+        user=user,
+        ip_address=ip,
+        source_page=source_page,
+        success=True,
+        counted=counted,
+        season_id=row['season_id'],
+    )
+    db.commit()
     return {'ok': True, 'counted': counted}, None, 200
 
 

@@ -10,6 +10,8 @@ const lineupStatusText = {
   deleted: '已删除',
 };
 
+let accountCsrfToken = '';
+
 (async function () {
   const root = document.querySelector('#accountApp');
   const themeToggle = document.querySelector('#themeToggle');
@@ -31,6 +33,7 @@ const lineupStatusText = {
     fetch('/api/lineups?view=mine&page=1&page_size=20').then((response) => response.json()),
   ]);
 
+  accountCsrfToken = me.csrf_token || '';
   const lineups = minePayload.items || [];
   root.replaceChildren(
     renderSummaryCards(me.user, dashboard),
@@ -118,6 +121,7 @@ function renderHistorySection(title, items, emptyText, timeLabel) {
     copyButton.addEventListener('click', async () => {
       const copied = await copyLineupCode(item.code);
       if (!copied) return;
+      await recordLineupCopy(item.id, 'account');
       const originalText = copyButton.textContent;
       copyButton.textContent = '已复制';
       copyButton.disabled = true;
@@ -226,6 +230,14 @@ async function copyLineupCode(text) {
   const copied = document.execCommand('copy');
   textarea.remove();
   return copied;
+}
+
+async function recordLineupCopy(lineupId, source) {
+  if (!accountCsrfToken) return;
+  await fetch(`/api/lineups/${lineupId}/copy?source=${encodeURIComponent(source)}`, {
+    method: 'POST',
+    headers: { 'X-CSRF-Token': accountCsrfToken },
+  }).catch(() => {});
 }
 
 function escapeAccountHtml(text) {

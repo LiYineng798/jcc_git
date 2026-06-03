@@ -5,6 +5,7 @@ from admin_dashboard_service import (
 )
 from db import get_db
 from test_auth import register_user
+from test_lineup_permissions import auth_headers, create_lineup
 
 
 def test_build_admin_stats_payload_returns_expected_keys(client):
@@ -34,6 +35,30 @@ def test_build_admin_overview_payload_returns_expected_keys(client):
     assert payload['stats']['pending_reports_count'] >= 0
     assert payload['stats']['today_uv'] >= 0
     assert len(payload['traffic_7d']) == 7
+
+
+def test_admin_overview_counts_today_total_copy_count(client):
+    register_user(client, username='alice', email='alice@example.com')
+    lineup = create_lineup(client, name='统计阵容', code='#COPYTOTAL').get_json()
+    headers = auth_headers(client)
+    client.post(f"/api/lineups/{lineup['id']}/copy", headers=headers)
+    client.post(f"/api/lineups/{lineup['id']}/copy", headers=headers)
+    with client.application.app_context():
+        db = get_db()
+        now = __import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        db.execute(
+            '''
+            INSERT INTO live_comp_global_daily_stats (copy_date, copy_count, created_at, updated_at)
+            VALUES (?, 3, ?, ?)
+            ''',
+            (now[:10], now, now),
+        )
+        db.commit()
+        payload = build_admin_overview_payload(db)
+
+    assert payload['stats']['today_lineup_copy_count'] == 1
+    assert payload['stats']['today_live_comp_copy_count'] == 3
+    assert payload['stats']['today_total_copy_count'] == 4
 
 
 def test_build_admin_growth_payload_returns_funnel_fields(client):

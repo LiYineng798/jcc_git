@@ -260,6 +260,7 @@ def test_account_js_contains_copy_action_for_recent_history():
 
     assert '复制阵容码' in js
     assert 'copyLineupCode' in js
+    assert "recordLineupCopy(item.id, 'account')" in js
     assert 'account-list is-scrollable-history' in js
 
 
@@ -323,6 +324,15 @@ def test_admin_js_supports_daily_growth_filter_and_clear_labels():
     assert '搜索用户名、邮箱或昵称后开始查找' in js
     assert '输入阵容名、阵容码、作者后开始查找' in js
     assert 'pending_reports_count' in js
+
+
+def test_admin_js_renders_today_total_copy_metric():
+    with open('static/admin.js', 'r', encoding='utf-8') as file:
+        js = file.read()
+
+    assert '今日总复制' in js
+    assert '实时阵容 + 普通阵容有效复制' in js
+    assert 'today_total_copy_count' in js
 
 
 def test_styles_support_history_scroll_and_visibility_toggle():

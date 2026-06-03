@@ -163,7 +163,7 @@ async function copyLineup(lineup) {
     showToast('复制失败，请长按阵容码手动复制');
     return;
   }
-  await api(`/api/lineups/${lineup.id}/copy`, { method: 'POST' });
+  await api(`/api/lineups/${lineup.id}/copy?source=author`, { method: 'POST' });
   if (!authorState.user) window.jccHistoryStore?.pushLocalCopy(lineup);
   showToast('复制成功！');
   await loadAuthor();

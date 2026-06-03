@@ -24,6 +24,21 @@ def _today_login_count(db, today):
     ).fetchone()['c']
 
 
+def _today_lineup_copy_count(db, today):
+    return db.execute(
+        "SELECT COUNT(*) AS c FROM copy_events WHERE counted = 1 AND created_at LIKE ?",
+        (f'{today}%',),
+    ).fetchone()['c']
+
+
+def _today_live_comp_copy_count(db, today):
+    row = db.execute(
+        'SELECT copy_count FROM live_comp_global_daily_stats WHERE copy_date = ?',
+        (today,),
+    ).fetchone()
+    return int(row['copy_count']) if row else 0
+
+
 def build_admin_stats_payload(db):
     today, yesterday = _today_and_yesterday()
     total = db.execute("SELECT COUNT(*) AS c FROM users WHERE role != 'admin'").fetchone()['c']
@@ -34,6 +49,8 @@ def build_admin_stats_payload(db):
         (f'{today}%',),
     ).fetchone()['c']
     today_logins = _today_login_count(db, today)
+    today_lineup_copy_count = _today_lineup_copy_count(db, today)
+    today_live_comp_copy_count = _today_live_comp_copy_count(db, today)
     hourly = db.execute(
         "SELECT substr(created_at, 12, 2) AS hour, COUNT(*) AS count FROM users WHERE created_at LIKE ? GROUP BY hour",
         (f'{today}%',),
@@ -43,6 +60,9 @@ def build_admin_stats_payload(db):
         'today_users': today_users,
         'today_logins': today_logins,
         'today_uv': daily_uv_count(today),
+        'today_lineup_copy_count': today_lineup_copy_count,
+        'today_live_comp_copy_count': today_live_comp_copy_count,
+        'today_total_copy_count': today_lineup_copy_count + today_live_comp_copy_count,
         'yesterday_uv': daily_uv_count(yesterday),
         'today_new_visitors': today_visitor_mix['new_visitors'],
         'today_returning_visitors': today_visitor_mix['returning_visitors'],
@@ -61,6 +81,8 @@ def build_admin_overview_payload(db):
         (f'{today}%',),
     ).fetchone()['c']
     today_logins = _today_login_count(db, today)
+    today_lineup_copy_count = _today_lineup_copy_count(db, today)
+    today_live_comp_copy_count = _today_live_comp_copy_count(db, today)
     pending_reports_count = db.execute("SELECT COUNT(*) AS c FROM reports WHERE status = 'pending'").fetchone()['c']
     hidden_lineups_count = db.execute("SELECT COUNT(*) AS c FROM lineups WHERE status = 'hidden'").fetchone()['c']
     recent_audit_count = db.execute(
@@ -73,6 +95,9 @@ def build_admin_overview_payload(db):
             'yesterday_uv': daily_uv_count(yesterday),
             'today_users': today_users,
             'today_logins': today_logins,
+            'today_lineup_copy_count': today_lineup_copy_count,
+            'today_live_comp_copy_count': today_live_comp_copy_count,
+            'today_total_copy_count': today_lineup_copy_count + today_live_comp_copy_count,
             'total_users': total_users,
             'pending_reports_count': pending_reports_count,
         },

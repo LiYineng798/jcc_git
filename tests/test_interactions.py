@@ -1,4 +1,5 @@
-﻿from test_auth import register_user
+﻿from db import get_db
+from test_auth import register_user
 from test_lineup_permissions import auth_headers, create_lineup
 
 
@@ -41,6 +42,26 @@ def test_logged_in_copy_counts_by_user_once_per_ten_minutes(client):
     lineup = create_lineup(client).get_json()
     assert client.post(f"/api/lineups/{lineup['id']}/copy", headers=auth_headers(client)).get_json()['counted'] is True
     assert client.post(f"/api/lineups/{lineup['id']}/copy", headers=auth_headers(client)).get_json()['counted'] is False
+
+
+def test_lineup_copy_records_every_raw_copy_action(client):
+    register_user(client)
+    lineup = create_lineup(client).get_json()
+    headers = auth_headers(client)
+
+    first = client.post(f"/api/lineups/{lineup['id']}/copy?source=home", headers=headers).get_json()
+    second = client.post(f"/api/lineups/{lineup['id']}/copy?source=account", headers=headers).get_json()
+
+    assert first['counted'] is True
+    assert second['counted'] is False
+    with client.application.app_context():
+        rows = get_db().execute(
+            'SELECT target_type, target_id, source_page, success, counted FROM copy_action_events ORDER BY id'
+        ).fetchall()
+    assert [dict(row) for row in rows] == [
+        {'target_type': 'lineup', 'target_id': str(lineup['id']), 'source_page': 'home', 'success': 1, 'counted': 1},
+        {'target_type': 'lineup', 'target_id': str(lineup['id']), 'source_page': 'account', 'success': 1, 'counted': 0},
+    ]
 
 
 def test_favorite_does_not_change_score(client):

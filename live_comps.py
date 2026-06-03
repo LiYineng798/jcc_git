@@ -2,6 +2,9 @@ import base64
 
 from flask import Blueprint, current_app, jsonify, request, send_from_directory
 
+from auth import current_user, get_client_ip
+from copy_action_service import record_copy_action
+from db import get_db
 from live_comps_helpers import (
     ALLOWED_IMAGE_EXTENSIONS,
     CONTENT_TYPE_EXTENSIONS,
@@ -108,13 +111,24 @@ def live_comps_list():
 @live_comps_bp.post('/api/live-comps/<live_comp_id>/copy')
 def copy_live_comp(live_comp_id):
     season_id = request.args.get('season')
-    payload, _, _, _, _ = read_live_comps_payload_for_season(season_id)
+    payload, _, _, _, season = read_live_comps_payload_for_season(season_id)
     item = find_live_comp(payload, live_comp_id)
     if not item:
         return jsonify({'error': '实时阵容不存在'}), 404
     if not str(item.get('jccCode') or '').strip():
         return jsonify({'error': '当前阵容暂无可复制的阵容码'}), 400
     stat = increment_live_comp_global_copy_count()
+    record_copy_action(
+        target_type='live_comp',
+        target_id=live_comp_id,
+        user=current_user(),
+        ip_address=get_client_ip(),
+        source_page=request.args.get('source', ''),
+        success=True,
+        counted=True,
+        season_id=season.get('id') if season else season_id,
+    )
+    get_db().commit()
     return jsonify({
         'ok': True,
         'live_comp_id': str(live_comp_id),
